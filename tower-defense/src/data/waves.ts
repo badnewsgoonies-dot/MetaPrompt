@@ -1,0 +1,120 @@
+import type { Wave } from '../types/game';
+
+export const WAVES: readonly Wave[] = [
+  {
+    wave: 1,
+    difficulty: 'tutorial',
+    enemyCount: 10,
+    composition: [
+      { type: 'fire_imp', count: 5, delay: 1000 },
+      { type: 'water_wisp', count: 5, delay: 1000 },
+    ],
+    goldReward: 100,
+  },
+  {
+    wave: 2,
+    difficulty: 'easy',
+    enemyCount: 15,
+    composition: [
+      { type: 'fire_imp', count: 5, delay: 800 },
+      { type: 'stone_golem', count: 5, delay: 800 },
+      { type: 'air_sprite', count: 5, delay: 800 },
+    ],
+    goldReward: 120,
+  },
+  {
+    wave: 3,
+    difficulty: 'easy',
+    enemyCount: 20,
+    composition: [
+      { type: 'fire_imp', count: 8, delay: 700 },
+      { type: 'water_wisp', count: 6, delay: 700 },
+      { type: 'air_sprite', count: 6, delay: 700 },
+    ],
+    goldReward: 150,
+  },
+  {
+    wave: 4,
+    difficulty: 'medium',
+    enemyCount: 12,
+    composition: [
+      { type: 'flame_demon', count: 4, delay: 1200 },
+      { type: 'fire_imp', count: 8, delay: 600 },
+    ],
+    goldReward: 200,
+  },
+  {
+    wave: 5,
+    difficulty: 'medium',
+    enemyCount: 15,
+    composition: [
+      { type: 'flame_demon', count: 3, delay: 1000 },
+      { type: 'tidal_beast', count: 3, delay: 1000 },
+      { type: 'stone_golem', count: 9, delay: 600 },
+    ],
+    goldReward: 250,
+  },
+  {
+    wave: 6,
+    difficulty: 'medium',
+    enemyCount: 18,
+    composition: [
+      { type: 'earth_elemental', count: 4, delay: 1000 },
+      { type: 'storm_wraith', count: 4, delay: 1000 },
+      { type: 'water_wisp', count: 10, delay: 500 },
+    ],
+    goldReward: 300,
+  },
+  {
+    wave: 7,
+    difficulty: 'hard',
+    enemyCount: 20,
+    composition: [
+      { type: 'flame_demon', count: 5, delay: 800 },
+      { type: 'tidal_beast', count: 5, delay: 800 },
+      { type: 'earth_elemental', count: 5, delay: 800 },
+      { type: 'storm_wraith', count: 5, delay: 800 },
+    ],
+    goldReward: 350,
+  },
+  {
+    wave: 8,
+    difficulty: 'hard',
+    enemyCount: 16,
+    composition: [
+      { type: 'inferno_titan', count: 1, delay: 2000 },
+      { type: 'flame_demon', count: 8, delay: 800 },
+      { type: 'fire_imp', count: 7, delay: 600 },
+    ],
+    goldReward: 400,
+  },
+  {
+    wave: 9,
+    difficulty: 'very_hard',
+    enemyCount: 20,
+    composition: [
+      { type: 'leviathan', count: 1, delay: 2000 },
+      { type: 'mountain_colossus', count: 1, delay: 2000 },
+      { type: 'tidal_beast', count: 6, delay: 1000 },
+      { type: 'earth_elemental', count: 6, delay: 1000 },
+      { type: 'stone_golem', count: 6, delay: 600 },
+    ],
+    goldReward: 500,
+  },
+  {
+    wave: 10,
+    difficulty: 'boss',
+    enemyCount: 25,
+    composition: [
+      { type: 'inferno_titan', count: 1, delay: 2500 },
+      { type: 'leviathan', count: 1, delay: 2500 },
+      { type: 'mountain_colossus', count: 1, delay: 2500 },
+      { type: 'hurricane_lord', count: 1, delay: 2500 },
+      { type: 'flame_demon', count: 5, delay: 1000 },
+      { type: 'tidal_beast', count: 5, delay: 1000 },
+      { type: 'earth_elemental', count: 5, delay: 1000 },
+      { type: 'storm_wraith', count: 6, delay: 1000 },
+    ],
+    goldReward: 1000,
+  },
+] as const;
