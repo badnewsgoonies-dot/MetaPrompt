@@ -1,0 +1,36 @@
+:root{
+  /* base logical canvas - GBA 240×160 at 2× */
+  --scene-w: 480px;
+  --scene-h: 320px;
+
+  /* default scale (2× already baked into size); we'll "zoom" to 3×/4× */
+  --scale: 1;
+
+  /* z-layers */
+  --z-bg: 0;
+  --z-scenery: 5;
+  --z-entities: 10;
+  --z-effects: 15;
+  --z-overlay: 100;
+
+  /* spacing */
+  --unit: 8px;
+  --gap: 12px;
+  --radius: 6px;
+
+  /* colors (icy cave palette) */
+  --ice-light: #88D8E8;
+  --ice-dark: #4090B8;
+  --cave-shadow: rgba(0,0,0,0.5);
+  --psynergy-glow: rgba(255,255,255,0.6);
+  --highlight: rgba(255,255,255,0.3);
+}
+
+/* Responsive integer scale (no JS) - perfect nearest-neighbor scaling */
+@media (min-width: 1440px) and (min-height: 960px){
+  :root{ --scale: 1.5; }  /* 480×320 * 1.5 = 720×480 (3× effective) */
+}
+
+@media (min-width: 1920px) and (min-height: 1080px){
+  :root{ --scale: 2; }    /* 480×320 * 2 = 960×640 (4× effective) */
+}

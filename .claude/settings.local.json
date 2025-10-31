@@ -3,7 +3,12 @@
     "allow": [
       "Read(//c/dev/**)",
       "Bash(find:*)",
-      "Bash(gh pr list:*)"
+      "Bash(gh pr list:*)",
+      "Bash(start djinn-menu.html)",
+      "Bash(start overworld-village.html)",
+      "Bash(start overworld-temple.html)",
+      "Bash(start overworld-palace.html)",
+      "Bash(start overworld-ice-cave.html)"
     ],
     "deny": [],
     "ask": []

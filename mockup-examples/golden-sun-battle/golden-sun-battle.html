@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Golden Sun — Battle Mock (Static)</title>
+  <link rel="stylesheet" href="./tokens.css">
+  <link rel="stylesheet" href="./battle.css">
+</head>
+<body>
+  <div class="stage">
+    <main class="scene" role="application" aria-label="Golden Sun battle mock">
+      <div class="bg" style="background-image:url('./assets/cave.gif')" aria-hidden="true"></div>
+
+      <div class="turn" aria-label="Turn order">
+        <span class="pill">Ally</span>
+        <span class="pill">Enemy</span>
+        <span class="pill">Ally</span>
+        <span class="pill">Enemy</span>
+      </div>
+
+      <section class="row enemies" aria-label="Enemy party">
+        <img class="entity" src="./assets/goblin.gif" alt="Goblin">
+        <img class="entity" src="./assets/Wolfkin.gif" alt="Wolfkin">
+        <img class="entity" src="./assets/Battle.gif" alt="Battle">
+      </section>
+
+      <section class="row allies" aria-label="Ally party">
+        <img class="entity" src="./assets/Isaac_Axe_Front.gif" alt="Isaac">
+        <img class="entity" src="./assets/Garet_Axe_Front.gif" alt="Garet">
+        <img class="entity" src="./assets/Mia_Mace_Front.gif" alt="Mia">
+        <img class="entity" src="./assets/Ivan_Staff_Front.gif" alt="Ivan">
+      </section>
+
+      <section class="panel log" role="log" aria-live="polite">
+        <p>Isaac strikes Goblin for 25 HP!</p>
+      </section>
+
+      <nav class="panel cmd" aria-label="Commands">
+        <button class="btn" aria-label="Fight">Fight</button>
+        <button class="btn" aria-label="Psynergy">Psynergy</button>
+        <button class="btn" aria-label="Djinn">Djinn</button>
+        <button class="btn" aria-label="Items">Items</button>
+        <button class="btn" aria-label="Flee">Flee</button>
+      </nav>
+    </main>
+  </div>
+</body>
+</html>

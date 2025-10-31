@@ -1,0 +1,19 @@
+{
+  "background": "./assets/cave.gif",
+  "allies": [
+    "./assets/Isaac_Axe_Front.gif",
+    "./assets/Garet_Axe_Front.gif",
+    "./assets/Mia_Mace_Front.gif",
+    "./assets/Ivan_Staff_Front.gif"
+  ],
+  "enemies": [
+    "./assets/goblin.gif",
+    "./assets/Wolfkin.gif",
+    "./assets/Battle.gif"
+  ],
+  "stats": {
+    "all_images_found": 2596,
+    "allies_picked": 4,
+    "enemies_picked": 3
+  }
+}
