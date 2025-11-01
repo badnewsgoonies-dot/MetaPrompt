@@ -25,7 +25,8 @@ export function processCombat(
   player: Player,
   enemies: ReadonlyArray<Enemy>,
   projectiles: ReadonlyArray<Projectile>,
-  currentScore: number
+  currentScore: number,
+  currentTime: number
 ): Result<CombatResult, string> {
   let updatedPlayer = player;
   let updatedEnemies = [...enemies];
@@ -98,11 +99,11 @@ export function processCombat(
 
   // Apply damage to player
   if (playerDamage > 0) {
-    const damageResult = damagePlayer(player, playerDamage);
-    if (!damageResult.ok) {
-      return { ok: false, error: damageResult.error };
+    const damageResult = damagePlayer(player, playerDamage, currentTime);
+    if (damageResult.ok) {
+      updatedPlayer = damageResult.value;
     }
-    updatedPlayer = damageResult.value;
+    // If not ok, player is invincible - don't apply damage
   }
 
   // Check enemy contact damage vs player
@@ -120,11 +121,11 @@ export function processCombat(
 
   // Apply contact damage (reduced to prevent instant death)
   if (contactDamage > 0) {
-    const damageResult = damagePlayer(updatedPlayer, contactDamage * 0.1); // 10% of contact damage per frame
-    if (!damageResult.ok) {
-      return { ok: false, error: damageResult.error };
+    const damageResult = damagePlayer(updatedPlayer, contactDamage * 0.1, currentTime); // 10% of contact damage per frame
+    if (damageResult.ok) {
+      updatedPlayer = damageResult.value;
     }
-    updatedPlayer = damageResult.value;
+    // If not ok, player is invincible - don't apply damage
   }
 
   // Remove collided projectiles

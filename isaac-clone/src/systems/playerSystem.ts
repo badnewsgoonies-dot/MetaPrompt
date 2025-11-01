@@ -2,7 +2,7 @@
  * Player movement and action system
  */
 
-import { Player, PlayerStats, DEFAULT_PLAYER_STATS, DEFAULT_PLAYER_RESOURCES, PLAYER_SIZE } from '../types/player';
+import { Player, PlayerStats, DEFAULT_PLAYER_STATS, DEFAULT_PLAYER_RESOURCES, PLAYER_SIZE, INVINCIBILITY_DURATION } from '../types/player';
 import { Position, Vector2D, normalize } from '../types/common';
 import { STANDARD_ROOM_LAYOUT } from '../types/room';
 import { clampToRectangle } from '../utils/collision';
@@ -20,6 +20,7 @@ export function createPlayer(stats: PlayerStats = DEFAULT_PLAYER_STATS): Player 
     size: PLAYER_SIZE,
     lastTearTime: -1000,  // Allow immediate first shot
     lastBombTime: -1000,  // Allow immediate first bomb
+    lastHitTime: -1000,   // Allow damage immediately (not invincible at start)
     facing: { dx: 0, dy: -1 }  // Initially facing up
   };
 }
@@ -118,12 +119,28 @@ export function recordShot(player: Player, currentTime: number): Player {
 }
 
 /**
- * Apply damage to player
+ * Check if player is currently invincible
+ */
+export function isPlayerInvincible(player: Player, currentTime: number): boolean {
+  return currentTime - player.lastHitTime < INVINCIBILITY_DURATION;
+}
+
+/**
+ * Apply damage to player (respects invincibility frames)
  */
 export function damagePlayer(
   player: Player,
-  damage: number
+  damage: number,
+  currentTime: number
 ): Result<Player, string> {
+  // Check if player is invincible
+  if (isPlayerInvincible(player, currentTime)) {
+    return {
+      ok: false,
+      error: 'Player is invincible'
+    };
+  }
+
   const newHealth = Math.max(0, player.stats.currentHealth - damage);
 
   return {
@@ -133,7 +150,8 @@ export function damagePlayer(
       stats: {
         ...player.stats,
         currentHealth: newHealth
-      }
+      },
+      lastHitTime: currentTime  // Record hit time for i-frames
     }
   };
 }
@@ -180,12 +198,44 @@ export function isPlayerAlive(player: Player): boolean {
 }
 
 /**
- * Reset player position to room center (for room transitions)
+ * Reset player position for room transitions
+ * @param player The player to reset
+ * @param fromDirection The direction the player came from (which door they entered through)
  */
-export function resetPlayerPosition(player: Player, position?: Position): Player {
+export function resetPlayerPosition(
+  player: Player,
+  fromDirection?: 'north' | 'south' | 'east' | 'west'
+): Player {
+  let position: Position;
+
+  if (!fromDirection) {
+    // Default to center (for game start)
+    position = { x: 400, y: 300 };
+  } else {
+    // Position player at opposite edge of room from door they entered
+    switch (fromDirection) {
+      case 'north':
+        // Came from north door → spawn at south edge
+        position = { x: 400, y: 520 };
+        break;
+      case 'south':
+        // Came from south door → spawn at north edge
+        position = { x: 400, y: 80 };
+        break;
+      case 'west':
+        // Came from west door → spawn at east edge
+        position = { x: 720, y: 300 };
+        break;
+      case 'east':
+        // Came from east door → spawn at west edge
+        position = { x: 80, y: 300 };
+        break;
+    }
+  }
+
   return {
     ...player,
-    position: position || { x: 400, y: 300 },
+    position,
     velocity: { dx: 0, dy: 0 }
   };
 }

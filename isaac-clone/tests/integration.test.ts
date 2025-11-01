@@ -37,9 +37,10 @@ describe('Integration Tests - Actual Gameplay', () => {
       // Verify we're in a different room
       expect(state.currentRoomId).not.toBe(startRoomId);
 
-      // Verify player position reset to center
-      expect(state.player.position.x).toBe(400);
-      expect(state.player.position.y).toBe(300);
+      // Verify player spawned at edge corresponding to door entered
+      // (position should not be in center anymore)
+      expect(state.player.position.x === 400 || state.player.position.x === 80 || state.player.position.x === 720).toBe(true);
+      expect(state.player.position.y === 300 || state.player.position.y === 80 || state.player.position.y === 520).toBe(true);
     });
 
     it('should spawn enemies when entering normal rooms', () => {

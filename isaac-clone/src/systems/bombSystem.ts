@@ -116,10 +116,11 @@ export function processBombExplosions(
         updatedPlayer.position,
         updatedPlayer.size
       )) {
-        const damageResult = damagePlayer(updatedPlayer, BOMB_DAMAGE * 0.5); // 50% damage to player
+        const damageResult = damagePlayer(updatedPlayer, BOMB_DAMAGE * 0.5, currentTime); // 50% damage to player
         if (damageResult.ok) {
           updatedPlayer = damageResult.value;
         }
+        // If not ok, player is invincible - don't apply damage
       }
 
       // Damage enemies

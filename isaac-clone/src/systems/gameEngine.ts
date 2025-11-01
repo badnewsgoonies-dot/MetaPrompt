@@ -145,7 +145,8 @@ export function updateGame(
     updatedState.player,
     updatedState.enemies,
     updatedState.projectiles,
-    updatedState.score
+    updatedState.score,
+    updatedState.time
   );
 
   if (!combatResult.ok) {
@@ -297,10 +298,12 @@ export function updateGame(
 
 /**
  * Enter a new room
+ * @param fromDirection The direction the player came from (which door they entered through)
  */
 export function enterRoom(
   state: GameState,
-  newRoomId: string
+  newRoomId: string,
+  fromDirection?: 'north' | 'south' | 'east' | 'west'
 ): Result<GameState, string> {
   const rng = new SeededRNG(state.seed + state.time);
 
@@ -312,8 +315,8 @@ export function enterRoom(
 
   const room = roomResult.value;
 
-  // Reset player position to center
-  const player = resetPlayerPosition(state.player);
+  // Reset player position based on door direction
+  const player = resetPlayerPosition(state.player, fromDirection);
 
   // Spawn enemies if room not cleared
   const enemies = (!room.cleared && room.type !== 'start' && room.type !== 'treasure' && room.type !== 'shop')
@@ -394,7 +397,7 @@ export function tryMoveToAdjacentRoom(
     return moveResult;
   }
 
-  return enterRoom(state, moveResult.value);
+  return enterRoom(state, moveResult.value, direction);
 }
 
 /**
