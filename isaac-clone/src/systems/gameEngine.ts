@@ -40,8 +40,16 @@ export function initializeGame(seed: number = Date.now()): Result<GameState, str
     };
   }
 
-  // Create player
-  const player = createPlayer(DEFAULT_PLAYER_STATS);
+  // Create player with starting resources for testing
+  const player = {
+    ...createPlayer(DEFAULT_PLAYER_STATS),
+    resources: {
+      keys: 2,       // Start with 2 keys to test locked doors
+      bombs: 3,      // Start with 3 bombs to test bomb mechanics
+      coins: 5,      // Start with 5 coins
+      hasGoldenKey: false
+    }
+  };
 
   return {
     ok: true,
@@ -327,9 +335,13 @@ export function enterRoom(
   // Generate obstacles for the room
   const obstacles = generateRoomObstacles(rng, room.type);
 
-  // Spawn pickups for treasure/shop rooms
+  // Spawn pickups for rooms
   let pickups = [...state.pickups];
   if (room.type === 'treasure' && !room.visited) {
+    // Treasure rooms have guaranteed pickups
+    pickups.push(...spawnRoomClearPickups(rng, { x: 400, y: 450 }));
+  } else if (room.type === 'normal' && !room.visited && rng.chance(0.6)) {
+    // 60% chance for pickups in normal rooms
     pickups.push(...spawnRoomClearPickups(rng, { x: 400, y: 450 }));
   }
 

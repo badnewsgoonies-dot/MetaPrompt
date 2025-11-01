@@ -139,7 +139,7 @@ const App: React.FC = () => {
         const playerX = updatedState.player.position.x;
         const playerY = updatedState.player.position.y;
 
-        if (playerY < 60 && keysPressed.has('w')) {
+        if (playerY < 80 && keysPressed.has('w')) {
           // Try to unlock door if locked
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
@@ -162,7 +162,7 @@ const App: React.FC = () => {
             setGameState(result.value);
             return;
           }
-        } else if (playerY > 540 && keysPressed.has('s')) {
+        } else if (playerY > 520 && keysPressed.has('s')) {
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
             const door = currentRoomResult.value.doors.find(d => d.direction === 'south');
@@ -184,7 +184,7 @@ const App: React.FC = () => {
             setGameState(result.value);
             return;
           }
-        } else if (playerX < 60 && keysPressed.has('a')) {
+        } else if (playerX < 80 && keysPressed.has('a')) {
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
             const door = currentRoomResult.value.doors.find(d => d.direction === 'west');
@@ -206,7 +206,7 @@ const App: React.FC = () => {
             setGameState(result.value);
             return;
           }
-        } else if (playerX > 740 && keysPressed.has('d')) {
+        } else if (playerX > 720 && keysPressed.has('d')) {
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
             const door = currentRoomResult.value.doors.find(d => d.direction === 'east');
