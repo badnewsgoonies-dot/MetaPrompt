@@ -1,6 +1,7 @@
 [build]
-  publish = "dist"
-  command = "npm run build"
+  base = "golden-sun"
+  publish = "golden-sun/dist"
+  command = "npm install && npm run build"
 
 [[redirects]]
   from = "/*"
