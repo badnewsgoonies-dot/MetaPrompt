@@ -1,7 +1,6 @@
-import { Result, ok, err } from '../utils/result';
-import { IRng } from '../utils/rng';
-import { Enemy } from '../types/enemy';
-import { getRandomEncounter } from '../data/enemies';
+import { Result, Ok, Err } from '../utils/result';
+import { SeededRNG } from '../utils/rng';
+import { BattleEnemy, getRandomEncounter } from '../data/battleEnemies';
 
 /**
  * Encounter System for Golden Sun
@@ -19,7 +18,7 @@ export interface EncounterState {
 export interface EncounterTriggerResult {
   shouldTrigger: boolean;
   encounterZone: string;
-  enemies: Enemy[];
+  enemies: BattleEnemy[];
 }
 
 /**
@@ -28,11 +27,11 @@ export interface EncounterTriggerResult {
 export function initializeEncounterState(
   encounterZone: string,
   isInSafeZone: boolean = false,
-  rng: IRng
+  _rng: SeededRNG
 ): EncounterState {
   return {
     stepsSinceLastBattle: 0,
-    stepsUntilNextBattle: calculateStepsUntilBattle(rng),
+    stepsUntilNextBattle: calculateStepsUntilBattle(),
     encounterZone,
     isInSafeZone,
     canEscape: !isInSafeZone // Can escape on world map, not in dungeons
@@ -42,8 +41,8 @@ export function initializeEncounterState(
 /**
  * Calculate random steps until next battle (8-15 steps)
  */
-function calculateStepsUntilBattle(rng: IRng): number {
-  return Math.floor(8 + rng.next() * 8); // 8-15 steps
+function calculateStepsUntilBattle(): number {
+  return Math.floor(8 + Math.random() * 8); // 8-15 steps
 }
 
 /**
@@ -51,11 +50,11 @@ function calculateStepsUntilBattle(rng: IRng): number {
  */
 export function updateEncounterState(
   state: EncounterState,
-  rng: IRng
+  rng: SeededRNG
 ): Result<EncounterTriggerResult, string> {
   // No encounters in safe zones
   if (state.isInSafeZone) {
-    return ok({
+    return Ok({
       shouldTrigger: false,
       encounterZone: state.encounterZone,
       enemies: []
@@ -72,16 +71,16 @@ export function updateEncounterState(
     
     // Reset counter
     state.stepsSinceLastBattle = 0;
-    state.stepsUntilNextBattle = calculateStepsUntilBattle(rng);
+    state.stepsUntilNextBattle = calculateStepsUntilBattle();
 
-    return ok({
+    return Ok({
       shouldTrigger: true,
       encounterZone: state.encounterZone,
       enemies
     });
   }
 
-  return ok({
+  return Ok({
     shouldTrigger: false,
     encounterZone: state.encounterZone,
     enemies: []
@@ -102,15 +101,15 @@ export function checkEncounterTrigger(
  */
 export function forceEncounter(
   encounterZone: string,
-  rng: IRng
-): Result<Enemy[], string> {
+  rng: SeededRNG
+): Result<BattleEnemy[], string> {
   const enemies = getRandomEncounter(encounterZone as any, () => rng.next());
   
   if (enemies.length === 0) {
-    return err(`No encounters defined for zone: ${encounterZone}`);
+    return Err(`No encounters defined for zone: ${encounterZone}`);
   }
 
-  return ok(enemies);
+  return Ok(enemies);
 }
 
 /**
@@ -130,10 +129,10 @@ export function setSafeZone(
 export function changeEncounterZone(
   state: EncounterState,
   newZone: string,
-  rng: IRng
+  _rng: SeededRNG
 ): EncounterState {
   state.encounterZone = newZone;
   state.stepsSinceLastBattle = 0;
-  state.stepsUntilNextBattle = calculateStepsUntilBattle(rng);
+  state.stepsUntilNextBattle = calculateStepsUntilBattle();
   return state;
 }

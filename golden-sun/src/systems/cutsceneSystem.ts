@@ -1,4 +1,4 @@
-import { Result, ok, err } from '../utils/result';
+import { Result, Ok, Err } from '../utils/result';
 
 /**
  * Cutscene System for Golden Sun
@@ -106,7 +106,7 @@ export function updateCutscene(
   deltaTime: number
 ): Result<{ state: CutsceneState; actionsToExecute: CutsceneAction[] }, string> {
   if (!state.isPlaying) {
-    return err('Cutscene is not playing');
+    return Err('Cutscene is not playing');
   }
 
   state.currentTime += deltaTime;
@@ -126,7 +126,7 @@ export function updateCutscene(
     state.isPlaying = false;
   }
 
-  return ok({ state, actionsToExecute });
+  return Ok({ state, actionsToExecute });
 }
 
 /**
@@ -137,14 +137,14 @@ export function skipCutscene(
   cutscene: Cutscene
 ): Result<CutsceneState, string> {
   if (!cutscene.canSkip) {
-    return err('This cutscene cannot be skipped');
+    return Err('This cutscene cannot be skipped');
   }
 
   state.skipped = true;
   state.isPlaying = false;
   state.currentTime = cutscene.duration;
 
-  return ok(state);
+  return Ok(state);
 }
 
 /**
@@ -164,7 +164,7 @@ export function createDialogueCutscene(
   const actions: CutsceneAction[] = [];
   let timestamp = 0;
 
-  dialogues.forEach((dialogue, index) => {
+  dialogues.forEach((dialogue, _index) => {
     // Estimate dialogue duration (50ms per character + 1000ms minimum)
     const duration = Math.max(1000, dialogue.text.length * 50);
 
@@ -205,7 +205,7 @@ export function createMtAlephTragedy(): Cutscene {
     duration: 3000,
     params: {
       speakerId: 'saturos',
-      text: 'Foolish children! You've led us right to the Elemental Stars!',
+      text: 'Foolish children! You have led us right to the Elemental Stars!',
       portrait: 'saturos_angry',
       canSkip: false
     }

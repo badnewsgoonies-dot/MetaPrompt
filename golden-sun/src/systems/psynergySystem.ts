@@ -1,4 +1,4 @@
-import { Result, ok, err } from '../utils/result';
+import { Result, Ok, Err } from '../utils/result';
 import { Position } from '../types/common';
 
 /**
@@ -35,11 +35,11 @@ export function useMovePsynergy(
   checkCollision: (pos: Position) => boolean
 ): Result<PsynergyableObject, string> {
   if (!object.canMove) {
-    return err('This object cannot be moved');
+    return Err('This object cannot be moved');
   }
 
   if (object.weight === 'heavy') {
-    return err('This object is too heavy to move');
+    return Err('This object is too heavy to move');
   }
 
   // Calculate new position
@@ -61,14 +61,14 @@ export function useMovePsynergy(
 
   // Check if new position is blocked
   if (checkCollision(newPosition)) {
-    return err('Path is blocked');
+    return Err('Path is blocked');
   }
 
   // Move object
   object.position = newPosition;
   object.state = 'moved';
 
-  return ok(object);
+  return Ok(object);
 }
 
 /**
@@ -80,7 +80,7 @@ export function useCatchPsynergy(
   maxDistance: number = 5
 ): Result<PsynergyableObject, string> {
   if (!object.canCatch) {
-    return err('This object cannot be caught');
+    return Err('This object cannot be caught');
   }
 
   // Calculate distance
@@ -89,13 +89,13 @@ export function useCatchPsynergy(
   const distance = Math.abs(dx) + Math.abs(dy);
 
   if (distance > maxDistance) {
-    return err('Object is too far away');
+    return Err('Object is too far away');
   }
 
   // "Catch" the object (pull it toward player or trigger it)
   object.state = 'removed';
 
-  return ok(object);
+  return Ok(object);
 }
 
 /**
@@ -106,7 +106,7 @@ export function useLiftPsynergy(
   playerPosition: Position
 ): Result<PsynergyableObject, string> {
   if (!object.canLift) {
-    return err('This object cannot be lifted');
+    return Err('This object cannot be lifted');
   }
 
   // Check if player is adjacent
@@ -114,13 +114,13 @@ export function useLiftPsynergy(
   const dy = Math.abs(object.position.y - playerPosition.y);
   
   if (dx + dy > 1) {
-    return err('Must be next to the object to lift it');
+    return Err('Must be next to the object to lift it');
   }
 
   // Lift object (removes it from play)
   object.state = 'lifted';
 
-  return ok(object);
+  return Ok(object);
 }
 
 /**

@@ -4,6 +4,9 @@
 
 import { Position, Vector2D } from './common';
 
+// Element types for turn-based battle system
+export type Element = 'venus' | 'mars' | 'jupiter' | 'mercury';
+
 export type EnemyType = 'fly' | 'spider' | 'maw';
 
 export type AIBehavior = 'erratic' | 'chase' | 'shoot';

@@ -1,5 +1,5 @@
-import { Result, ok, err } from '../utils/result';
-import { IRng } from '../utils/rng';
+import { Result, Ok, Err } from '../utils/result';
+import { SeededRNG } from '../utils/rng';
 import { Element } from '../types/enemy';
 
 /**
@@ -69,13 +69,13 @@ export interface DamageResult {
 export function initializeBattle(
   allies: BattleParticipant[],
   enemies: BattleParticipant[],
-  rng: IRng
+  rng: SeededRNG
 ): Result<BattleState, string> {
   if (allies.length === 0) {
-    return err('No allies in battle');
+    return Err('No allies in battle');
   }
   if (enemies.length === 0) {
-    return err('No enemies in battle');
+    return Err('No enemies in battle');
   }
 
   const participants = [...allies, ...enemies];
@@ -95,7 +95,7 @@ export function initializeBattle(
     victor: null
   };
 
-  return ok(battle);
+  return Ok(battle);
 }
 
 /**
@@ -103,7 +103,7 @@ export function initializeBattle(
  */
 export function calculateTurnOrder(
   participants: BattleParticipant[],
-  rng: IRng
+  rng: SeededRNG
 ): string[] {
   // Sort by agility + random variance (±10%)
   const withPriority = participants.map(p => ({
@@ -125,10 +125,10 @@ export function getCurrentTurnParticipant(
   const participant = battle.participants.find(p => p.id === participantId);
   
   if (!participant) {
-    return err(`Participant ${participantId} not found`);
+    return Err(`Participant ${participantId} not found`);
   }
 
-  return ok(participant);
+  return Ok(participant);
 }
 
 /**
@@ -137,18 +137,16 @@ export function getCurrentTurnParticipant(
 export function executeBattleAction(
   battle: BattleState,
   action: BattleAction,
-  rng: IRng
+  rng: SeededRNG
 ): Result<BattleState, string> {
   if (battle.isComplete) {
-    return err('Battle is already complete');
+    return Err('Battle is already complete');
   }
 
-  const actorResult = battle.participants.find(p => p.id === action.actorId);
-  if (!actorResult) {
-    return err(`Actor ${action.actorId} not found`);
+  const actor = battle.participants.find(p => p.id === action.actorId);
+  if (!actor) {
+    return Err(`Actor ${action.actorId} not found`);
   }
-
-  const actor = actorResult;
 
   // Check if actor can act (status effects)
   const canActResult = canParticipantAct(actor);
@@ -158,38 +156,38 @@ export function executeBattleAction(
       message: `${actor.name} ${canActResult.error}`,
       type: 'status'
     });
-    return ok(advanceTurn(battle, rng));
+    return Ok(advanceTurn(battle, rng));
   }
 
   switch (action.type) {
     case 'attack':
-      return executeAttack(battle, actor, action.targetIds[0], rng);
+      return executeAttack(battle, actor, action.targetIds[0] || '', rng);
     case 'defend':
       return executeDefend(battle, actor);
     case 'flee':
       return executeFlee(battle, actor, rng);
     default:
-      return err(`Action type ${action.type} not implemented yet`);
+      return Err(`Action type ${action.type} not implemented yet`);
   }
 }
 
 /**
  * Check if participant can act (status effect check)
  */
-function canParticipantAct(participant: BattleParticipant): Result<true, string> {
+function canParticipantAct(participant: BattleParticipant): Result<boolean, string> {
   // Check for stun
   const stunned = participant.statusEffects.find(e => e.type === 'stun');
   if (stunned) {
-    return err('is stunned and cannot move!');
+    return Err('is stunned and cannot move!');
   }
 
   // Check for sleep
   const asleep = participant.statusEffects.find(e => e.type === 'sleep');
   if (asleep) {
-    return err('is asleep!');
+    return Err('is asleep!');
   }
 
-  return ok(true);
+  return Ok(true);
 }
 
 /**
@@ -199,11 +197,11 @@ function executeAttack(
   battle: BattleState,
   actor: BattleParticipant,
   targetId: string,
-  rng: IRng
+  rng: SeededRNG
 ): Result<BattleState, string> {
   const target = battle.participants.find(p => p.id === targetId);
   if (!target) {
-    return err(`Target ${targetId} not found`);
+    return Err(`Target ${targetId} not found`);
   }
 
   const damageResult = calculateDamage(actor, target, rng);
@@ -231,7 +229,7 @@ function executeAttack(
   // Check battle end
   const updatedBattle = checkBattleEnd(battle);
 
-  return ok(advanceTurn(updatedBattle, rng));
+  return Ok(advanceTurn(updatedBattle, rng));
 }
 
 /**
@@ -240,7 +238,7 @@ function executeAttack(
 export function calculateDamage(
   attacker: BattleParticipant,
   target: BattleParticipant,
-  rng: IRng
+  rng: SeededRNG
 ): DamageResult {
   // Base damage formula: (ATK - DEF/2) * variance * element_multiplier
   const baseDamage = Math.max(1, attacker.attack - Math.floor(target.defense / 2));
@@ -312,7 +310,7 @@ function executeDefend(
   // Note: Defense bonus would be applied on next attack received
   // For now, just log the action
 
-  return ok(advanceTurn(battle, null));
+  return Ok(advanceTurn(battle, null));
 }
 
 /**
@@ -321,7 +319,7 @@ function executeDefend(
 function executeFlee(
   battle: BattleState,
   actor: BattleParticipant,
-  rng: IRng
+  rng: SeededRNG
 ): Result<BattleState, string> {
   // Flee success rate: 50% base + (party avg AGI - enemy avg AGI) / 10
   const allies = battle.participants.filter(p => p.isAlly && p.hp > 0);
@@ -340,21 +338,21 @@ function executeFlee(
       message: 'The party fled successfully!',
       type: 'victory'
     });
-    return ok(battle);
+    return Ok(battle);
   } else {
     battle.battleLog.push({
       turn: battle.turn,
       message: `${actor.name} tried to flee but failed!`,
       type: 'action'
     });
-    return ok(advanceTurn(battle, rng));
+    return Ok(advanceTurn(battle, rng));
   }
 }
 
 /**
  * Advance to next turn
  */
-function advanceTurn(battle: BattleState, rng: IRng | null): BattleState {
+function advanceTurn(battle: BattleState, rng: SeededRNG | null): BattleState {
   // Process status effects (poison, etc.)
   battle.participants.forEach(p => {
     if (p.hp > 0) {
@@ -372,7 +370,7 @@ function advanceTurn(battle: BattleState, rng: IRng | null): BattleState {
     
     if (rng) {
       // Recalculate turn order for new round
-      const activePart icipants = battle.participants.filter(p => p.hp > 0);
+      const activeParticipants = battle.participants.filter(p => p.hp > 0);
       battle.turnOrder = calculateTurnOrder(activeParticipants, rng);
     }
   }

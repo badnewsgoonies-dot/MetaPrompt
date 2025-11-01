@@ -1,6 +1,6 @@
-import { Result, ok, err } from '../utils/result';
+import { Result, Ok, Err } from '../utils/result';
 import { Position } from '../types/common';
-import { IRng } from '../utils/rng';
+import { SeededRNG } from '../utils/rng';
 import { EncounterState, updateEncounterState } from './encounterSystem';
 
 /**
@@ -98,7 +98,7 @@ export function movePlayerOnWorldMap(
   state: WorldMapState,
   direction: 'up' | 'down' | 'left' | 'right' | 'up-left' | 'up-right' | 'down-left' | 'down-right',
   getTerrainAt: (pos: Position) => string,
-  rng: IRng
+  rng: SeededRNG
 ): Result<WorldMapState, string> {
   const newPosition = { ...state.playerPosition };
 
@@ -139,11 +139,11 @@ export function movePlayerOnWorldMap(
   const terrain = TERRAIN_TYPES[terrainType];
 
   if (!terrain) {
-    return err(`Invalid terrain type: ${terrainType}`);
+    return Err(`Invalid terrain type: ${terrainType}`);
   }
 
   if (!terrain.passable) {
-    return err(`Cannot move: ${terrainType} is not passable`);
+    return Err(`Cannot move: ${terrainType} is not passable`);
   }
 
   // Update position
@@ -158,11 +158,11 @@ export function movePlayerOnWorldMap(
     
     const encounterResult = updateEncounterState(state.encounterState, rng);
     if (!encounterResult.ok) {
-      return err(encounterResult.error);
+      return Err(encounterResult.error);
     }
   }
 
-  return ok(state);
+  return Ok(state);
 }
 
 /**
@@ -215,17 +215,17 @@ export function enterLocation(
   const location = locations.find(l => l.id === locationId);
   
   if (!location) {
-    return err(`Location not found: ${locationId}`);
+    return Err(`Location not found: ${locationId}`);
   }
 
   if (!location.unlocked) {
-    return err(`Location is locked: ${location.name}`);
+    return Err(`Location is locked: ${location.name}`);
   }
 
   // Hide party sprite when entering location
   state.partyVisible = false;
 
-  return ok(location.sceneId);
+  return Ok(location.sceneId);
 }
 
 /**
@@ -253,22 +253,22 @@ export function fastTravel(
   const destination = locations.find(l => l.id === destinationId);
 
   if (!destination) {
-    return err(`Location not found: ${destinationId}`);
+    return Err(`Location not found: ${destinationId}`);
   }
 
   if (!state.discoveredLocations.has(destinationId)) {
-    return err(`Location not discovered: ${destination.name}`);
+    return Err(`Location not discovered: ${destination.name}`);
   }
 
   if (destination.type !== 'town') {
-    return err('Can only fast travel to towns');
+    return Err('Can only fast travel to towns');
   }
 
   // Teleport to destination
   state.playerPosition = { ...destination.position };
   state.encounterState.stepsSinceLastBattle = 0;
 
-  return ok(state);
+  return Ok(state);
 }
 
 /**
@@ -278,10 +278,10 @@ export function getTerrainInfo(terrainType: string): Result<TerrainInfo, string>
   const terrain = TERRAIN_TYPES[terrainType];
   
   if (!terrain) {
-    return err(`Unknown terrain type: ${terrainType}`);
+    return Err(`Unknown terrain type: ${terrainType}`);
   }
 
-  return ok(terrain);
+  return Ok(terrain);
 }
 
 /**

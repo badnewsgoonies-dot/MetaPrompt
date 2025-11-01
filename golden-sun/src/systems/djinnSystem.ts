@@ -1,7 +1,7 @@
-import { Result, ok, err } from '../utils/result';
-import { IRng } from '../utils/rng';
+import { Result, Ok, Err } from '../utils/result';
+import { SeededRNG } from '../utils/rng';
 import { Element } from '../types/enemy';
-import { Djinn, DjinnState, DjinnInstance, Summon } from '../data/djinn';
+import { Djinn, DjinnInstance, Summon } from '../data/djinn';
 
 /**
  * Djinn System for Golden Sun
@@ -27,7 +27,7 @@ export interface SummonAction {
  */
 export function initializeDjinnBattle(
   djinn: Djinn,
-  rng: IRng
+  _rng: SeededRNG
 ): DjinnBattleState {
   return {
     djinnId: djinn.id,
@@ -42,10 +42,10 @@ export function initializeDjinnBattle(
  */
 export function attemptDjinnCapture(
   battleState: DjinnBattleState,
-  rng: IRng
+  rng: SeededRNG
 ): Result<boolean, string> {
   if (battleState.isCaptured) {
-    return err('Djinn already captured');
+    return Err('Djinn already captured');
   }
 
   // Calculate capture rate based on remaining HP
@@ -53,7 +53,7 @@ export function attemptDjinnCapture(
   
   // Capture formula: Success if HP < 25%, chance increases as HP decreases
   if (hpPercent > 0.25) {
-    return ok(false); // HP too high, automatic fail
+    return Ok(false); // HP too high, automatic fail
   }
 
   // Base capture rate at 25% HP: 50%
@@ -65,7 +65,7 @@ export function attemptDjinnCapture(
     battleState.isCaptured = true;
   }
 
-  return ok(captureSuccess);
+  return Ok(captureSuccess);
 }
 
 /**
@@ -78,7 +78,7 @@ export function addDjinnToParty(
 ): Result<DjinnInstance[], string> {
   // Check if already collected
   if (partyDjinn.some(d => d.djinnId === djinnId)) {
-    return err('Djinn already collected');
+    return Err('Djinn already collected');
   }
 
   const newDjinn: DjinnInstance = {
@@ -88,7 +88,7 @@ export function addDjinnToParty(
     equippedTo: characterId
   };
 
-  return ok([...partyDjinn, newDjinn]);
+  return Ok([...partyDjinn, newDjinn]);
 }
 
 /**
@@ -101,16 +101,16 @@ export function setDjinnToStandby(
   const djinn = partyDjinn.find(d => d.djinnId === djinnId);
   
   if (!djinn) {
-    return err('Djinn not found in party');
+    return Err('Djinn not found in party');
   }
 
   if (djinn.state !== 'set') {
-    return err(`Djinn is ${djinn.state}, cannot move to Standby`);
+    return Err(`Djinn is ${djinn.state}, cannot move to Standby`);
   }
 
   djinn.state = 'standby';
 
-  return ok(partyDjinn);
+  return Ok(partyDjinn);
 }
 
 /**
@@ -123,16 +123,16 @@ export function setDjinnToSet(
   const djinn = partyDjinn.find(d => d.djinnId === djinnId);
   
   if (!djinn) {
-    return err('Djinn not found in party');
+    return Err('Djinn not found in party');
   }
 
   if (djinn.state !== 'standby') {
-    return err(`Djinn is ${djinn.state}, cannot Set`);
+    return Err(`Djinn is ${djinn.state}, cannot Set`);
   }
 
   djinn.state = 'set';
 
-  return ok(partyDjinn);
+  return Ok(partyDjinn);
 }
 
 /**
@@ -145,17 +145,17 @@ export function useDjinnAbility(
   const djinn = partyDjinn.find(d => d.djinnId === djinnId);
   
   if (!djinn) {
-    return err('Djinn not found in party');
+    return Err('Djinn not found in party');
   }
 
   if (djinn.state !== 'set') {
-    return err(`Djinn is ${djinn.state}, cannot use ability`);
+    return Err(`Djinn is ${djinn.state}, cannot use ability`);
   }
 
   // Move to Standby after using ability
   djinn.state = 'standby';
 
-  return ok(partyDjinn);
+  return Ok(partyDjinn);
 }
 
 /**
@@ -171,7 +171,7 @@ export function executeSummon(
   );
 
   if (standbyDjinn.length < summon.djinnRequired) {
-    return err(`Need ${summon.djinnRequired} Standby Djinn, only have ${standbyDjinn.length}`);
+    return Err(`Need ${summon.djinnRequired} Standby Djinn, only have ${standbyDjinn.length}`);
   }
 
   // Use the first N Standby Djinn
@@ -190,7 +190,7 @@ export function executeSummon(
     effect: summon.effect
   };
 
-  return ok({ action, updatedDjinn: partyDjinn });
+  return Ok({ action, updatedDjinn: partyDjinn });
 }
 
 /**

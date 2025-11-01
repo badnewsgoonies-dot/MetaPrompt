@@ -1,4 +1,4 @@
-import { Result, ok, err } from '../utils/result';
+import { Result, Ok, Err } from '../utils/result';
 import { Position } from '../types/common';
 
 /**
@@ -76,10 +76,10 @@ export function initializeDungeon(
   rooms.forEach(room => roomMap.set(room.id, room));
 
   if (!roomMap.has(startRoomId)) {
-    return err(`Start room ${startRoomId} not found in dungeon`);
+    return Err(`Start room ${startRoomId} not found in dungeon`);
   }
 
-  return ok({
+  return Ok({
     dungeonId,
     currentRoomId: startRoomId,
     rooms: roomMap,
@@ -99,40 +99,40 @@ export function moveToRoom(
   const currentRoom = state.rooms.get(state.currentRoomId);
   
   if (!currentRoom) {
-    return err('Current room not found');
+    return Err('Current room not found');
   }
 
   // Find connection in specified direction
   const connection = currentRoom.connections.find(c => c.direction === direction);
   
   if (!connection) {
-    return err(`No exit to the ${direction}`);
+    return Err(`No exit to the ${direction}`);
   }
 
   // Check if door is open
   if (!connection.isOpen) {
     // Check door type
     if (connection.doorType === 'locked') {
-      return err('The door is locked');
+      return Err('The door is locked');
     }
     
     if (connection.doorType === 'key' && connection.requiredKey) {
       if (!state.keysCollected.has(connection.requiredKey)) {
-        return err(`Need ${connection.requiredKey} to open this door`);
+        return Err(`Need ${connection.requiredKey} to open this door`);
       }
       // Use key to open
       connection.isOpen = true;
     }
     
     if (connection.doorType === 'switch') {
-      return err('This door requires a switch to be activated');
+      return Err('This door requires a switch to be activated');
     }
   }
 
   // Move to new room
   const targetRoom = state.rooms.get(connection.targetRoomId);
   if (!targetRoom) {
-    return err(`Target room ${connection.targetRoomId} not found`);
+    return Err(`Target room ${connection.targetRoomId} not found`);
   }
 
   state.currentRoomId = connection.targetRoomId;
@@ -154,7 +154,7 @@ export function moveToRoom(
       break;
   }
 
-  return ok(state);
+  return Ok(state);
 }
 
 /**
@@ -167,17 +167,17 @@ export function openTreasureChest(
   const currentRoom = state.rooms.get(state.currentRoomId);
   
   if (!currentRoom) {
-    return err('Current room not found');
+    return Err('Current room not found');
   }
 
   const chest = currentRoom.treasures?.find(t => t.id === chestId);
   
   if (!chest) {
-    return err('Chest not found in current room');
+    return Err('Chest not found in current room');
   }
 
   if (chest.isOpened) {
-    return err('Chest is already opened');
+    return Err('Chest is already opened');
   }
 
   // Check if player is near chest
@@ -185,13 +185,13 @@ export function openTreasureChest(
                    Math.abs(chest.position.y - state.playerPosition.y);
   
   if (distance > 1) {
-    return err('Too far from chest');
+    return Err('Too far from chest');
   }
 
   // Open chest
   chest.isOpened = true;
 
-  return ok({
+  return Ok({
     state,
     contents: chest.contents
   });
@@ -207,17 +207,17 @@ export function solvePuzzle(
   const currentRoom = state.rooms.get(state.currentRoomId);
   
   if (!currentRoom) {
-    return err('Current room not found');
+    return Err('Current room not found');
   }
 
   const puzzle = currentRoom.puzzles?.find(p => p.id === puzzleId);
   
   if (!puzzle) {
-    return err('Puzzle not found in current room');
+    return Err('Puzzle not found in current room');
   }
 
   if (puzzle.isSolved) {
-    return err('Puzzle already solved');
+    return Err('Puzzle already solved');
   }
 
   // Mark puzzle as solved
@@ -244,7 +244,7 @@ export function solvePuzzle(
     }
   }
 
-  return ok(state);
+  return Ok(state);
 }
 
 /**
@@ -268,7 +268,7 @@ export function activateSwitch(
   const currentRoom = state.rooms.get(state.currentRoomId);
   
   if (!currentRoom) {
-    return err('Current room not found');
+    return Err('Current room not found');
   }
 
   state.switchesActivated.add(switchId);
@@ -280,7 +280,7 @@ export function activateSwitch(
     }
   });
 
-  return ok(state);
+  return Ok(state);
 }
 
 /**
@@ -292,10 +292,10 @@ export function getCurrentRoom(
   const room = state.rooms.get(state.currentRoomId);
   
   if (!room) {
-    return err('Current room not found');
+    return Err('Current room not found');
   }
 
-  return ok(room);
+  return Ok(room);
 }
 
 /**
