@@ -9,17 +9,18 @@
 
 ## 🎯 PLOT SUMMARY
 
-**Logline:** A young Earth Adept awakens to his destiny when mysterious earthquakes threaten his village, forcing him and his friends to confront ancient secrets hidden in Sol Sanctum.
+**Logline:** A young Earth Adept must prove his worth as a warrior to unlock Sol Sanctum's secrets, battling through Vale's champions while uncovering the truth about ancient Alchemy and the earthquakes threatening his home.
 
-**Genre:** Fantasy Adventure RPG  
-**Tone:** Epic yet intimate, mysterious, hopeful  
-**Themes:** Friendship, responsibility, coming of age, power vs. safety
+**Genre:** Fantasy Adventure RPG with Battle Progression  
+**Tone:** Fun adventure with mature drama, competitive yet heartfelt  
+**Themes:** Friendship through competition, proving yourself, responsibility, power vs. safety
 
 **Story Arc:** Vale Village serves as the complete tutorial and Act 1 of the larger Golden Sun story. By the end of this section, players will:
-- Understand the world, Alchemy, and Psynergy
-- Have formed the core party (Isaac, Garet, Jenna)
-- Be emotionally invested in characters and their mission
-- Be ready to enter Sol Sanctum (gateway to future content)
+- Understand the world, Alchemy, Psynergy, AND battle culture
+- Have battled through Vale's rank system, earning badges
+- Have formed bonds with Garet and Jenna through rivalry and friendship
+- Have defeated the Elder in the Guardian Trial
+- Be ready to enter Sol Sanctum (having proven their worth)
 
 ---
 
@@ -49,12 +50,17 @@
 - **Tutorial Complete:** Movement, interaction, dialogue system learned
 - **New Objective:** "Leave the house and explore Vale Village"
 
-#### Scene 1C: Stepping Into Vale
+#### Scene 1C: Stepping Into Vale + First Battle Tutorial
 - **First Exterior View:** Player exits house, full Vale Village visible
 - **Visual Moment:** Beautiful GBA-style village, NPCs walking around, Mt. Aleph in background
-- **Freedom:** Player can explore freely, talk to any NPC
-- **Subtle Guidance:** Multiple NPCs mention "Elder wants to see you" if talked to
-- **Story Flag Set:** `game_started`, `talked_to_dora`, `left_house_first_time`
+- **Garet Appears:** "Isaac! Perfect timing! Want to spar like old times?"
+- **BATTLE TUTORIAL:** First practice battle with Garet (friendly match)
+  - Learn battle initiation ("Want to battle?")
+  - Garet explains: "Everyone in Vale trains together. It's tradition!"
+  - Win or lose, Garet is supportive: "Nice! You're getting stronger!"
+- **Freedom:** Player can now explore, talk to NPCs, challenge others to battles
+- **Subtle Guidance:** Multiple NPCs mention "Elder wants to see you"
+- **Story Flag Set:** `game_started`, `talked_to_dora`, `left_house_first_time`, `first_battle_tutorial`
 
 ---
 
@@ -85,7 +91,7 @@
 - **New Objective:** "Go to Elder's House together"
 - **Story Flag Set:** `garet_in_party`
 
-#### Scene 2C: Meeting the Elder
+#### Scene 2C: Meeting the Elder - The Trial Revealed
 - **Location:** Elder's House (largest building, central location)
 - **Atmosphere:** Serious, filled with ancient books and scrolls
 - **Elder's Warning:**
@@ -94,17 +100,21 @@
   - Mentions Sol Sanctum (sealed temple after Cataclysm)
   - "I'm worried the seal may be weakening..."
   - **PLOT REVEAL:** "There are forces in this world that seek what lies within."
-- **Kraden Introduced:** Scholarly advisor, knows about Alchemy
-- **The Mission:** "I need you to check Sol Sanctum entrance. Report any unusual activity."
-- **Why Isaac?** Elder hints Isaac is special: "Your father trusted you with this legacy..."
-- **Story Flag Set:** `elder_summons_complete`, `learned_about_sanctum`
+- **THE GUARDIAN TRIAL:**
+  - **Elder:** "But Sol Sanctum is not for the unprepared. Ancient tradition demands proof of worth."
+  - **Explains Battle Requirement:** "Defeat Vale's warriors. Earn your badges. Only then may you face me."
+  - **Why?** "What lies in Sol Sanctum will test you beyond measure. You must be ready."
+- **Kraden Introduced:** Scholar advisor, knows about Alchemy and battle tactics
+- **The Dual Mission:** Check on Sol Sanctum AND prove your strength through battle
+- **Why Isaac?** Elder hints: "Your father completed this trial. Now it's your turn."
+- **Story Flag Set:** `elder_summons_complete`, `learned_about_sanctum`, `learned_about_trial`
 
 ---
 
-### Beat 3: SEEKING KNOWLEDGE (Understanding the Stakes)
-**Duration:** 8-10 minutes  
-**Location:** Kraden's House → Various locations  
-**Emotional Tone:** Curiosity, discovery, wonder
+### Beat 3: SEEKING KNOWLEDGE & FIRST BATTLES (Understanding the Stakes)
+**Duration:** 15-20 minutes  
+**Location:** Kraden's House → Various locations → Battle challenges  
+**Emotional Tone:** Curiosity, discovery, competitive excitement
 
 #### Scene 3A: Kraden's Lesson
 - **Location:** Kraden's House (filled with books and artifacts)
@@ -119,28 +129,25 @@
 - **Kraden's Warning:** "Your powers are awakening. This is not coincidence."
 - **Story Flag Set:** `met_kraden`, `learned_psynergy_basics`, `alchemy_knowledge_gained`
 
-#### Scene 3B: Optional Exploration & Side Quests
-- **Side Quest 1 - Lost Child:**
-  - Parent at Plaza: "My daughter wandered near the forest! Please find her!"
-  - Find girl near trees, use Psynergy to clear path
-  - Reward: Herb, gratitude, story context about village bonds
+#### Scene 3B: Bronze Badge Challenge (First Real Battles)
+- **Objective:** Defeat 3 basic trainers to earn Bronze Badge
+- **Available Trainers:**
+  - **Villager 1:** Casual fighter, friendly: "Sure, let's battle!"
+  - **Farmer 1:** Strong but inexperienced: "Been working all day, but I'm up for it!"
+  - **Child 1 (if player chooses):** Enthusiastic kid: "I wanna be strong like you!"
+  - **Villager 2:** Confident: "Think you can beat me?"
+  - **Villager 3:** Reluctant but agrees: "Okay, but go easy on me!"
   
-- **Side Quest 2 - Farmer's Tools:**
-  - Farmer lost harvesting tools in tall grass
-  - Use Psynergy to reveal hidden items
-  - Reward: Antidote, teaches exploration mechanics
-  
-- **Side Quest 3 - Blacksmith's Request:**
-  - Blacksmith: "Bring me ore from near Mt. Aleph, I'll craft you something."
-  - Optional preparation for Sol Sanctum
-  - Reward: Leather Cap (equipment upgrade)
+- **Battle Rewards:** Coins, maybe Herbs from some trainers
+- **Post-Battle Dialogue:** NPCs are encouraging, respectful
+- **Earn Bronze Badge:** Return to Elder, he acknowledges progress
 
-- **World Building Conversations:**
-  - NPCs react to Isaac having Psynergy: "You're like the heroes of old!"
-  - Learn about Cataclysm victims (Isaac's father, Felix, Jenna's parents)
-  - Understand village relationships and daily life
+- **Optional Side Quests Mixed In:**
+  - Lost Child (help parent find kid) - rewards Herb
+  - Farmer's Tools (Psynergy exploration) - rewards Antidote  
+  - Some NPCs offer quests OR battles
   
-- **Story Flag Set:** Various side quest flags, `helped_villagers`
+- **Story Flag Set:** `bronze_badge_earned`, `battles_won` +3, individual `defeated_[npc]` flags
 
 ---
 

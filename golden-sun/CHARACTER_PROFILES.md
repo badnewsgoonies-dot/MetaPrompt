@@ -18,6 +18,14 @@
 - **Antagonists (2):** Alex, Saturos (present but not immediately hostile)
 - **Special (6):** Felix (mentioned/memorial), Sheba, Traveler, Elder's Assistant, Storage Keeper, Barn Worker
 
+### By Battle Role
+- **Boss Trainers (Story-Required):** Elder (Master), Kyle (Captain)
+- **Rival Trainers (Optional):** Garet, Jenna
+- **Skilled Trainers (Badge Progress):** Guards, Great Healer, Ferris, Ivan, Mia
+- **Casual Battlers (Beginner/Intermediate):** Villagers, Farmers, Shopkeepers
+- **Reluctant Battlers (Need Convincing):** Scholars, Kraden, Dora
+- **Non-Combatants:** Children (some will battle), very elderly NPCs
+
 ---
 
 ## 🌟 TIER 1: MAJOR CHARACTERS
@@ -55,10 +63,16 @@ These characters have rich dialogue trees, character arcs, and significant story
 - **Kraden:** Mentor in Alchemy and Psynergy
 
 **Character Arc:**
-- **Start:** Ordinary teen living quietly after tragedy
-- **Catalyst:** Elder summons reveals hidden destiny
-- **Growth:** Accepts powers and responsibility
-- **End:** Steps forward as Guardian-in-training
+- **Start:** Talented but untested warrior
+- **Catalyst:** Elder summons + Guardian Trial begins
+- **Growth:** Proves worth through battles, accepts powers and responsibility
+- **End:** Defeats Elder, earns right to enter Sol Sanctum
+
+**Battle Style:**
+- **Element:** Venus (Earth)
+- **Approach:** Balanced - strong defense and tactical offense
+- **Signature:** Earth-based attacks, high durability
+- **Attitude:** Respectful to opponents, fights with honor
 
 **Implied Dialogue Style:**
 (Though player-controlled, Isaac's responses should feel):
@@ -66,6 +80,7 @@ These characters have rich dialogue trees, character arcs, and significant story
 - Kind but firm when needed
 - Humble despite growing power
 - Protective of friends and village
+- Respectful in battle: "Let's give it our all!"
 
 ---
 
@@ -110,8 +125,18 @@ These characters have rich dialogue trees, character arcs, and significant story
 
 **Character Arc:**
 - **Start:** Class clown, hides insecurity
-- **Growth:** Takes responsibility seriously
-- **End:** Commits to protecting friends no matter what
+- **Growth:** Takes battles seriously, trains hard
+- **End:** Commits to protecting friends, becomes reliable warrior
+
+**Battle Style & Challenge Dialogue:**
+- **Element:** Mars (Fire)
+- **Approach:** Aggressive, high-risk high-reward
+- **Signature:** Fire attacks, rushdown tactics
+- **Attitude:** Enthusiastic warrior, friendly rival
+- **Challenge Accept:** "You want to battle? Bring it on!"
+- **After Losing:** "Aw man! You got me this time! Rematch soon?"
+- **After Winning:** "Yes! That was awesome! You're getting stronger!"
+- **Rivalry Level:** Can battle multiple times, tracks wins/losses with banter
 
 ---
 
@@ -203,9 +228,20 @@ These characters have rich dialogue trees, character arcs, and significant story
 - **Kyle:** Trusts as head of village guard
 
 **Character Arc:**
-- **Start:** Keeper of secrets, alone in knowledge
-- **Growth:** Passes burden to next generation
-- **End:** Trusts Isaac with truth and mission
+- **Start:** Master Trainer and keeper of secrets
+- **Growth:** Tests Isaac through Guardian Trial
+- **End:** Defeated by Isaac, trusts him with Sol Sanctum
+
+**Battle Style & Challenge Dialogue:**
+- **Element:** Venus (Earth) - Former Adept, still powerful
+- **Approach:** Masterful tactics, reads opponents perfectly
+- **Signature:** Balanced moveset, uses wisdom over raw power
+- **Attitude:** Tests worthiness, not cruelty
+- **Before Battle (not ready):** "You're not prepared. Return when you've earned the Warrior Badge."
+- **Before Battle (ready):** "You've defeated Kyle. Impressive. Now face me, and prove your worth."
+- **During Battle:** "Show me your father's spirit!"
+- **After Losing:** "Remarkable, Isaac. You have truly grown. Sol Sanctum awaits you."
+- **Unlocks:** Guardian Badge + Sol Sanctum Access
 
 ---
 
@@ -345,9 +381,20 @@ These characters have rich dialogue trees, character arcs, and significant story
 - **Village Guards:** Commander and mentor
 
 **Character Arc:**
-- **Start:** Overprotective of son
-- **Growth:** Recognizes Garet must prove himself
-- **End:** Trusts son with dangerous mission
+- **Start:** Overprotective Guard Captain
+- **Growth:** Tests Isaac to ensure he's ready
+- **End:** Acknowledges Isaac's strength, clears path to Elder
+
+**Battle Style & Challenge Dialogue:**
+- **Element:** Mars (Fire) - Combat veteran
+- **Approach:** Disciplined aggression, military precision
+- **Signature:** Fire techniques combined with warrior training
+- **Attitude:** Serious but fair, tests to prepare not defeat
+- **Before Battle (not ready):** "You're not ready for me yet, son. Earn the Gold Badge first."
+- **Before Battle (ready):** "Gold Badge earned. You've proven yourself to the village. Now prove yourself to me."
+- **During Battle:** "Your father fought with honor. Show me you can do the same!"
+- **After Losing:** "Well fought, Isaac. Your father would be proud. You're ready for the Elder now."
+- **Unlocks:** Warrior Badge + Can challenge Elder
 
 ---
 

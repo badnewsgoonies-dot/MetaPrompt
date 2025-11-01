@@ -9,14 +9,25 @@
 
 ## 🌍 WORLD OVERVIEW
 
-### Vale Village - Gateway Between Worlds
+### Vale Village - Gateway Between Worlds & Village of Warriors
 
-Vale is a small, peaceful village nestled in the foothills of Mt. Aleph, the legendary mountain where the power of Alchemy is sealed. For generations, Vale has served as the guardian settlement, with villagers living simple lives while unknowingly standing watch over one of the world's greatest secrets.
+Vale is a unique settlement nestled in the foothills of Mt. Aleph, the legendary mountain where the power of Alchemy is sealed. For generations, Vale has served as the guardian settlement, with villagers living as both peaceful farmers AND skilled warriors. Vale's culture blends daily life with martial tradition - a village that protects itself and tests its strength.
 
 **Population:** ~80 inhabitants  
-**Founded:** Over 200 years ago by refugees from ancient wars  
-**Primary Industries:** Farming, scholarship, blacksmithing  
-**Special Status:** Guardian village (unknown to most residents)
+**Founded:** Over 200 years ago by warrior-refugees from ancient Alchemy Wars  
+**Primary Industries:** Farming, scholarship, blacksmithing, **combat training**  
+**Special Status:** Guardian village (unknown to most residents)  
+**Battle Culture:** Vale warriors practice Psynergy-enhanced combat, with a tradition of honorable battles to test skill and prove worth
+
+### Vale's Battle Tradition
+
+After the ancient Alchemy Wars, Vale's founders established a unique culture: **strength through challenge**. Villagers train in combat not for conquest, but for protection and self-improvement. Psynergy-enhanced battles are a way of life:
+
+- **Challenge Culture:** Residents can challenge each other to friendly battles (always consensual)
+- **Vale Badges:** Earn recognition by defeating skilled trainers throughout the village
+- **Rank System:** Prove your worth by climbing the battle ranks
+- **Sol Sanctum Trial:** Only those who prove themselves in battle may enter Sol Sanctum (ancient Guardian tradition)
+- **Mix of Attitudes:** Some battle for honor and glory, others for fun and training - all respect the tradition
 
 ### The World Beyond Vale
 
@@ -86,11 +97,11 @@ What the villagers DON'T know:
 
 ### The Guardians (Good)
 
-**The Elder & Village Council:** Secret keepers who know of Sol Sanctum's true purpose. They maintain the facade of a simple village while watching for threats.
+**The Elder & Village Council:** Secret keepers who know of Sol Sanctum's true purpose. The Elder is also Vale's **Master Trainer** - the strongest battler in the village. Only those who defeat him earn the right to enter Sol Sanctum (a trial that tests worthiness to face ancient powers).
 
-**Kraden the Scholar:** The Elder's advisor and the only living person who has extensively studied Alchemy. He's torn between scientific curiosity and duty to keep Alchemy sealed.
+**Kraden the Scholar:** The Elder's advisor and the only living person who has extensively studied Alchemy. He's torn between scientific curiosity and duty to keep Alchemy sealed. While not a battler himself, he studies combat Psynergy techniques.
 
-**The Adepts:** Isaac, Garet, and Jenna are unknowingly being prepared as the next generation of Guardians. The Elder has been subtly guiding their development.
+**The Adepts:** Isaac, Garet, and Jenna are unknowingly being prepared as the next generation of Guardians. The Elder has been subtly guiding their development - both through battle training and preparing them for their destiny. They're among Vale's rising battle talents.
 
 ### The Seekers (Antagonists - Not Yet Revealed)
 
@@ -135,11 +146,11 @@ What the villagers DON'T know:
 
 ## 💫 CORE THEMES
 
-### 1. Friendship & Loyalty
+### 1. Friendship & Loyalty (Through Battle & Bond)
 
-Isaac, Garet, and Jenna's bond was forged through shared tragedy. They would do anything for each other. This theme extends to all of Vale - it's a community that takes care of its own.
+Isaac, Garet, and Jenna's bond was forged through shared tragedy AND training together as warriors. They would do anything for each other. This theme extends to all of Vale - it's a community that takes care of its own, and challenges each other to grow stronger together. Battles strengthen bonds rather than break them.
 
-**Story Question:** How far would you go to protect those you love?
+**Story Question:** How far would you go to protect those you love? What does it mean to fight alongside your friends?
 
 ### 2. Legacy & Responsibility
 
@@ -159,13 +170,95 @@ Sol Sanctum holds secrets that the Elder has kept hidden for decades. As Isaac u
 
 **Story Question:** Are some secrets worth keeping? What happens when truth conflicts with safety?
 
-### 5. Coming of Age
+### 5. Coming of Age (Through Challenge)
 
-Isaac begins as an ordinary teenager grieving his father. Through his journey, he'll discover his powers, his purpose, and his courage.
+Isaac begins as a talented but untested teenager grieving his father. Through battles and challenges, he'll discover his powers, his purpose, and his courage. Defeating Vale's warriors isn't about dominance - it's about proving he's ready for the responsibility ahead.
 
-**Story Question:** What does it mean to become a hero?
+**Story Question:** What does it mean to become a hero? How do you prove you're ready for your destiny?
 
 ---
+
+## ⚔️ BATTLE SYSTEM & PROGRESSION
+
+### The Vale Challenge System
+
+**How Battles Work:**
+- Player can **challenge any NPC** to a battle by talking to them
+- NPC can accept ("Let's battle!") or decline ("Sorry, not now")
+- Battles are **always initiated by the player** (no forced encounters while walking)
+- After battle, win or lose, NPCs remember you and may have new dialogue
+- Battles use the integrated battle simulator system
+
+### Battle Types & Attitudes
+
+**Eager Warriors (Always Accept):**
+- Guards, young fighters, competitive villagers
+- "You want to battle? Bring it on!"
+- Rematch available anytime
+
+**Casual Battlers (Usually Accept):**
+- Shopkeepers, farmers, most villagers
+- "Sure, I could use a warm-up!"
+- Might decline if story hasn't progressed enough
+
+**Reluctant Battlers (Need Convincing):**
+- Scholars, children, peaceful elders
+- "I'm not much of a fighter, but... okay."
+- May require certain story flags to agree
+
+**Boss Battles (Story-Gated):**
+- Elder, Kyle, Great Healer, key NPCs
+- "Prove your worth first" - must meet requirements
+- Defeating them unlocks story progression
+
+### Vale Badge System
+
+**Progression Structure:**
+- **Beginner Tier:** Defeat 3 basic trainers → Earn **Bronze Badge**
+- **Intermediate Tier:** Defeat 6 skilled trainers → Earn **Silver Badge**  
+- **Advanced Tier:** Defeat 10 veteran trainers → Earn **Gold Badge**
+- **Master Challenge:** Defeat Kyle (Guard Captain) → Earn **Warrior Badge**
+- **Final Trial:** Defeat Elder (Master Trainer) → Earn **Guardian Badge** + Sol Sanctum Access
+
+**Optional Battles:**
+- Garet (Rival Battle) - Train with your best friend
+- Jenna (Rival Battle) - Test your skills against fire
+- Shopkeepers & villagers - For fun, items, or training
+- Hidden strong trainers - Secret challenges
+
+### Battle Rewards
+
+**Story Progression:**
+- Badges unlock new areas and story content
+- Elder won't let you enter Sol Sanctum until you prove worthy
+- Some NPCs only share secrets after you beat them
+
+**Material Rewards:**
+- Win battles → earn coins
+- Defeating trainers → sometimes receive items (Herbs, equipment)
+- Badge milestones → special rewards from Elder
+
+**Dialogue Changes:**
+- NPCs respect you more after battles
+- New conversations unlock based on battle record
+- Losing isn't game over - they encourage you to train more
+
+### Battle Difficulty & Tone
+
+**Friendly Competition (Pokemon-style):**
+- Most villagers, children, casual fighters
+- "Good battle! You're getting stronger!"
+- Encouraging, supportive, fun
+
+**Serious Honor Warriors:**
+- Guards, Kyle, Elder, veteran fighters
+- "Your technique is impressive. Fight with honor."
+- Respectful, intense, martial pride
+
+**Rivals (Garet/Jenna):**
+- Mix of both - friendly but competitive
+- "I won't go easy on you, Isaac!"
+- Banter, growth, mutual respect
 
 ## 📚 LEXICON
 
@@ -176,6 +269,15 @@ Isaac begins as an ordinary teenager grieving his father. Through his journey, h
 - **Adept:** A person born with the ability to use Psynergy
 - **Elemental Star:** Four crystallized concentrations of elemental power
 - **Djinn:** Small elemental creatures that bond with Adepts (not present in Vale initially)
+
+### Battle Terms
+
+- **Challenge:** Asking an NPC to battle ("Want to battle?")
+- **Vale Badge:** Recognition of battle skill and rank
+- **Trainer:** Any NPC who battles (from beginners to masters)
+- **Rival Battle:** Fighting Garet or Jenna for training
+- **Boss Battle:** Story-required fights (Kyle, Elder)
+- **Guardian Trial:** The Elder's final test to enter Sol Sanctum
 
 ### Places
 
@@ -240,9 +342,9 @@ Isaac begins as an ordinary teenager grieving his father. Through his journey, h
 
 ## 🎯 STORY PROGRESSION FRAMEWORK
 
-### Act 1: Morning in Vale (Tutorial - 10 minutes)
+### Act 1: Morning in Vale - Tutorial (10 minutes)
 
-**Opening:** Isaac wakes up in his room. It's been 3 years since the Cataclysm, but life in Vale has slowly returned to normal. His mother Dora calls him for breakfast.
+**Opening:** Isaac wakes up in his room. It's been 3 years since the Cataclysm, but life in Vale has slowly returned to normal. His mother Dora calls him for breakfast. Today feels different...
 
 **Tutorial Goals:**
 - Learn movement controls (WASD/Arrow keys)
@@ -250,39 +352,59 @@ Isaac begins as an ordinary teenager grieving his father. Through his journey, h
 - Talk to Dora (introduces dialogue system)
 - Explore Isaac's house
 - Exit house and see Vale Village
+- **NEW:** First battle tutorial (challenge Garet to practice match)
 
-**Emotional Tone:** Peaceful, nostalgic, with hints of mystery
+**Emotional Tone:** Peaceful, nostalgic, with hints of mystery and excitement
 
-### Act 2: The Summons (Early Game - 15-20 minutes)
+### Act 2: The Trial Begins - Early Game (15-20 minutes)
 
-**Inciting Incident:** A village child comes running - the Elder has summoned Isaac and Garet urgently. Strange tremors were felt during the night.
-
-**Objectives:**
-- Find Garet (at his house or in the plaza)
-- Report to the Elder's house
-- Learn about the new earthquakes
-- Receive the quest: "Check on Sol Sanctum"
-
-**Emotional Tone:** Concern building to curiosity
-
-### Act 3: Gathering the Party (Mid-Game - 20-30 minutes)
-
-**Rising Action:** The Elder suggests taking Jenna along. Isaac must prepare for the journey to Sol Sanctum by talking to villagers, gathering supplies, and understanding what they're facing.
+**Inciting Incident:** The Elder summons Isaac. Strange tremors were felt during the night, and Sol Sanctum's seal may be weakening. But the Elder reveals the truth: only those who prove themselves in battle may enter Sol Sanctum (ancient Guardian tradition).
 
 **Objectives:**
-- Talk to Kraden (learn about Alchemy and Psynergy)
-- Find Jenna (emotional conversation about Felix)
-- Gather party members
-- Optional side quests (help villagers with problems)
-- Learn about your Psynergy powers
+- Find Garet and learn about the challenge system
+- Report to Elder - learn about Sol Sanctum AND battle requirement
+- Receive quest: "Prove your worth - earn Bronze Badge"
+- **Battle Progression:** Defeat 3 basic trainers (villagers, farmers, casual fighters)
+- Learn battle mechanics through friendly matches
 
-**Emotional Tone:** Anticipation mixed with responsibility
+**Emotional Tone:** Concern mixed with excitement about challenges ahead
 
-### Act 4: Sol Sanctum Awaits (Gateway to Next Content)
+### Act 3: Rising Through the Ranks - Mid-Game (30-40 minutes)
 
-**Climax of Vale Section:** The party stands at the Sol Sanctum entrance. The Elder gives a final warning: "What you find within may change everything."
+**Rising Action:** Isaac must prove himself as a warrior while uncovering the mystery of Sol Sanctum. The Elder won't allow entry until Isaac demonstrates the strength needed to face what's inside.
 
-**Cliffhanger:** The sealed entrance begins to glow with mysterious light...
+**Objectives:**
+- Talk to Kraden (learn about Alchemy, Psynergy, and battle techniques)
+- Find Jenna (emotional conversation about Felix) - she wants to fight alongside you
+- **Battle Progression:** 
+  - Earn Silver Badge (defeat 6 skilled trainers)
+  - Earn Gold Badge (defeat 10 veteran trainers)
+  - Optional: Battle Garet and Jenna (rival matches)
+- Optional side quests (help villagers + battle challenges)
+- Explore Vale fully, challenge various NPCs
+- Prepare equipment and gather supplies
+
+**Emotional Tone:** Growing confidence, friendship through competition, anticipation
+
+### Act 4: The Master's Trial - Advanced Game (20-30 minutes)
+
+**Rising Climax:** Isaac has proven himself among Vale's warriors. Now he must face the village's strongest: Kyle (Guard Captain) and finally, the Elder himself.
+
+**Objectives:**
+- Challenge Kyle to earn Warrior Badge
+- **Boss Battle:** Defeat Kyle (tough tactical fight)
+- Return to Elder with all badges
+- **Final Boss Battle:** Challenge the Elder (Master Trainer)
+- Prove worthiness to enter Sol Sanctum
+- Final preparations and goodbyes
+
+**Emotional Tone:** High stakes, respect earned, ready for destiny
+
+### Act 5: Sol Sanctum Awaits - Gateway (5 minutes)
+
+**Climax of Vale Section:** Having proven his worth in battle, Isaac (with Garet and Jenna) approaches Sol Sanctum. The Elder gives final warnings about what lies within.
+
+**Cliffhanger:** The sealed entrance recognizes Isaac's Guardian Badge and begins to glow with mysterious light...
 
 **Transition:** *(Future content - Sol Sanctum dungeon would begin here)*
 
@@ -292,19 +414,38 @@ Isaac begins as an ordinary teenager grieving his father. Through his journey, h
 
 ### Core Story Flags
 
-Story progression is tracked through boolean flags that unlock new dialogue, quests, and areas.
+Story progression is tracked through boolean flags and battle victories that unlock new dialogue, quests, and areas.
 
 **Early Game Flags:**
 - `game_started` - Tutorial begins
 - `talked_to_dora` - Mother greets you
 - `left_house_first_time` - Vale village exploration begins
+- `first_battle_tutorial` - Completed battle tutorial with Garet
 - `elder_summons` - Main quest trigger
+- `learned_about_trial` - Elder explains battle requirement
 - `met_garet` - Party member 1 acquired
 - `learned_about_sanctum` - Elder reveals basics
-- `met_kraden` - Scholar introduces Alchemy
+- `met_kraden` - Scholar introduces Alchemy and battle tactics
 - `met_jenna` - Party member 2 acquired
 - `party_complete` - All three heroes together
-- `ready_for_sanctum` - Ready to leave Vale
+
+**Battle Progression Flags:**
+- `battles_won` - Counter (tracks total victories)
+- `bronze_badge_earned` - Defeated 3 trainers
+- `silver_badge_earned` - Defeated 6 trainers
+- `gold_badge_earned` - Defeated 10 trainers
+- `warrior_badge_earned` - Defeated Kyle
+- `guardian_badge_earned` - Defeated Elder
+- `ready_for_sanctum` - All badges earned, ready to enter Sol Sanctum
+- `defeated_[npc_id]` - Individual battle victory flags
+- `challenged_elder` - Attempted Elder battle
+- `kyle_unlocked` - Can now challenge Kyle
+
+**Rival Battle Flags:**
+- `battled_garet` - Fought Garet (rival match)
+- `battled_jenna` - Fought Jenna (rival match)
+- `garet_rivalry_level` - Counter for matches with Garet
+- `jenna_rivalry_level` - Counter for matches with Jenna
 
 **Side Quest Flags:**
 - `helped_farmer` - Completed farmer's quest
@@ -312,20 +453,41 @@ Story progression is tracked through boolean flags that unlock new dialogue, que
 - `delivered_medicine` - Helped healer
 - `learned_psynergy_basics` - Completed Psynergy tutorial
 - `talked_to_all_villagers` - Met everyone (achievement)
+- `defeated_all_optional_trainers` - Completionist battle achievement
 
 **Character Relationship Flags:**
 - `dora_heart_to_heart` - Deep conversation with mother
 - `garet_friendship_moment` - Bonding with Garet
 - `jenna_remembers_felix` - Emotional scene about loss
+- `kyle_respect_earned` - Kyle acknowledges your strength
+- `elder_approval` - Elder proud of your progress
 
 ### Flag-Based Dialogue Variations
 
-NPCs will have different dialogue based on flags:
+NPCs will have different dialogue based on story progression AND battle record:
 
 **Example - Villager at Well:**
-- **Before `elder_summons`:** "Beautiful day, isn't it?"
-- **After `elder_summons`:** "I heard the Elder called for you. Must be important!"
-- **After `party_complete`:** "You three heading to Sol Sanctum? Be careful up there!"
+- **Before `elder_summons`:** "Beautiful day, isn't it? Want to battle?"
+- **After `elder_summons`:** "I heard the Elder called for you. Must be important! ...Still up for a match?"
+- **After `bronze_badge_earned`:** "Wow, you've been winning battles! I should train more..."
+- **After defeating them:** "You're getting really strong, Isaac! Care for a rematch?"
+- **After `guardian_badge_earned`:** "You beat the Elder?! You're incredible!"
+
+**Example - Kyle (Guard Captain):**
+- **Before `gold_badge_earned`:** "You're not ready to face me yet, son. Prove yourself first."
+- **After `gold_badge_earned`:** "I've heard about your battles. Impressive. Think you can beat me?"
+- **After defeating him:** "Well fought, Isaac. Your father would be proud. You're ready for the Elder now."
+
+**Example - Elder:**
+- **Before `warrior_badge_earned`:** "The Guardian Trial is not for the unprepared. Return when you've proven your worth."
+- **After `warrior_badge_earned`:** "So, you've defeated Kyle. You've come far. Are you ready to face me?"
+- **After defeating him:** "Remarkable, Isaac. You have your father's spirit. Sol Sanctum awaits you."
+
+**Example - Garet (Rival):**
+- **First meeting:** "Isaac! Want to spar like old times?"
+- **After first battle:** "You got me this time! I'll get you next round!"
+- **After `silver_badge_earned`:** "You're climbing the ranks fast! Let's see if you can handle my new technique!"
+- **After many battles:** "We've come a long way together, haven't we?"
 
 ---
 
