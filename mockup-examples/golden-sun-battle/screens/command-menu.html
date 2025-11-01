@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golden Sun Battle – Command Menu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #000;
+      font-family: 'Press Start 2P', 'Courier New', monospace;
+      font-size: 8px;
+      image-rendering: pixelated;
+      overflow: hidden;
+      color: #fff;
+    }
+    .battle-container {
+      width: 960px;
+      height: 640px;
+      margin: 20px auto;
+      position: relative;
+      background: linear-gradient(180deg, #88C070 0%, #70A858 40%, #609048 100%);
+      overflow: hidden;
+      border: 4px solid #1d2c3b;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.6);
+    }
+    .stat-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: rgba(0,0,0,0.65);
+      display: flex;
+      padding: 4px 12px;
+      gap: 8px;
+    }
+    .hero-stat { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .hero-stat .name { font-size: 10px; text-shadow: 1px 1px 0 #000; }
+    .stat-line { display: flex; align-items: center; gap: 6px; font-size: 9px; }
+    .stat-label { color: #ffd966; min-width: 22px; }
+    .stat-value { text-shadow: 1px 1px 0 #000; }
+    .bar { flex: 1; height: 6px; border: 1px solid #000; background: #242424; position: relative; overflow: hidden; }
+    .bar-fill { position: absolute; inset: 0; background: linear-gradient(180deg, #57E2A6, #3AB373); }
+    .bar-fill.pp { background: linear-gradient(180deg, #66AAFF, #3C76D0); }
+    .enemy-row {
+      position: absolute;
+      top: 124px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 96px;
+      z-index: 3;
+    }
+    .enemy { width: 104px; height: 104px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.6)); animation: float 3s ease-in-out infinite; }
+    .enemy:nth-child(2) { animation-delay: .5s; }
+    .enemy:nth-child(3) { animation-delay: 1s; }
+    .enemy img, .hero img { width: 100%; height: 100%; image-rendering: pixelated; }
+    .party-row { position: absolute; bottom: 182px; left: 50%; transform: translateX(-50%); display: flex; gap: 64px; z-index: 2; }
+    .hero { width: 84px; height: 84px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5)); }
+    .combat-log {
+      position: absolute;
+      left: 200px;
+      right: 200px;
+      bottom: 170px;
+      height: 110px;
+      background: rgba(0,0,0,0.85);
+      border: 2px solid #3A4680;
+      border-radius: 4px;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 10px;
+      line-height: 1.6;
+      z-index: 15;
+    }
+    .combat-log .log-entry { margin-bottom: 6px; text-shadow: 1px 1px 0 #000; }
+    .combat-log .critical { color: #ff6b6b; font-weight: bold; }
+    .combat-log .heal { color: #57E2A6; }
+    .combat-log .defeat { color: #B8C0E8; font-style: italic; }
+    .bottom-ui { position: absolute; bottom: 0; left: 0; right: 0; height: 164px; background: rgba(0,0,0,0.78); border-top: 2px solid #4A4A4A; }
+    .portraits { position: absolute; left: 12px; bottom: 10px; width: 208px; height: 144px; background: rgba(8,12,28,0.92); border: 2px solid #3A4680; border-radius: 4px; padding: 6px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .portrait { position: relative; width: 96px; height: 64px; background: #1a2350; border: 2px solid #2a3570; border-radius: 2px; overflow: hidden; }
+    .portrait.active { border-color: #ffd966; box-shadow: 0 0 8px rgba(255,217,102,0.6); }
+    .portrait img { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 48px; height: 48px; }
+    .portrait .char-name { position: absolute; bottom: 2px; left: 4px; font-size: 8px; }
+    .action-menu { position: absolute; right: 12px; bottom: 10px; width: 400px; height: 144px; background: rgba(8,12,28,0.95); border: 2px solid #3A4680; border-radius: 4px; padding: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .action-button { background: linear-gradient(180deg, #2A316B, #1E2450); border: 2px solid #3B4390; border-radius: 6px; color: #fff; font-size: 14px; display: flex; align-items: center; justify-content: center; text-shadow: 1px 1px 0 #000; cursor: pointer; }
+    .action-button.primary { grid-column: 1 / -1; font-size: 16px; border-color: #ffd966; background: linear-gradient(180deg, #3A4680, #2A3570); }
+    .action-button:hover { border-color: #4B5AA0; background: linear-gradient(180deg, #353E85, #252D60); }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  </style>
+</head>
+<body>
+  <div class="battle-container" role="application" aria-label="Golden Sun battle command screen">
+    <div class="stat-bar" aria-label="Party status">
+      <div class="hero-stat">
+        <div class="name">Isaac</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">168/210</span><div class="bar"><div class="bar-fill" style="width:80%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">34/52</span><div class="bar"><div class="bar-fill pp" style="width:65%"></div></div></div>
+      </div>
+      <div class="hero-stat">
+        <div class="name">Garet</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">194/220</span><div class="bar"><div class="bar-fill" style="width:88%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">21/45</span><div class="bar"><div class="bar-fill pp" style="width:47%"></div></div></div>
+      </div>
+      <div class="hero-stat">
+        <div class="name">Ivan</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">120/170</span><div class="bar"><div class="bar-fill" style="width:71%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">46/62</span><div class="bar"><div class="bar-fill pp" style="width:74%"></div></div></div>
+      </div>
+      <div class="hero-stat">
+        <div class="name">Mia</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">155/190</span><div class="bar"><div class="bar-fill" style="width:82%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">58/70</span><div class="bar"><div class="bar-fill pp" style="width:83%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="enemy-row" aria-label="Enemy units">
+      <div class="enemy"><img src="../../../sprites/golden-sun/battle/enemies/Ape.gif" alt="Wild Ape" /></div>
+      <div class="enemy"><img src="../../../sprites/golden-sun/battle/enemies/Brigand.gif" alt="Brigand" /></div>
+      <div class="enemy"><img src="../../../sprites/golden-sun/battle/enemies/Bat.gif" alt="Bat" /></div>
+    </div>
+
+    <div class="party-row" aria-label="Party units">
+      <div class="hero"><img src="../assets/Isaac_Axe_Front.gif" alt="Isaac" /></div>
+      <div class="hero"><img src="../assets/Garet_Axe_Front.gif" alt="Garet" /></div>
+      <div class="hero"><img src="../assets/Ivan_Staff_Front.gif" alt="Ivan" /></div>
+      <div class="hero"><img src="../assets/Mia_Mace_Front.gif" alt="Mia" /></div>
+    </div>
+
+    <div class="combat-log" role="log" aria-live="polite">
+      <div class="log-entry">Isaac unleashes <strong>Judgement</strong> for <span class="critical">412</span> damage!</div>
+      <div class="log-entry defeat">Bat is felled by the massive blast.</div>
+      <div class="log-entry">Garet attacks Brigand for 36 damage.</div>
+      <div class="log-entry">Brigand staggers but keeps fighting.</div>
+      <div class="log-entry heal">Mia casts Ply and restores 95 HP to Isaac.</div>
+    </div>
+
+    <div class="bottom-ui">
+      <div class="portraits" aria-label="Character portraits">
+        <div class="portrait active"><img src="../../../sprites/golden-sun/icons/characters/Isaac1.gif" alt="Isaac portrait" /><div class="char-name">Isaac</div></div>
+        <div class="portrait"><img src="../../../sprites/golden-sun/icons/characters/Garet1.gif" alt="Garet portrait" /><div class="char-name">Garet</div></div>
+        <div class="portrait"><img src="../../../sprites/golden-sun/icons/characters/Ivan.gif" alt="Ivan portrait" /><div class="char-name">Ivan</div></div>
+        <div class="portrait"><img src="../../../sprites/golden-sun/icons/characters/Mia.gif" alt="Mia portrait" /><div class="char-name">Mia</div></div>
+      </div>
+
+      <div class="action-menu" aria-label="Battle commands">
+        <button class="action-button primary">Attack</button>
+        <button class="action-button">Psynergy</button>
+        <button class="action-button">Djinn</button>
+        <button class="action-button">Summon</button>
+        <button class="action-button">Item</button>
+        <button class="action-button">Defend</button>
+        <button class="action-button">Flee</button>
+        <button class="action-button">Status</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

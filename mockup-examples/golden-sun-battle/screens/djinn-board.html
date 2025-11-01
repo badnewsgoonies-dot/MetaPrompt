@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Golden Sun Battle – Djinn Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #000; font-family: 'Press Start 2P', 'Courier New', monospace; font-size: 8px; image-rendering: pixelated; overflow: hidden; color: #fff; }
+    .battle-container { width: 960px; height: 640px; margin: 20px auto; position: relative; background: linear-gradient(180deg, #6b8a3f 0%, #4f6a2d 45%, #374a20 100%); overflow: hidden; border: 4px solid #15200f; box-shadow: 0 12px 28px rgba(0,0,0,0.6); }
+    .stat-bar { position: absolute; top: 0; left: 0; right: 0; height: 56px; background: rgba(18, 28, 12, 0.8); display: flex; padding: 4px 12px; gap: 8px; }
+    .hero-stat { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .hero-stat .name { font-size: 10px; text-shadow: 1px 1px 0 #000; }
+    .stat-line { display: flex; align-items: center; gap: 6px; font-size: 9px; }
+    .stat-label { color: #ffe87a; min-width: 22px; }
+    .stat-value { text-shadow: 1px 1px 0 #000; }
+    .bar { flex: 1; height: 6px; border: 1px solid #000; background: #2d3919; position: relative; overflow: hidden; }
+    .bar-fill { position: absolute; inset: 0; background: linear-gradient(180deg, #9aff7f, #58c93a); }
+    .bar-fill.pp { background: linear-gradient(180deg, #ffd56e, #ffac33); }
+    .enemy-row { position: absolute; top: 128px; left: 50%; transform: translateX(-50%); display: flex; gap: 90px; z-index: 3; }
+    .enemy { width: 112px; height: 112px; filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.6)); animation: float 3s ease-in-out infinite; }
+    .enemy:nth-child(2) { animation-delay: .45s; }
+    .enemy:nth-child(3) { animation-delay: .95s; }
+    .enemy img, .hero img { width: 100%; height: 100%; image-rendering: pixelated; }
+    .party-row { position: absolute; bottom: 194px; left: 50%; transform: translateX(-50%); display: flex; gap: 70px; z-index: 2; }
+    .hero { width: 88px; height: 88px; filter: drop-shadow(2px 2px 5px rgba(0,0,0,0.55)); }
+    .combat-log { position: absolute; left: 180px; right: 180px; bottom: 188px; height: 112px; background: rgba(22, 30, 14, 0.9); border: 2px solid #7c9148; border-radius: 4px; padding: 10px; overflow-y: auto; font-size: 10px; line-height: 1.6; z-index: 15; }
+    .combat-log .log-entry { margin-bottom: 6px; text-shadow: 1px 1px 0 #000; }
+    .combat-log .ready { color: #ffe87a; }
+    .bottom-ui { position: absolute; bottom: 0; left: 0; right: 0; height: 184px; background: rgba(10,16,6,0.82); border-top: 2px solid #3b4a24; padding: 12px 16px; display: grid; grid-template-columns: 240px 1fr 220px; gap: 16px; }
+    .active-adept { background: rgba(22, 30, 14, 0.92); border: 2px solid #7c9148; border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+    .active-adept .portrait { width: 96px; height: 96px; border: 2px solid #3b4a24; border-radius: 4px; align-self: center; background: #293616; position: relative; }
+    .active-adept .portrait img { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 64px; height: 64px; }
+    .active-adept .name { text-align: center; font-size: 12px; text-shadow: 1px 1px 0 #000; }
+    .djinn-board { background: rgba(22, 30, 14, 0.92); border: 2px solid #7c9148; border-radius: 4px; padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .djinn-column { display: flex; flex-direction: column; gap: 10px; }
+    .djinn-column h3 { font-size: 11px; color: #ffe87a; text-shadow: 1px 1px 0 #000; border-bottom: 2px solid rgba(255,232,122,0.3); padding-bottom: 6px; }
+    .djinn-card { padding: 8px; border: 2px solid #3b4a24; border-radius: 4px; background: linear-gradient(180deg, rgba(82,110,44,0.95), rgba(56,78,28,0.95)); display: flex; flex-direction: column; gap: 6px; font-size: 11px; text-shadow: 1px 1px 0 #000; min-height: 64px; position: relative; }
+    .djinn-card.ready { border-color: #ffe87a; box-shadow: 0 0 10px rgba(255, 232, 122, 0.5); }
+    .djinn-card .djinn-name { font-size: 12px; }
+    .djinn-card .status { font-size: 10px; color: #ffe87a; }
+    .djinn-card .effect { font-size: 9px; color: #d7f7b2; line-height: 1.4; }
+    .summon-panel { background: rgba(22, 30, 14, 0.92); border: 2px solid #7c9148; border-radius: 4px; padding: 12px; display: flex; flex-direction: column; gap: 10px; font-size: 11px; }
+    .summon-panel h3 { font-size: 12px; color: #ffe87a; text-shadow: 1px 1px 0 #000; }
+    .summon-meter { height: 12px; border: 1px solid #3b4a24; background: #161e0e; position: relative; border-radius: 6px; overflow: hidden; }
+    .summon-meter .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 66%; background: linear-gradient(90deg, #ffe87a 0%, #ffac33 100%); }
+    .summon-panel .blessing { font-size: 9px; color: #d7f7b2; line-height: 1.4; text-shadow: 1px 1px 0 #000; }
+    .button-row { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+    .btn { padding: 10px; border: 2px solid #3b4a24; border-radius: 6px; background: linear-gradient(180deg, #3f5224, #2b3818); font-size: 12px; text-shadow: 1px 1px 0 #000; color: #ffe87a; text-align: center; cursor: pointer; }
+    .btn.primary { border-color: #ffe87a; background: linear-gradient(180deg, #5c7a33, #3f5224); }
+    .btn:hover { border-color: #ffe87a; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+  </style>
+</head>
+<body>
+  <div class="battle-container" role="application" aria-label="Golden Sun Djinn board">
+    <div class="stat-bar" aria-label="Party status">
+      <div class="hero-stat">
+        <div class="name">Isaac</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">203/228</span><div class="bar"><div class="bar-fill" style="width:89%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">35/58</span><div class="bar"><div class="bar-fill pp" style="width:60%"></div></div></div>
+      </div>
+      <div class="hero-stat">
+        <div class="name">Garet</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">226/250</span><div class="bar"><div class="bar-fill" style="width:90%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">24/52</span><div class="bar"><div class="bar-fill pp" style="width:46%"></div></div></div>
+      </div>
+      <div class="hero-stat">
+        <div class="name">Ivan</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">154/188</span><div class="bar"><div class="bar-fill" style="width:82%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">71/94</span><div class="bar"><div class="bar-fill pp" style="width:76%"></div></div></div>
+      </div>
+      <div class="hero-stat">
+        <div class="name">Mia</div>
+        <div class="stat-line"><span class="stat-label">HP</span><span class="stat-value">184/208</span><div class="bar"><div class="bar-fill" style="width:88%"></div></div></div>
+        <div class="stat-line"><span class="stat-label">PP</span><span class="stat-value">96/120</span><div class="bar"><div class="bar-fill pp" style="width:80%"></div></div></div>
+      </div>
+    </div>
+
+    <div class="enemy-row" aria-label="Enemy units">
+      <div class="enemy"><img src="../assets/Wolfkin.gif" alt="Wolfkin" /></div>
+      <div class="enemy"><img src="../../../sprites/golden-sun/battle/enemies/Ape.gif" alt="Wild Ape" /></div>
+      <div class="enemy"><img src="../assets/goblin.gif" alt="Goblin" /></div>
+    </div>
+
+    <div class="party-row" aria-label="Party units">
+      <div class="hero"><img src="../assets/Isaac_Axe_Front.gif" alt="Isaac" /></div>
+      <div class="hero"><img src="../assets/Garet_Axe_Front.gif" alt="Garet" /></div>
+      <div class="hero"><img src="../assets/Ivan_Staff_Front.gif" alt="Ivan" /></div>
+      <div class="hero"><img src="../assets/Mia_Mace_Front.gif" alt="Mia" /></div>
+    </div>
+
+    <div class="combat-log" role="log" aria-live="polite">
+      <div class="log-entry">Djinn management phase engaged.</div>
+      <div class="log-entry ready">Forge is ready to boost Garet's attack.</div>
+      <div class="log-entry">Zephyr remains on standby, awaiting summon alignment.</div>
+      <div class="log-entry">Mia considers setting Fog to reinforce resistance.</div>
+    </div>
+
+    <div class="bottom-ui">
+      <div class="active-adept" aria-label="Focused adept">
+        <div class="portrait"><img src="../../../sprites/golden-sun/icons/characters/Isaac1.gif" alt="Isaac portrait" /></div>
+        <div class="name">Isaac — Earth Vanguard</div>
+        <div class="djinn-summary">
+          <div>Set Djinn: <strong>4</strong></div>
+          <div>Standby: <strong>2</strong></div>
+          <div>Recovery: <strong>1</strong></div>
+        </div>
+      </div>
+
+      <div class="djinn-board" aria-label="Djinn board">
+        <div class="djinn-column">
+          <h3>Set</h3>
+          <div class="djinn-card ready">
+            <div class="djinn-name">Forge</div>
+            <div class="status">Mars • Ready</div>
+            <div class="effect">Boosts attack massively for one ally.</div>
+          </div>
+          <div class="djinn-card">
+            <div class="djinn-name">Granite</div>
+            <div class="status">Earth • Set</div>
+            <div class="effect">Reduces incoming damage by 60% for a turn.</div>
+          </div>
+          <div class="djinn-card">
+            <div class="djinn-name">Quartz</div>
+            <div class="status">Earth • Set</div>
+            <div class="effect">Revives a downed ally with partial HP.</div>
+          </div>
+        </div>
+        <div class="djinn-column">
+          <h3>Standby</h3>
+          <div class="djinn-card">
+            <div class="djinn-name">Sap</div>
+            <div class="status">Earth • Standby</div>
+            <div class="effect">Drains enemy HP and adds it to Isaac.</div>
+          </div>
+          <div class="djinn-card">
+            <div class="djinn-name">Vine</div>
+            <div class="status">Earth • Standby</div>
+            <div class="effect">Slows enemies and cuts agility sharply.</div>
+          </div>
+          <div class="djinn-card">
+            <div class="djinn-name">Bane</div>
+            <div class="status">Venus • Standby</div>
+            <div class="effect">Poisons and drops enemy defense.</div>
+          </div>
+        </div>
+        <div class="djinn-column">
+          <h3>Recovery</h3>
+          <div class="djinn-card">
+            <div class="djinn-name">Echo</div>
+            <div class="status">Earth • Recovery (1 turn)</div>
+            <div class="effect">Restores to standby next turn after summoning.</div>
+          </div>
+          <div class="djinn-card">
+            <div class="djinn-name">Flint</div>
+            <div class="status">Earth • Recovery (2 turns)</div>
+            <div class="effect">Provides attack boost when reset.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="summon-panel" aria-label="Summon prep">
+        <h3>Summon Threshold</h3>
+        <div class="summon-meter" aria-hidden="true"><div class="fill"></div></div>
+        <div class="blessing">Ready to unleash <strong>Ramses</strong>. Requires 3 Set Venus Djinn. Boosted power thanks to Forge.</div>
+        <div class="button-row">
+          <div class="btn primary">Summon Ramses</div>
+          <div class="btn">Reassign Djinn</div>
+          <div class="btn">Set All</div>
+          <div class="btn">Return</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
