@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Golden Sun Battle – Interactive Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="battle-shell">
+      <section
+        class="battle-container"
+        role="application"
+        aria-label="Golden Sun battle interface"
+      >
+        <div id="outcome-banner" class="outcome-banner" hidden></div>
+        <header id="party-status" class="stat-bar" aria-label="Party status"></header>
+        <div id="enemy-row" class="enemy-row" aria-label="Enemy lineup"></div>
+        <div id="party-row" class="party-row" aria-label="Party lineup"></div>
+        <section id="combat-log" class="combat-log" role="log" aria-live="polite"></section>
+        <footer class="bottom-ui">
+          <div id="portrait-grid" class="portraits" aria-label="Active party"></div>
+          <div id="action-menu" class="action-menu" aria-label="Command grid"></div>
+        </footer>
+      </section>
+    </main>
+
+    <aside id="action-overlay" class="overlay" hidden>
+      <div class="overlay-card" role="dialog" aria-modal="true">
+        <header class="overlay-header">
+          <h2 data-title></h2>
+          <button id="close-overlay" type="button" class="close-button" aria-label="Close menu">×</button>
+        </header>
+        <div class="overlay-body">
+          <ul data-list class="ability-list" role="listbox" aria-label="Available abilities"></ul>
+          <div data-detail class="ability-detail" aria-live="polite"></div>
+        </div>
+      </div>
+    </aside>
+
+    <script type="module" src="../../../golden-sun-battler/dist/ui/main.js"></script>
+  </body>
+</html>
