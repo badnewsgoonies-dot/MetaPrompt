@@ -1,0 +1,19 @@
+{
+  "name": "golden-sun-battler",
+  "version": "0.1.0",
+  "description": "Deterministic Golden Sun-inspired turn-based battle engine",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "seedrandom": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/seedrandom": "^3.0.8",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.2"
+  }
+}
