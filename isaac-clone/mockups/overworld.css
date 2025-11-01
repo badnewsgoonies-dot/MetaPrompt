@@ -1,0 +1,378 @@
+/* Overworld Styles: Golden Sun - Vale Village */
+/* Phase 1: HTML/CSS mockup (no JavaScript) */
+
+/* ===== BASE STAGE ===== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: var(--font-main);
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.stage {
+  width: var(--viewport-width);
+  height: var(--viewport-height);
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  border: 4px solid var(--color-ui-border);
+  box-shadow: var(--shadow-ui);
+}
+
+.scene {
+  position: relative;
+  width: var(--scene-width);
+  height: var(--scene-height);
+  /* Camera will center on player (Phase 2: JavaScript) */
+  /* For mockup: fixed position showing town center */
+  left: -240px;
+  top: -160px;
+}
+
+/* ===== BACKGROUND LAYER ===== */
+
+.bg {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-bg);
+  background: linear-gradient(135deg, var(--color-grass-light) 0%, var(--color-grass-mid) 50%, var(--color-grass-dark) 100%);
+  
+  /* Grass texture overlay */
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 15px,
+      rgba(0, 0, 0, 0.03) 15px,
+      rgba(0, 0, 0, 0.03) 16px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 15px,
+      rgba(0, 0, 0, 0.03) 15px,
+      rgba(0, 0, 0, 0.03) 16px
+    ),
+    linear-gradient(135deg, var(--color-grass-light) 0%, var(--color-grass-mid) 50%, var(--color-grass-dark) 100%);
+}
+
+/* Paths (dirt roads through village) */
+.path {
+  position: absolute;
+  background: var(--color-path);
+  border: 2px solid var(--color-path-dark);
+  z-index: var(--z-ground);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.path.horizontal {
+  height: 32px;
+}
+
+.path.vertical {
+  width: 32px;
+}
+
+/* ===== SCENERY LAYER ===== */
+
+.scenery {
+  position: absolute;
+  z-index: var(--z-scenery);
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* Trees */
+.tree {
+  filter: drop-shadow(var(--shadow-entity));
+}
+
+/* Buildings */
+.building {
+  position: absolute;
+  z-index: var(--z-scenery);
+  image-rendering: pixelated;
+  filter: drop-shadow(var(--shadow-entity));
+}
+
+.building img {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* Door indicators (enterable buildings) */
+.building[data-enterable="true"]::before {
+  content: '';
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle, rgba(255, 255, 100, 0.6), transparent);
+  animation: sparkle 2s infinite;
+  pointer-events: none;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.3; transform: translateX(-50%) scale(0.8); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.2); }
+}
+
+/* ===== ENTITY LAYER ===== */
+
+.entity {
+  position: absolute;
+  z-index: var(--z-entity);
+  image-rendering: pixelated;
+  filter: drop-shadow(var(--shadow-entity));
+}
+
+.entity img {
+  display: block;
+  width: auto;
+  height: auto;
+}
+
+/* Player character */
+.entity.player {
+  animation: idle-bob var(--fps-idle) infinite;
+}
+
+@keyframes idle-bob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-1px); }
+}
+
+/* NPCs */
+.entity.npc {
+  cursor: pointer;
+  animation: idle-bob var(--fps-idle) infinite;
+}
+
+.entity.npc:hover {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 100, 0.8)) drop-shadow(var(--shadow-entity));
+}
+
+.entity.npc:focus {
+  outline: var(--border-thick) solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+/* Focus ring for keyboard navigation */
+.entity.npc[tabindex]:focus-visible {
+  outline: var(--border-thick) solid var(--color-focus);
+  outline-offset: 4px;
+}
+
+/* ===== DIALOGUE SYSTEM ===== */
+
+.dialogue-box {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--viewport-width) - 40px);
+  min-height: var(--dialogue-height);
+  max-height: 150px;
+  z-index: var(--z-dialogue);
+  
+  background: var(--color-dialogue-bg);
+  border: 3px solid var(--color-dialogue-border);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-dialogue);
+  
+  display: flex;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--anim-normal);
+}
+
+.dialogue-box.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Portrait */
+.dialogue-box .portrait {
+  width: var(--portrait-size);
+  height: var(--portrait-size);
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--color-ui-border-dark);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dialogue-box .portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+/* Dialogue content */
+.dialogue-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0; /* Allow text to wrap */
+}
+
+.speaker-name {
+  font-size: var(--font-size-small);
+  color: var(--color-speaker-name);
+  text-shadow: var(--shadow-text);
+  font-weight: bold;
+  margin-bottom: var(--space-xs);
+}
+
+.dialogue-text {
+  font-size: var(--font-size-small);
+  color: var(--color-dialogue-text);
+  line-height: var(--line-height);
+  text-shadow: var(--shadow-text);
+  flex: 1;
+}
+
+.dialogue-text p {
+  margin-bottom: var(--space-sm);
+}
+
+/* Continue indicator */
+.continue-indicator {
+  align-self: flex-end;
+  font-size: var(--font-size-small);
+  color: var(--color-speaker-name);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0.5; transform: translateY(2px); }
+}
+
+/* ===== UI OVERLAYS ===== */
+
+/* Location banner */
+.location-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-ui);
+  
+  background: var(--color-ui-bg);
+  border: 3px solid var(--color-ui-border);
+  border-radius: var(--border-radius-md);
+  padding: var(--space-sm) var(--space-lg);
+  
+  font-size: var(--font-size-base);
+  color: var(--color-ui-text);
+  text-shadow: var(--shadow-text);
+  box-shadow: var(--shadow-ui);
+  
+  opacity: 0;
+  animation: banner-fade 3s ease-in-out;
+}
+
+@keyframes banner-fade {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* ===== ACCESSIBILITY ===== */
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .dialogue-box {
+    background: #000;
+    border-color: #fff;
+  }
+  
+  .dialogue-text {
+    color: #fff;
+  }
+  
+  .entity.npc:focus {
+    outline-width: 4px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .entity.player,
+  .entity.npc {
+    animation: none;
+  }
+  
+  .continue-indicator {
+    animation: none;
+  }
+  
+  .building[data-enterable="true"]::before {
+    animation: none;
+    opacity: 0.5;
+  }
+  
+  .location-banner {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ===== RESPONSIVE (Maintains aspect ratio) ===== */
+
+@media (max-width: 500px) {
+  .stage {
+    width: 100vw;
+    height: calc(100vw * 2 / 3); /* Maintain 3:2 aspect ratio */
+    border-width: 2px;
+  }
+  
+  .dialogue-box {
+    font-size: 8px;
+    min-height: 80px;
+  }
+}
+
+/* ===== PRINT (Debug) ===== */
+
+@media print {
+  body {
+    background: #fff;
+  }
+  
+  .stage {
+    border: 1px solid #000;
+    page-break-inside: avoid;
+  }
+  
+  .dialogue-box.active {
+    opacity: 1;
+    position: relative;
+    margin-top: 20px;
+  }
+}
