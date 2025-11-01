@@ -22,7 +22,7 @@ export function initializeNPCs(spriteMapData: SpriteMapData): Result<NPCRegistry
           role: entity.role as any,
           element: entity.element as any,
           visible: entity.visible !== false, // Default true if not specified
-          interactionRange: 32, // 1 tile at 2× scale (16px tile × 2 = 32px)
+          interactionRange: 48, // Increased for better UX (1.5 tiles at 2× scale)
           hasBeenTalkedTo: false
         };
 
