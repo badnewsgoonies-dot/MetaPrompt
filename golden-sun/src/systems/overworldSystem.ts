@@ -364,7 +364,13 @@ export function createValeVillageScene(): Scene {
       { id: 'villager-house-7', position: { x: 600, y: 1040 }, width: 80, height: 70, type: 'building' },
       { id: 'villager-house-8', position: { x: 1200, y: 1060 }, width: 80, height: 70, type: 'building' },
       { id: 'watchtower', position: { x: 880, y: 1140 }, width: 64, height: 100, type: 'building' },
-      { id: 'gate-guard-post', position: { x: 1040, y: 1160 }, width: 80, height: 70, type: 'building' }
+      { id: 'gate-guard-post', position: { x: 1040, y: 1160 }, width: 80, height: 70, type: 'building' },
+      // Scenery collision (trees, gate)
+      { id: 'tree-nw', position: { x: 240, y: 280 }, width: 32, height: 32, type: 'scenery' },
+      { id: 'tree-ne', position: { x: 1680, y: 280 }, width: 32, height: 32, type: 'scenery' },
+      { id: 'tree-n1', position: { x: 720, y: 160 }, width: 32, height: 32, type: 'scenery' },
+      { id: 'tree-n2', position: { x: 1200, y: 160 }, width: 32, height: 32, type: 'scenery' },
+      { id: 'vale-gate', position: { x: 880, y: 1080 }, width: 80, height: 40, type: 'scenery' }
     ],
     npcIds: ['garet', 'dora', 'ivan', 'mia', 'shopkeeper', 'elder'],
     spawnPosition: { x: 960, y: 640 }, // Scaled 2x from (480, 320) - center of new map
