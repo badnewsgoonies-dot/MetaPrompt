@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { GameWorld } from './components/GameWorld';
 import { DialogueBox } from './components/DialogueBox';
 import { ShopMenu } from './components/ShopMenu';
+import { OnScreenController } from './components/OnScreenController';
 import { NPCRegistry } from './types/npc';
 import { initializeNPCs, findInteractableNPC, markNPCAsTalkedTo } from './systems/npcSystem';
 import { 
@@ -79,10 +80,176 @@ const GoldenSunApp: React.FC = () => {
 
   // Input state
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
+  
+  // Debug state - shows what buttons are being pressed
+  const [debugInfo, setDebugInfo] = useState<string>('No input');
 
   // Refs
   const gameLoopRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
+
+  // Extract interaction logic for reuse by both keyboard and touch
+  const handleInteract = useCallback(() => {
+    console.log('[handleInteract] Called!');
+    console.log('[handleInteract] - Player:', player ? `(${Math.round(player.position.x)}, ${Math.round(player.position.y)})` : 'NULL');
+    console.log('[handleInteract] - Active Scene:', activeScene ? 'EXISTS' : 'NULL');
+    console.log('[handleInteract] - NPC Registry:', npcRegistry ? `${npcRegistry.npcs.size} NPCs` : 'NULL');
+    console.log('[handleInteract] - Dialogue Active:', isDialogueActive(activeDialogue));
+    console.log('[handleInteract] - Shop Open:', shopState?.isOpen);
+    
+    // Don't interact if dialogue is active or shop is open
+    if (isDialogueActive(activeDialogue) || shopState?.isOpen) {
+      console.log('[handleInteract] Blocked - dialogue or shop open');
+      return;
+    }
+
+    // Try to interact with door first (shops, buildings)
+    if (player && activeScene) {
+      const nearestDoor = findNearestDoor(player.position, activeScene.current, 48);
+      
+      if (nearestDoor) {
+        const doorCheck = canEnterDoor(nearestDoor);
+        
+        if (doorCheck.ok) {
+          // Check if it's a shop door
+          const shopId = nearestDoor.id.includes('item-shop') ? 'item-shop' 
+            : nearestDoor.id.includes('armor-shop') ? 'armor-shop'
+            : null;
+
+          if (shopId && shops.has(shopId) && shopState && inventory) {
+            // Open shop
+            const shop = shops.get(shopId)!;
+            const newShopState = openShop(shopState, shop);
+            setShopState(newShopState);
+            return; // Don't check for NPCs if entering shop
+          }
+        }
+      }
+    }
+    
+    // Try to interact with NPC if not entering a door
+    if (player && npcRegistry && dialogueRegistry) {
+      console.log('[handleInteract] Checking for interactable NPC...');
+      console.log('[handleInteract] Player facing:', player.facing);
+      
+      const interactionCheck = findInteractableNPC(
+        player.position,
+        player.facing,
+        npcRegistry
+      );
+
+      console.log('[handleInteract] Interaction check result:', interactionCheck);
+      console.log('[handleInteract] - Can interact:', interactionCheck.canInteract);
+      console.log('[handleInteract] - NPC found:', interactionCheck.npc?.name || 'none');
+      console.log('[handleInteract] - Distance:', interactionCheck.distance);
+
+      if (interactionCheck.canInteract && interactionCheck.npc) {
+        console.log('[handleInteract] Starting dialogue with:', interactionCheck.npc.name);
+        
+        // Start dialogue
+        const dialogueResult = startDialogue(interactionCheck.npc.dialogue_id, dialogueRegistry);
+        console.log('[handleInteract] Dialogue result:', dialogueResult.ok ? 'SUCCESS' : `FAIL: ${dialogueResult.error}`);
+        
+        if (dialogueResult.ok) {
+          const dialogue = setDialogueState(dialogueResult.value, 'displaying');
+          setActiveDialogue(dialogue);
+          console.log('[handleInteract] Dialogue set to active');
+          
+          // Mark NPC as talked to
+          const updateResult = markNPCAsTalkedTo(npcRegistry, interactionCheck.npc.id);
+          if (updateResult.ok) {
+            setNPCRegistry(updateResult.value);
+          }
+        }
+      } else {
+        console.log('[handleInteract] NO interactable NPC found');
+        console.log('[handleInteract] Try facing the NPC directly (press D-pad towards them)');
+      }
+    }
+  }, [player, activeScene, npcRegistry, dialogueRegistry, activeDialogue, shopState, shops, inventory]);
+
+  const handleAdvanceDialogue = useCallback(() => {
+    if (!activeDialogue || !dialogueRegistry) return;
+    
+    if (activeDialogue.state === 'displaying' || activeDialogue.state === 'waiting') {
+      const advanceResult = advanceDialogue(activeDialogue);
+      if (advanceResult.ok) {
+        if (advanceResult.value.state === 'closing') {
+          setActiveDialogue(null);
+        } else {
+          setActiveDialogue(advanceResult.value);
+        }
+      }
+    }
+  }, [activeDialogue, dialogueRegistry]);
+
+  const handleCancel = useCallback(() => {
+    // Close dialogue
+    if (activeDialogue) {
+      setActiveDialogue(null);
+      return;
+    }
+    
+    // Close shop
+    if (shopState?.isOpen) {
+      const newState = closeShop(shopState);
+      setShopState(newState);
+      return;
+    }
+  }, [activeDialogue, shopState]);
+
+  // On-screen controller handlers
+  const handleControllerKeyDown = useCallback((key: string) => {
+    const timestamp = new Date().toISOString().split('T')[1];
+    console.log(`[${timestamp}] Controller Down: "${key}"`);
+    
+    setDebugInfo(`Pressed: ${key} at ${timestamp}`);
+    
+    // Only add movement keys to keysPressed (D-pad)
+    if (key.startsWith('Arrow')) {
+      const lowerKey = key.toLowerCase();
+      setKeysPressed(prev => new Set(prev).add(lowerKey));
+      console.log(`[${timestamp}] Added to keysPressed: ${lowerKey}`);
+    }
+    
+    // Handle action buttons directly (don't add to keysPressed to avoid WASD conflicts)
+    if (key === 'Enter') {
+      console.log(`[${timestamp}] A/Enter button pressed!`);
+      console.log(`[${timestamp}] - Active Dialogue: ${isDialogueActive(activeDialogue)}`);
+      console.log(`[${timestamp}] - Shop Open: ${shopState?.isOpen}`);
+      console.log(`[${timestamp}] - Player: ${player ? `(${Math.round(player.position.x)}, ${Math.round(player.position.y)})` : 'null'}`);
+      console.log(`[${timestamp}] - NPC Registry: ${npcRegistry ? `${npcRegistry.npcs.size} NPCs` : 'null'}`);
+      
+      setDebugInfo(`A pressed - Dialogue: ${isDialogueActive(activeDialogue)}`);
+      
+      // If dialogue is active, advance it
+      if (isDialogueActive(activeDialogue)) {
+        console.log(`[${timestamp}] ? Advancing dialogue`);
+        setDebugInfo('A pressed - Advancing dialogue');
+        handleAdvanceDialogue();
+      } else {
+        console.log(`[${timestamp}] ? Attempting interaction`);
+        setDebugInfo('A pressed - Trying to interact');
+        // Otherwise, try to interact
+        handleInteract();
+      }
+    } else if (key === 'Escape') {
+      console.log(`[${timestamp}] B/Escape button pressed!`);
+      setDebugInfo(`B pressed - Cancelling`);
+      handleCancel();
+    }
+  }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel, shopState, player, npcRegistry]);
+
+  const handleControllerKeyUp = useCallback((key: string) => {
+    // Only remove movement keys from keysPressed (D-pad)
+    if (key.startsWith('Arrow')) {
+      setKeysPressed(prev => {
+        const next = new Set(prev);
+        next.delete(key.toLowerCase());
+        return next;
+      });
+    }
+  }, []);
 
   // Initialize game
   useEffect(() => {
@@ -106,34 +273,84 @@ const GoldenSunApp: React.FC = () => {
       // Initialize dialogue registry with sample dialogues
       let dRegistry = createDialogueRegistry();
       
-      // Add sample dialogues
-      const garetDialogue = createSimpleDialogue(
-        'garet-intro',
-        'garet',
-        'Garet',
-        [
+      // Add sample dialogues for all NPCs
+      const dialogues = [
+        createSimpleDialogue('garet-intro', 'garet', 'Garet', [
           'Hey Isaac! Ready for an adventure?',
           'The Elder wants to see us at the plaza.',
           "Let's not keep him waiting!"
-        ]
-      );
-      
-      const doraDialogue = createSimpleDialogue(
-        'dora-greeting',
-        'dora',
-        'Dora',
-        [
+        ]),
+        createSimpleDialogue('dora-greeting', 'dora', 'Dora', [
           'Good morning, Isaac!',
           'Be careful if you go near Sol Sanctum.',
           'Strange things have been happening there lately.'
-        ]
-      );
+        ]),
+        createSimpleDialogue('elder-warning', 'elder', 'Elder', [
+          'Welcome, Isaac.',
+          'I sense a great destiny awaits you.',
+          'The powers of Alchemy are awakening...'
+        ]),
+        createSimpleDialogue('kraden-scholar', 'kraden', 'Kraden', [
+          'Ah, Isaac! Studying ancient texts as always.',
+          'Sol Sanctum holds many mysteries.',
+          'Perhaps one day we shall explore it together.'
+        ]),
+        createSimpleDialogue('kyle-father', 'kyle', 'Kyle', [
+          "Garet's father here. Stay safe, you two!",
+          'The mountains can be treacherous.'
+        ]),
+        createSimpleDialogue('jenna-friend', 'jenna', 'Jenna', [
+          'Hi Isaac!',
+          'Have you seen Felix? I miss him...'
+        ]),
+        createSimpleDialogue('healer-wisdom', 'healer', 'Great Healer', [
+          'The light of healing shines upon this village.',
+          'May it protect you on your journey.'
+        ]),
+        createSimpleDialogue('aaron-parent', 'aaron', 'Aaron', [
+          'Keep an eye on Jenna for us, Isaac.',
+          'She looks up to you.'
+        ]),
+        createSimpleDialogue('kay-parent', 'kay', 'Kay', [
+          'Such brave children you all are.',
+          'Please be careful out there.'
+        ]),
+        createSimpleDialogue('innkeeper-rest', 'innkeeper', 'Innkeeper', [
+          'Welcome to the inn!',
+          'Rest here to restore your energy.',
+          '30 coins per night.'
+        ]),
+        createSimpleDialogue('armor-shop', 'armor-shop-owner', 'Shop Owner', [
+          'Welcome to the armor shop!',
+          'We have the finest equipment in Vale.'
+        ]),
+        createSimpleDialogue('scholar-1', 'scholar-1', 'Scholar', [
+          'I study the ancient texts of Alchemy.',
+          'Fascinating stuff!'
+        ]),
+        createSimpleDialogue('scholar-2', 'scholar-2', 'Scholar', [
+          'The power of Psynergy flows through all things.',
+          'Can you feel it?'
+        ]),
+        createSimpleDialogue('villager-1', 'villager-1', 'Villager', [
+          "It's a beautiful day in Vale!",
+          'Have you been to the plaza?'
+        ]),
+        createSimpleDialogue('villager-2', 'villager-2', 'Villager', [
+          'I heard strange noises from Sol Sanctum.',
+          'Be careful if you go there.'
+        ]),
+        createSimpleDialogue('villager-3', 'villager-3', 'Villager', [
+          'Hello there!',
+          'Enjoy your stay in Vale Village.'
+        ])
+      ];
 
-      let regResult = registerDialogue(dRegistry, garetDialogue);
-      if (regResult.ok) dRegistry = regResult.value;
-      
-      regResult = registerDialogue(dRegistry, doraDialogue);
-      if (regResult.ok) dRegistry = regResult.value;
+      // Register all dialogues
+      for (const dialogue of dialogues) {
+        const regResult = registerDialogue(dRegistry, dialogue);
+        if (regResult.ok) dRegistry = regResult.value;
+      }
 
       setDialogueRegistry(dRegistry);
 
@@ -191,85 +408,22 @@ const GoldenSunApp: React.FC = () => {
       setKeysPressed(prev => new Set(prev).add(e.key.toLowerCase()));
 
       // Interaction key (Enter/A)
-      if ((e.key === 'Enter' || e.key.toLowerCase() === 'a') && !isDialogueActive(activeDialogue) && !shopState?.isOpen) {
+      if (e.key === 'Enter' || e.key.toLowerCase() === 'a') {
         e.preventDefault();
         
-        // Try to interact with door first (shops, buildings)
-        if (player && activeScene) {
-          const nearestDoor = findNearestDoor(player.position, activeScene.current, 48);
-          
-          if (nearestDoor) {
-            const doorCheck = canEnterDoor(nearestDoor);
-            
-            if (doorCheck.ok) {
-              // Check if it's a shop door
-              const shopId = nearestDoor.id.includes('item-shop') ? 'item-shop' 
-                : nearestDoor.id.includes('armor-shop') ? 'armor-shop'
-                : null;
-
-              if (shopId && shops.has(shopId) && shopState && inventory) {
-                // Open shop
-                const shop = shops.get(shopId)!;
-                const newShopState = openShop(shopState, shop);
-                setShopState(newShopState);
-                return; // Don't check for NPCs if entering shop
-              }
-            }
-          }
-        }
-        
-        // Try to interact with NPC if not entering a door
-        if (player && npcRegistry && dialogueRegistry) {
-          const interactionCheck = findInteractableNPC(
-            player.position,
-            player.facing,
-            npcRegistry
-          );
-
-          if (interactionCheck.canInteract && interactionCheck.npc) {
-            // Start dialogue
-            const dialogueResult = startDialogue(interactionCheck.npc.dialogue_id, dialogueRegistry);
-            if (dialogueResult.ok) {
-              const dialogue = setDialogueState(dialogueResult.value, 'displaying');
-              setActiveDialogue(dialogue);
-              
-              // Mark NPC as talked to
-              const updateResult = markNPCAsTalkedTo(npcRegistry, interactionCheck.npc.id);
-              if (updateResult.ok) {
-                setNPCRegistry(updateResult.value);
-              }
-            }
-          }
+        // If dialogue is active, advance it
+        if (isDialogueActive(activeDialogue)) {
+          handleAdvanceDialogue();
+        } else {
+          // Otherwise, try to interact
+          handleInteract();
         }
       }
 
-      // Advance dialogue
-      if ((e.key === 'Enter' || e.key.toLowerCase() === 'a') && activeDialogue && dialogueRegistry) {
+      // Close dialogue or shop (Escape/B)
+      if (e.key === 'Escape') {
         e.preventDefault();
-        
-        if (activeDialogue.state === 'displaying' || activeDialogue.state === 'waiting') {
-          const advanceResult = advanceDialogue(activeDialogue);
-          if (advanceResult.ok) {
-            if (advanceResult.value.state === 'closing') {
-              setActiveDialogue(null);
-            } else {
-              setActiveDialogue(advanceResult.value);
-            }
-          }
-        }
-      }
-
-      // Close dialogue
-      if (e.key === 'Escape' && activeDialogue) {
-        e.preventDefault();
-        setActiveDialogue(null);
-      }
-
-      // Close shop
-      if (e.key === 'Escape' && shopState?.isOpen) {
-        e.preventDefault();
-        const newState = closeShop(shopState);
-        setShopState(newState);
+        handleCancel();
       }
 
       // Shop navigation
@@ -331,7 +485,7 @@ const GoldenSunApp: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [player, npcRegistry, dialogueRegistry, activeDialogue, shopState, activeScene, shops, inventory]);
+  }, [player, npcRegistry, dialogueRegistry, activeDialogue, shopState, activeScene, shops, inventory, handleInteract, handleAdvanceDialogue, handleCancel]);
 
   // Game loop
   useEffect(() => {
@@ -529,6 +683,38 @@ const GoldenSunApp: React.FC = () => {
           <span className="hud-label">Moving:</span>
           <span className="hud-value">{isPlayerMoving(player) ? 'Yes' : 'No'}</span>
         </div>
+        <div className="hud-item" style={{ borderTop: '1px solid #d4a857', marginTop: '8px', paddingTop: '8px' }}>
+          <span className="hud-label">Debug:</span>
+          <span className="hud-value" style={{ fontSize: '10px', wordBreak: 'break-all' }}>{debugInfo}</span>
+        </div>
+        <div className="hud-item">
+          <span className="hud-label">Player Pos:</span>
+          <span className="hud-value" style={{ fontSize: '10px' }}>
+            ({Math.round(player.position.x)}, {Math.round(player.position.y)})
+          </span>
+        </div>
+        <div className="hud-item">
+          <span className="hud-label">Facing:</span>
+          <span className="hud-value" style={{ fontSize: '12px' }}>
+            {player.facing === 'up' ? '?' : player.facing === 'down' ? '?' : player.facing === 'left' ? '?' : '?'} {player.facing}
+          </span>
+        </div>
+        <div className="hud-item">
+          <span className="hud-label">Nearby NPCs:</span>
+          <span className="hud-value" style={{ fontSize: '10px' }}>
+            {(() => {
+              const nearby = Array.from(npcRegistry.npcs.values()).filter(npc => {
+                if (!npc.visible) return false;
+                if (npc.id === 'isaac') return false; // Exclude player
+                const dx = npc.position.x - player.position.x;
+                const dy = npc.position.y - player.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance <= 48;
+              });
+              return nearby.length > 0 ? nearby.map(n => n.name).join(', ') : 'None';
+            })()}
+          </span>
+        </div>
       </div>
 
       {/* Controls Guide */}
@@ -549,6 +735,12 @@ const GoldenSunApp: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* On-Screen Controller (Touch Devices) */}
+      <OnScreenController
+        onKeyDown={handleControllerKeyDown}
+        onKeyUp={handleControllerKeyUp}
+      />
     </div>
   );
 };
