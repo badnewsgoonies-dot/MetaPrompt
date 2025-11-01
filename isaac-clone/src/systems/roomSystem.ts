@@ -18,7 +18,7 @@ export function generateDungeon(rng: SeededRNG): Result<Dungeon, string> {
   for (let y = 0; y < gridSize; y++) {
     for (let x = 0; x < gridSize; x++) {
       const roomType = determineRoomType(x, y, gridSize, rng);
-      const doors = generateDoors(x, y, gridSize, rng);
+      const doors = generateDoors(x, y, gridSize, roomType, rng);
 
       rooms.push({
         id: `room_${x}_${y}`,
@@ -63,8 +63,20 @@ function determineRoomType(
     }
   }
 
+  // Shop room - guaranteed one per floor
+  if (x === 0 && y === center) {
+    return 'shop';
+  }
+
+  // Secret room - hidden, accessed from edges
+  if (x === gridSize - 1 && y === center) {
+    if (rng.chance(0.3)) {
+      return 'secret';
+    }
+  }
+
   // Treasure rooms randomly placed
-  if (rng.chance(0.25)) {  // 25% chance
+  if (rng.chance(0.2)) {  // 20% chance
     return 'treasure';
   }
 
@@ -72,12 +84,13 @@ function determineRoomType(
 }
 
 /**
- * Generate doors for a room based on its grid position
+ * Generate doors for a room based on its grid position and type
  */
 function generateDoors(
   x: number,
   y: number,
   gridSize: number,
+  roomType: RoomType,
   rng: SeededRNG
 ): Door[] {
   const doors: Door[] = [];
@@ -114,9 +127,24 @@ function generateDoors(
     });
   }
 
-  // Randomly remove some doors to create more interesting layout
-  // but ensure at least 1 door remains
-  if (doors.length > 1) {
+  // Treasure rooms and shops have one locked door
+  if (roomType === 'treasure' || roomType === 'shop') {
+    if (doors.length > 0) {
+      const doorToLock = rng.nextInt(0, doors.length);
+      const door = doors[doorToLock];
+      if (door) {
+        doors[doorToLock] = { ...door, locked: true };
+      }
+    }
+  }
+
+  // Secret rooms have all doors initially locked
+  if (roomType === 'secret') {
+    return doors.map((d: Door) => ({ ...d, locked: true }));
+  }
+
+  // Randomly remove some doors from normal rooms
+  if (roomType === 'normal' && doors.length > 1) {
     const doorsToKeep = Math.max(1, rng.nextInt(1, doors.length + 1));
     while (doors.length > doorsToKeep) {
       const indexToRemove = rng.nextInt(0, doors.length);

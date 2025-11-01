@@ -4,7 +4,7 @@
 
 import { Position } from './common';
 
-export type RoomType = 'start' | 'normal' | 'treasure' | 'boss';
+export type RoomType = 'start' | 'normal' | 'treasure' | 'boss' | 'shop' | 'secret';
 
 export interface Door {
   readonly direction: 'north' | 'south' | 'east' | 'west';

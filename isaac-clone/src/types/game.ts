@@ -7,6 +7,9 @@ import { Enemy } from './enemy';
 import { Projectile } from './projectile';
 import { Item } from './item';
 import { Room } from './room';
+import { Pickup } from './pickup';
+import { Obstacle } from './obstacle';
+import { Bomb } from './bomb';
 
 export type GamePhase = 'playing' | 'paused' | 'victory' | 'defeat' | 'room_transition';
 
@@ -25,6 +28,9 @@ export interface GameState {
   readonly enemies: ReadonlyArray<Enemy>;
   readonly projectiles: ReadonlyArray<Projectile>;
   readonly items: ReadonlyArray<Item>;
+  readonly pickups: ReadonlyArray<Pickup>;
+  readonly obstacles: ReadonlyArray<Obstacle>;
+  readonly bombs: ReadonlyArray<Bomb>;
   readonly score: number;
 }
 

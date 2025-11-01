@@ -13,6 +13,9 @@ import { spawnEnemiesInRoom, updateEnemy, canEnemyShoot, getShootDirection, upda
 import { updateProjectile, removeInvalidProjectiles, createEnemyProjectile } from './projectileSystem';
 import { processCombat, checkItemCollection } from './combatSystem';
 import { collectItem, removeCollectedItems, spawnRandomItem } from './itemSystem';
+import { collectPickup, removeCollectedPickups, spawnRoomClearPickups } from './pickupSystem';
+import { generateRoomObstacles, removeDestroyedObstacles } from './obstacleSystem';
+import { processBombExplosions } from './bombSystem';
 
 /**
  * Initialize a new game
@@ -52,6 +55,9 @@ export function initializeGame(seed: number = Date.now()): Result<GameState, str
       enemies: [],
       projectiles: [],
       items: [],
+      pickups: [],
+      obstacles: [],
+      bombs: [],
       score: 0
     }
   };
@@ -168,10 +174,51 @@ export function updateGame(
     }
   }
 
-  // Remove collected items
+  // Check pickup collection
+  for (const pickup of updatedState.pickups) {
+    if (pickup.collected) continue;
+
+    if (checkItemCollection(
+      updatedState.player.position,
+      updatedState.player.size,
+      pickup.position
+    )) {
+      const collectionResult = collectPickup(updatedState.player, pickup);
+      if (collectionResult.ok) {
+        updatedState = {
+          ...updatedState,
+          player: collectionResult.value.player,
+          pickups: updatedState.pickups.map(p =>
+            p.id === pickup.id ? collectionResult.value.pickup : p
+          )
+        };
+      }
+    }
+  }
+
+  // Process bomb explosions
+  const bombResult = processBombExplosions(
+    updatedState.bombs,
+    updatedState.player,
+    updatedState.enemies,
+    updatedState.obstacles,
+    updatedState.time
+  );
+
   updatedState = {
     ...updatedState,
-    items: removeCollectedItems(updatedState.items)
+    player: bombResult.player,
+    enemies: bombResult.enemies,
+    obstacles: bombResult.obstacles,
+    bombs: bombResult.bombs
+  };
+
+  // Remove collected items and pickups
+  updatedState = {
+    ...updatedState,
+    items: removeCollectedItems(updatedState.items),
+    pickups: removeCollectedPickups(updatedState.pickups),
+    obstacles: removeDestroyedObstacles(updatedState.obstacles)
   };
 
   // Check if room is cleared
@@ -205,6 +252,14 @@ export function updateGame(
             items: [...updatedState.items, item]
           };
         }
+
+        // Spawn pickups when room is cleared
+        const roomCenter = { x: 400, y: 300 };
+        const pickups = spawnRoomClearPickups(rng, roomCenter);
+        updatedState = {
+          ...updatedState,
+          pickups: [...updatedState.pickups, ...pickups]
+        };
       }
     }
   }
@@ -253,7 +308,7 @@ export function enterRoom(
   const player = resetPlayerPosition(state.player);
 
   // Spawn enemies if room not cleared
-  const enemies = (!room.cleared && room.type !== 'start')
+  const enemies = (!room.cleared && room.type !== 'start' && room.type !== 'treasure' && room.type !== 'shop')
     ? spawnEnemiesInRoom(room.type === 'boss' ? 5 : rng.nextInt(3, 7), rng)
     : [];
 
@@ -261,6 +316,21 @@ export function enterRoom(
   let items = [...state.items];
   if (room.type === 'treasure' && !room.visited) {
     items.push(spawnRandomItem(rng));
+  }
+
+  // Spawn shop items if shop room
+  if (room.type === 'shop' && !room.visited) {
+    items.push(spawnRandomItem(rng));
+    // Could add more shop items here
+  }
+
+  // Generate obstacles for the room
+  const obstacles = generateRoomObstacles(rng, room.type);
+
+  // Spawn pickups for treasure/shop rooms
+  let pickups = [...state.pickups];
+  if (room.type === 'treasure' && !room.visited) {
+    pickups.push(...spawnRoomClearPickups(rng, { x: 400, y: 450 }));
   }
 
   // Lock doors if enemies present
@@ -292,6 +362,9 @@ export function enterRoom(
       enemies,
       projectiles: [],  // Clear projectiles on room transition
       items,
+      pickups,
+      obstacles,
+      bombs: [],  // Clear bombs on room transition
       dungeon
     }
   };

@@ -6,6 +6,10 @@ import { setPlayerVelocity, setPlayerFacing, canShoot, recordShot } from './syst
 import { createPlayerTear } from './systems/projectileSystem';
 import { getCurrentRoom } from './systems/roomSystem';
 import { getItemDefinition } from './systems/itemSystem';
+import { getPickupEmoji } from './types/pickup';
+import { getObstacleEmoji } from './types/obstacle';
+import { placeBomb } from './systems/bombSystem';
+import { tryUnlockDoor } from './systems/doorSystem';
 import './App.css';
 
 const App: React.FC = () => {
@@ -119,29 +123,106 @@ const App: React.FC = () => {
           }
         }
 
+        // Place bomb with 'e' key
+        if (keysPressed.has('e')) {
+          const bombResult = placeBomb(updatedState.player, updatedState.time);
+          if (bombResult.ok) {
+            updatedState = {
+              ...updatedState,
+              player: bombResult.value.player,
+              bombs: [...updatedState.bombs, bombResult.value.bomb]
+            };
+          }
+        }
+
         // Check room transitions (when player is near doors)
         const playerX = updatedState.player.position.x;
         const playerY = updatedState.player.position.y;
 
         if (playerY < 60 && keysPressed.has('w')) {
+          // Try to unlock door if locked
+          const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
+          if (currentRoomResult.ok) {
+            const door = currentRoomResult.value.doors.find(d => d.direction === 'north');
+            if (door?.locked) {
+              const unlockResult = tryUnlockDoor(updatedState.player, updatedState.dungeon, updatedState.currentRoomId, 'north');
+              if (unlockResult.ok) {
+                setGameState({
+                  ...updatedState,
+                  player: unlockResult.value.player,
+                  dungeon: unlockResult.value.dungeon
+                });
+                return;
+              }
+            }
+          }
+
           const result = tryMoveToAdjacentRoom(updatedState, 'north');
           if (result.ok) {
             setGameState(result.value);
             return;
           }
         } else if (playerY > 540 && keysPressed.has('s')) {
+          const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
+          if (currentRoomResult.ok) {
+            const door = currentRoomResult.value.doors.find(d => d.direction === 'south');
+            if (door?.locked) {
+              const unlockResult = tryUnlockDoor(updatedState.player, updatedState.dungeon, updatedState.currentRoomId, 'south');
+              if (unlockResult.ok) {
+                setGameState({
+                  ...updatedState,
+                  player: unlockResult.value.player,
+                  dungeon: unlockResult.value.dungeon
+                });
+                return;
+              }
+            }
+          }
+
           const result = tryMoveToAdjacentRoom(updatedState, 'south');
           if (result.ok) {
             setGameState(result.value);
             return;
           }
         } else if (playerX < 60 && keysPressed.has('a')) {
+          const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
+          if (currentRoomResult.ok) {
+            const door = currentRoomResult.value.doors.find(d => d.direction === 'west');
+            if (door?.locked) {
+              const unlockResult = tryUnlockDoor(updatedState.player, updatedState.dungeon, updatedState.currentRoomId, 'west');
+              if (unlockResult.ok) {
+                setGameState({
+                  ...updatedState,
+                  player: unlockResult.value.player,
+                  dungeon: unlockResult.value.dungeon
+                });
+                return;
+              }
+            }
+          }
+
           const result = tryMoveToAdjacentRoom(updatedState, 'west');
           if (result.ok) {
             setGameState(result.value);
             return;
           }
         } else if (playerX > 740 && keysPressed.has('d')) {
+          const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
+          if (currentRoomResult.ok) {
+            const door = currentRoomResult.value.doors.find(d => d.direction === 'east');
+            if (door?.locked) {
+              const unlockResult = tryUnlockDoor(updatedState.player, updatedState.dungeon, updatedState.currentRoomId, 'east');
+              if (unlockResult.ok) {
+                setGameState({
+                  ...updatedState,
+                  player: unlockResult.value.player,
+                  dungeon: unlockResult.value.dungeon
+                });
+                return;
+              }
+            }
+          }
+
           const result = tryMoveToAdjacentRoom(updatedState, 'east');
           if (result.ok) {
             setGameState(result.value);
@@ -209,18 +290,23 @@ const App: React.FC = () => {
         <div className="hearts-container">{hearts}</div>
 
         <div className="stat">
+          <span className="stat-label">💰 Coins</span>
+          <span className="stat-value">{gameState.player.resources.coins}</span>
+        </div>
+
+        <div className="stat">
+          <span className="stat-label">🔑 Keys</span>
+          <span className="stat-value">{gameState.player.resources.hasGoldenKey ? '∞' : gameState.player.resources.keys}</span>
+        </div>
+
+        <div className="stat">
+          <span className="stat-label">💣 Bombs</span>
+          <span className="stat-value">{gameState.player.resources.bombs}</span>
+        </div>
+
+        <div className="stat">
           <span className="stat-label">Damage</span>
           <span className="stat-value">{gameState.player.stats.damage.toFixed(1)}</span>
-        </div>
-
-        <div className="stat">
-          <span className="stat-label">Tears</span>
-          <span className="stat-value">{gameState.player.stats.tearRate.toFixed(1)}/s</span>
-        </div>
-
-        <div className="stat">
-          <span className="stat-label">Speed</span>
-          <span className="stat-value">{Math.round(gameState.player.stats.speed)}</span>
         </div>
 
         <div className="stat">
@@ -284,6 +370,20 @@ const App: React.FC = () => {
           />
         ))}
 
+        {/* Obstacles */}
+        {gameState.obstacles.map(obstacle => (
+          <div
+            key={obstacle.id}
+            className="entity obstacle"
+            style={{
+              left: `${obstacle.position.x}px`,
+              top: `${obstacle.position.y}px`
+            }}
+          >
+            {getObstacleEmoji(obstacle.type)}
+          </div>
+        ))}
+
         {/* Items */}
         {gameState.items.map(item => {
           const emoji = item.type === 'health_up' ? '♥️' :
@@ -301,6 +401,42 @@ const App: React.FC = () => {
               title={getItemDefinition(item.type).name}
             >
               {emoji}
+            </div>
+          );
+        })}
+
+        {/* Pickups */}
+        {gameState.pickups.map(pickup => (
+          <div
+            key={pickup.id}
+            className="entity pickup"
+            style={{
+              left: `${pickup.position.x}px`,
+              top: `${pickup.position.y}px`
+            }}
+          >
+            {getPickupEmoji(pickup.type)}
+          </div>
+        ))}
+
+        {/* Bombs */}
+        {gameState.bombs.map(bomb => {
+          const timeLeft = bomb.fuseTime - (gameState.time - bomb.placedTime);
+          const isExploding = bomb.exploded;
+
+          return (
+            <div
+              key={bomb.id}
+              className={`entity bomb ${isExploding ? 'exploding' : ''}`}
+              style={{
+                left: `${bomb.position.x}px`,
+                top: `${bomb.position.y}px`
+              }}
+            >
+              {isExploding ? '💥' : '💣'}
+              {!isExploding && (
+                <div className="bomb-timer">{Math.ceil(timeLeft / 1000)}</div>
+              )}
             </div>
           );
         })}
@@ -350,6 +486,10 @@ const App: React.FC = () => {
           <div className="control-item">
             <span className="key">Arrow Keys</span>
             <span>Shoot Tears</span>
+          </div>
+          <div className="control-item">
+            <span className="key">E</span>
+            <span>Place Bomb</span>
           </div>
           <div className="control-item">
             <span className="key">SPACE</span>

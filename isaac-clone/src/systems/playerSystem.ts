@@ -2,7 +2,7 @@
  * Player movement and action system
  */
 
-import { Player, PlayerStats, DEFAULT_PLAYER_STATS, PLAYER_SIZE } from '../types/player';
+import { Player, PlayerStats, DEFAULT_PLAYER_STATS, DEFAULT_PLAYER_RESOURCES, PLAYER_SIZE } from '../types/player';
 import { Position, Vector2D, normalize } from '../types/common';
 import { STANDARD_ROOM_LAYOUT } from '../types/room';
 import { clampToRectangle } from '../utils/collision';
@@ -16,8 +16,10 @@ export function createPlayer(stats: PlayerStats = DEFAULT_PLAYER_STATS): Player 
     position: { x: 400, y: 300 },  // Center of room
     velocity: { dx: 0, dy: 0 },
     stats,
+    resources: DEFAULT_PLAYER_RESOURCES,
     size: PLAYER_SIZE,
     lastTearTime: -1000,  // Allow immediate first shot
+    lastBombTime: -1000,  // Allow immediate first bomb
     facing: { dx: 0, dy: -1 }  // Initially facing up
   };
 }
