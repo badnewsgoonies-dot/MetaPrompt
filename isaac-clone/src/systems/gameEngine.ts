@@ -57,6 +57,7 @@ export function initializeGame(seed: number = Date.now()): Result<GameState, str
       phase: 'playing',
       time: 0,
       seed,
+      floor: 1,  // Start on floor 1
       dungeon,
       currentRoomId: startRoom.id,
       player,
@@ -398,6 +399,51 @@ export function tryMoveToAdjacentRoom(
   }
 
   return enterRoom(state, moveResult.value, direction);
+}
+
+/**
+ * Enter the next floor (after defeating boss)
+ */
+export function enterNextFloor(state: GameState): Result<GameState, string> {
+  const newFloor = state.floor + 1;
+  const rng = new SeededRNG(state.seed + newFloor);  // Use floor number for deterministic dungeon
+
+  // Generate new dungeon for next floor
+  const dungeonResult = generateDungeon(rng);
+  if (!dungeonResult.ok) {
+    return dungeonResult;
+  }
+
+  const dungeon = dungeonResult.value;
+
+  // Find start room
+  const startRoom = dungeon.rooms.find(r => r.type === 'start');
+  if (!startRoom) {
+    return {
+      ok: false,
+      error: 'No start room found in dungeon'
+    };
+  }
+
+  // Reset player position but keep stats and resources
+  const player = resetPlayerPosition(state.player);
+
+  return {
+    ok: true,
+    value: {
+      ...state,
+      floor: newFloor,
+      dungeon,
+      currentRoomId: startRoom.id,
+      player,
+      enemies: [],
+      projectiles: [],
+      items: [],
+      pickups: [],
+      obstacles: [],
+      bombs: []
+    }
+  };
 }
 
 /**

@@ -22,6 +22,7 @@ export interface GameState {
   readonly phase: GamePhase;
   readonly time: number;  // Elapsed game time in ms
   readonly seed: number;  // RNG seed for reproducibility
+  readonly floor: number;  // Current floor number (1-indexed)
   readonly dungeon: Dungeon;
   readonly currentRoomId: string;
   readonly player: Player;

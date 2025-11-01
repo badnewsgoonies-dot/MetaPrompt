@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GameState } from './types/game';
 import { Vector2D } from './types/common';
-import { initializeGame, updateGame, togglePause, tryMoveToAdjacentRoom } from './systems/gameEngine';
+import { initializeGame, updateGame, togglePause, tryMoveToAdjacentRoom, enterNextFloor } from './systems/gameEngine';
 import { setPlayerVelocity, setPlayerFacing, canShoot, recordShot, isPlayerInvincible } from './systems/playerSystem';
 import { createPlayerTear } from './systems/projectileSystem';
 import { getCurrentRoom } from './systems/roomSystem';
@@ -181,7 +181,18 @@ const App: React.FC = () => {
 
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
-            const door = currentRoomResult.value.doors.find(d => d.direction === 'south');
+            const currentRoom = currentRoomResult.value;
+
+            // Check if this is a boss room with unlocked exit (floor transition)
+            if (currentRoom.type === 'boss' && currentRoom.bossExitUnlocked) {
+              const nextFloorResult = enterNextFloor(updatedState);
+              if (nextFloorResult.ok) {
+                setGameState(nextFloorResult.value);
+                return;
+              }
+            }
+
+            const door = currentRoom.doors.find(d => d.direction === 'south');
             if (door?.locked) {
               const unlockResult = tryUnlockDoor(updatedState.player, updatedState.dungeon, updatedState.currentRoomId, 'south');
               if (unlockResult.ok) {
@@ -319,6 +330,11 @@ const App: React.FC = () => {
         <div className="hearts-container">{hearts}</div>
 
         <div className="stat">
+          <span className="stat-label">🏆 Floor</span>
+          <span className="stat-value">{gameState.floor}</span>
+        </div>
+
+        <div className="stat">
           <span className="stat-label">💰 Coins</span>
           <span className="stat-value">{gameState.player.resources.coins}</span>
         </div>
@@ -353,6 +369,13 @@ const App: React.FC = () => {
             className={`door ${door.direction} ${door.locked ? 'locked' : ''}`}
           />
         ))}
+
+        {/* Boss Exit Door (appears when boss defeated) */}
+        {currentRoom?.type === 'boss' && currentRoom.bossExitUnlocked && (
+          <div className="door south boss-exit">
+            <span className="boss-exit-label">↓ Next Floor</span>
+          </div>
+        )}
 
         {/* Player */}
         <div

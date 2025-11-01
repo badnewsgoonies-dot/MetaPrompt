@@ -28,7 +28,8 @@ export function generateDungeon(_rng: SeededRNG): Result<Dungeon, string> {
       gridY: 0,
       doors,
       cleared: roomType === 'start',  // Start room is pre-cleared
-      visited: roomType === 'start'   // Start room is pre-visited
+      visited: roomType === 'start',   // Start room is pre-visited
+      bossExitUnlocked: false  // Boss exit locked until boss defeated
     });
   }
 
@@ -144,7 +145,8 @@ export function clearRoom(
   }
   newRooms[roomIndex] = {
     ...room,
-    cleared: true
+    cleared: true,
+    bossExitUnlocked: room.type === 'boss' ? true : room.bossExitUnlocked  // Unlock boss exit if boss room
   };
 
   return {
