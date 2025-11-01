@@ -134,6 +134,7 @@ export function checkCondition(
   const comparisonMatch = condition.match(/^(\w+)\s*(>=|<=|>|<|==)\s*(.+)$/);
   if (comparisonMatch) {
     const [, flagName, operator, valueStr] = comparisonMatch;
+    if (!valueStr || !flagName || !operator) return false; // Guard against undefined
     const flagValue = system.flags[flagName];
     const compareValue = isNaN(Number(valueStr)) ? valueStr.trim() : Number(valueStr);
     

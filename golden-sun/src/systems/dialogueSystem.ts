@@ -5,7 +5,8 @@
 
 import { Result, Ok, Err } from '../utils/result';
 import { DialogueTree, DialogueLine, DialogueState, DialogueAction } from '../types/dialogue';
-import { FlagSystem, setFlag, setFlags, checkCondition } from './storyFlagSystem';
+import { FlagSystem } from '../types/storyFlags';
+import { setFlag, checkCondition } from './storyFlagSystem';
 import { DIALOGUE_DATA } from '../data/dialogueData';
 
 /**
@@ -13,7 +14,7 @@ import { DIALOGUE_DATA } from '../data/dialogueData';
  * Returns initial dialogue state
  */
 export function startDialogue(
-  npcId: string,
+  _npcId: string,
   dialogueId: string,
   flags: FlagSystem
 ): Result<DialogueState, string> {

@@ -59,8 +59,8 @@ export interface Quest {
   objectives: QuestObjective[];
   rewards: QuestReward[];
   
-  prerequisite?: string | string[]; // Quest ID(s) or story flag(s)
-  unlocks?: string | string[]; // Quest ID(s) or story flag(s) this quest unlocks
+  prerequisite?: string | string[] | undefined; // Quest ID(s) or story flag(s)
+  unlocks?: string | string[] | undefined; // Quest ID(s) or story flag(s) this quest unlocks
   
   status: QuestStatus;
   startedAt?: number; // Timestamp

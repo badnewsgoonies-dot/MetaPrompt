@@ -21,21 +21,24 @@ import {
   isPlayerMoving
 } from './systems/movementSystem';
 import {
-  DialogueRegistry,
-  ActiveDialogue
+  DialogueState
 } from './types/dialogue';
 import {
+  startDialogue,
+  advanceDialogue,
+  getCurrentLine
+} from './systems/dialogueSystem';
+import {
+  DialogueRegistry,
+  ActiveDialogue,
   createDialogueRegistry,
   registerDialogue,
-  startDialogue,
-  updateDialogueReveal,
-  advanceDialogue,
-  selectDialogueChoice,
   setDialogueState,
   createSimpleDialogue,
   isDialogueActive,
-  getCurrentLine
-} from './systems/dialogueSystem';
+  updateDialogueReveal,
+  selectDialogueChoice
+} from './systems/dialogueSystemCompat';
 import {
   ShopState,
   Inventory,

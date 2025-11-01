@@ -4,12 +4,12 @@
  */
 
 import React from 'react';
-import { ActiveDialogue } from '../types/dialogue';
-import { getVisibleText, getCurrentLine } from '../systems/dialogueSystem';
+import { DialogueState } from '../types/dialogue';
+import { getCurrentLine } from '../systems/dialogueSystem';
 import './DialogueBox.css';
 
 interface DialogueBoxProps {
-  dialogue: ActiveDialogue;
+  dialogue: DialogueState;
   onSelectChoice: (choiceIndex: number) => void;
 }
 
@@ -17,31 +17,22 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
   dialogue,
   onSelectChoice
 }) => {
-  const currentLine = getCurrentLine(dialogue);
-  const visibleText = getVisibleText(dialogue);
-
-  if (!currentLine) return null;
+  const lineResult = getCurrentLine(dialogue);
+  
+  if (!lineResult.ok) return null;
+  
+  const currentLine = lineResult.value;
+  const visibleText = currentLine.text; // Simplified for now
 
   const hasChoices = currentLine.choices && currentLine.choices.length > 0;
-  const showContinueIndicator = dialogue.isTextComplete && !hasChoices;
+  const showContinueIndicator = !hasChoices;
 
   return (
     <div className="dialogue-box" role="region" aria-live="polite" aria-atomic="true">
-      {/* Portrait */}
-      {currentLine.speaker.portrait && (
-        <div className="dialogue-portrait">
-          <img 
-            src={currentLine.speaker.portrait} 
-            alt={`${currentLine.speaker.name} portrait`}
-            className="portrait-image"
-          />
-        </div>
-      )}
-
       {/* Text Content */}
       <div className="dialogue-content">
         {/* Speaker Name */}
-        <div className="dialogue-speaker">{currentLine.speaker.name}</div>
+        <div className="dialogue-speaker">{currentLine.speaker}</div>
 
         {/* Dialogue Text */}
         <div className="dialogue-text">
@@ -52,17 +43,15 @@ export const DialogueBox: React.FC<DialogueBoxProps> = ({
         </div>
 
         {/* Choices (if present) */}
-        {hasChoices && dialogue.isTextComplete && (
+        {hasChoices && (
           <div className="dialogue-choices" role="menu">
-            {currentLine.choices!.map((choice, index) => (
+            {currentLine.choices!.map((choice: any, index: number) => (
               <button
-                key={choice.id}
-                className={`dialogue-choice ${index === dialogue.selectedChoice ? 'selected' : ''}`}
+                key={index}
+                className={`dialogue-choice`}
                 onClick={() => onSelectChoice(index)}
                 role="menuitem"
-                aria-selected={index === dialogue.selectedChoice}
               >
-                {index === dialogue.selectedChoice && '▶ '}
                 {choice.text}
               </button>
             ))}

@@ -5,7 +5,8 @@
 
 import { Result, Ok, Err } from '../utils/result';
 import { Quest, QuestObjective, QuestReward, QuestStatus, QuestState } from '../types/quest';
-import { FlagSystem, setFlag, setFlags, checkCondition, incrementFlag } from './storyFlagSystem';
+import { FlagSystem } from '../types/storyFlags';
+import { setFlag, checkCondition } from './storyFlagSystem';
 import { QUEST_DATA } from '../data/questData';
 
 /**
@@ -24,12 +25,12 @@ export function createQuestSystem(flags: FlagSystem): QuestState {
 
   // Determine which quests are active
   const activeQuests = Object.keys(quests).filter(
-    id => quests[id].status === 'active'
+    id => quests[id]?.status === 'active'
   );
 
   // Determine which are completed
   const completedQuests = Object.keys(quests).filter(
-    id => quests[id].status === 'completed'
+    id => quests[id]?.status === 'completed'
   );
 
   return {

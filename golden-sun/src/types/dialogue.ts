@@ -9,11 +9,11 @@ export interface DialogueLine {
   id: string;
   speaker: string;
   text: string;
-  next?: string | string[]; // Next dialogue ID, or array of choice IDs
-  choices?: DialogueChoice[]; // If next is array, these are the choice texts
-  condition?: string; // Story flag condition (e.g., "bronze_badge_earned")
-  setFlag?: string | string[]; // Flag(s) to set after this dialogue
-  action?: DialogueAction; // Special action (battle, shop, etc.)
+  next?: string | string[] | undefined; // Next dialogue ID, or array of choice IDs
+  choices?: DialogueChoice[] | undefined; // If next is array, these are the choice texts
+  condition?: string | undefined; // Story flag condition (e.g., "bronze_badge_earned")
+  setFlag?: string | string[] | undefined; // Flag(s) to set after this dialogue
+  action?: DialogueAction | undefined; // Special action (battle, shop, etc.)
 }
 
 /**
@@ -54,6 +54,9 @@ export interface DialogueState {
   currentLineId: string;
   history: string[]; // Line IDs visited
   completed: boolean;
+  // Legacy properties for backward compatibility
+  isTextComplete?: boolean;
+  selectedChoice?: number;
 }
 
 /**
