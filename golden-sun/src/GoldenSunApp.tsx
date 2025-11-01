@@ -171,22 +171,28 @@ const GoldenSunApp: React.FC = () => {
 
   // On-screen controller handlers
   const handleControllerKeyDown = useCallback((key: string) => {
+    console.log(`[Controller Down] Key: "${key}", Active Dialogue: ${isDialogueActive(activeDialogue)}, Shop Open: ${shopState?.isOpen}`);
+    
     const lowerKey = key.toLowerCase();
     setKeysPressed(prev => new Set(prev).add(lowerKey));
     
     // Handle action buttons directly
     if (key === 'Enter' || lowerKey === 'a') {
+      console.log('[Controller] A/Enter pressed - checking state...');
       // If dialogue is active, advance it
       if (isDialogueActive(activeDialogue)) {
+        console.log('[Controller] Advancing dialogue');
         handleAdvanceDialogue();
       } else {
+        console.log('[Controller] Attempting interaction');
         // Otherwise, try to interact
         handleInteract();
       }
     } else if (key === 'Escape') {
+      console.log('[Controller] Escape/B pressed - cancelling');
       handleCancel();
     }
-  }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel]);
+  }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel, shopState]);
 
   const handleControllerKeyUp = useCallback((key: string) => {
     setKeysPressed(prev => {
