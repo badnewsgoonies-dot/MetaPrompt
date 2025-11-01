@@ -3,7 +3,7 @@ import { generateDungeon, getRoomAt, clearRoom, moveToRoom } from '../src/system
 import { SeededRNG } from '../src/utils/rng';
 
 describe('Room System', () => {
-  it('should generate a 3x3 dungeon', () => {
+  it('should generate a 5-room linear dungeon', () => {
     const rng = new SeededRNG(12345);
     const result = generateDungeon(rng);
 
@@ -11,11 +11,11 @@ describe('Room System', () => {
     if (!result.ok) return;
 
     const dungeon = result.value;
-    expect(dungeon.rooms.length).toBe(9);
-    expect(dungeon.gridSize).toBe(3);
+    expect(dungeon.rooms.length).toBe(5);
+    expect(dungeon.gridSize).toBe(5);
   });
 
-  it('should have a start room in the center', () => {
+  it('should have a start room at the beginning', () => {
     const rng = new SeededRNG(12345);
     const result = generateDungeon(rng);
 
@@ -26,8 +26,8 @@ describe('Room System', () => {
     const startRoom = dungeon.rooms.find(r => r.type === 'start');
 
     expect(startRoom).toBeDefined();
-    expect(startRoom?.gridX).toBe(1);
-    expect(startRoom?.gridY).toBe(1);
+    expect(startRoom?.gridX).toBe(0);
+    expect(startRoom?.gridY).toBe(0);
   });
 
   it('should get room by grid coordinates', () => {
@@ -38,7 +38,7 @@ describe('Room System', () => {
     if (!result.ok) return;
 
     const dungeon = result.value;
-    const room = getRoomAt(dungeon, 1, 1);
+    const room = getRoomAt(dungeon, 0, 0);
 
     expect(room).toBeDefined();
     expect(room?.type).toBe('start');
@@ -79,15 +79,17 @@ describe('Room System', () => {
     expect(startRoom).toBeDefined();
     if (!startRoom) return;
 
-    // Try to move north (if door exists)
-    const northDoor = startRoom.doors.find(d => d.direction === 'north');
-    if (northDoor) {
-      const moveResult = moveToRoom(dungeon, startRoom.id, 'north');
+    // Try to move east (linear dungeon goes east)
+    const eastDoor = startRoom.doors.find(d => d.direction === 'east');
+    expect(eastDoor).toBeDefined();
+
+    if (eastDoor) {
+      const moveResult = moveToRoom(dungeon, startRoom.id, 'east');
       expect(moveResult.ok).toBe(true);
 
       if (moveResult.ok) {
         const newRoom = dungeon.rooms.find(r => r.id === moveResult.value);
-        expect(newRoom?.gridY).toBe(startRoom.gridY - 1);
+        expect(newRoom?.gridX).toBe(startRoom.gridX + 1);
       }
     }
   });
