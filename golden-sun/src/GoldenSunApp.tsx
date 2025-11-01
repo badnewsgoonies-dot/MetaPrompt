@@ -173,11 +173,14 @@ const GoldenSunApp: React.FC = () => {
   const handleControllerKeyDown = useCallback((key: string) => {
     console.log(`[Controller Down] Key: "${key}", Active Dialogue: ${isDialogueActive(activeDialogue)}, Shop Open: ${shopState?.isOpen}`);
     
-    const lowerKey = key.toLowerCase();
-    setKeysPressed(prev => new Set(prev).add(lowerKey));
+    // Only add movement keys to keysPressed (D-pad)
+    if (key.startsWith('Arrow')) {
+      const lowerKey = key.toLowerCase();
+      setKeysPressed(prev => new Set(prev).add(lowerKey));
+    }
     
-    // Handle action buttons directly
-    if (key === 'Enter' || lowerKey === 'a') {
+    // Handle action buttons directly (don't add to keysPressed to avoid WASD conflicts)
+    if (key === 'Enter') {
       console.log('[Controller] A/Enter pressed - checking state...');
       // If dialogue is active, advance it
       if (isDialogueActive(activeDialogue)) {
@@ -195,11 +198,14 @@ const GoldenSunApp: React.FC = () => {
   }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel, shopState]);
 
   const handleControllerKeyUp = useCallback((key: string) => {
-    setKeysPressed(prev => {
-      const next = new Set(prev);
-      next.delete(key.toLowerCase());
-      return next;
-    });
+    // Only remove movement keys from keysPressed (D-pad)
+    if (key.startsWith('Arrow')) {
+      setKeysPressed(prev => {
+        const next = new Set(prev);
+        next.delete(key.toLowerCase());
+        return next;
+      });
+    }
   }, []);
 
   // Initialize game

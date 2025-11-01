@@ -108,11 +108,11 @@ export const OnScreenController: React.FC<OnScreenControllerProps> = ({
           {/* Y Button (Top) */}
           <button
             className="action-button button-y"
-            onTouchStart={handleTouchStart('y')}
-            onTouchEnd={handleTouchEnd('y')}
-            onMouseDown={handleMouseDown('y')}
-            onMouseUp={handleMouseUp('y')}
-            onMouseLeave={handleMouseUp('y')}
+            onTouchStart={handleTouchStart('KeyY')}
+            onTouchEnd={handleTouchEnd('KeyY')}
+            onMouseDown={handleMouseDown('KeyY')}
+            onMouseUp={handleMouseUp('KeyY')}
+            onMouseLeave={handleMouseUp('KeyY')}
             aria-label="Y Button"
           >
             <span className="button-label">Y</span>
@@ -121,11 +121,11 @@ export const OnScreenController: React.FC<OnScreenControllerProps> = ({
           {/* X Button (Left) */}
           <button
             className="action-button button-x"
-            onTouchStart={handleTouchStart('x')}
-            onTouchEnd={handleTouchEnd('x')}
-            onMouseDown={handleMouseDown('x')}
-            onMouseUp={handleMouseUp('x')}
-            onMouseLeave={handleMouseUp('x')}
+            onTouchStart={handleTouchStart('KeyX')}
+            onTouchEnd={handleTouchEnd('KeyX')}
+            onMouseDown={handleMouseDown('KeyX')}
+            onMouseUp={handleMouseUp('KeyX')}
+            onMouseLeave={handleMouseUp('KeyX')}
             aria-label="X Button"
           >
             <span className="button-label">X</span>
@@ -147,11 +147,11 @@ export const OnScreenController: React.FC<OnScreenControllerProps> = ({
           {/* A Button (Bottom) - Primary action */}
           <button
             className="action-button button-a"
-            onTouchStart={handleTouchStart('a')}
-            onTouchEnd={handleTouchEnd('a')}
-            onMouseDown={handleMouseDown('a')}
-            onMouseUp={handleMouseUp('a')}
-            onMouseLeave={handleMouseUp('a')}
+            onTouchStart={handleTouchStart('Enter')}
+            onTouchEnd={handleTouchEnd('Enter')}
+            onMouseDown={handleMouseDown('Enter')}
+            onMouseUp={handleMouseUp('Enter')}
+            onMouseLeave={handleMouseUp('Enter')}
             aria-label="A Button (Talk/Interact)"
           >
             <span className="button-label">A</span>
