@@ -273,34 +273,84 @@ const GoldenSunApp: React.FC = () => {
       // Initialize dialogue registry with sample dialogues
       let dRegistry = createDialogueRegistry();
       
-      // Add sample dialogues
-      const garetDialogue = createSimpleDialogue(
-        'garet-intro',
-        'garet',
-        'Garet',
-        [
+      // Add sample dialogues for all NPCs
+      const dialogues = [
+        createSimpleDialogue('garet-intro', 'garet', 'Garet', [
           'Hey Isaac! Ready for an adventure?',
           'The Elder wants to see us at the plaza.',
           "Let's not keep him waiting!"
-        ]
-      );
-      
-      const doraDialogue = createSimpleDialogue(
-        'dora-greeting',
-        'dora',
-        'Dora',
-        [
+        ]),
+        createSimpleDialogue('dora-greeting', 'dora', 'Dora', [
           'Good morning, Isaac!',
           'Be careful if you go near Sol Sanctum.',
           'Strange things have been happening there lately.'
-        ]
-      );
+        ]),
+        createSimpleDialogue('elder-warning', 'elder', 'Elder', [
+          'Welcome, Isaac.',
+          'I sense a great destiny awaits you.',
+          'The powers of Alchemy are awakening...'
+        ]),
+        createSimpleDialogue('kraden-scholar', 'kraden', 'Kraden', [
+          'Ah, Isaac! Studying ancient texts as always.',
+          'Sol Sanctum holds many mysteries.',
+          'Perhaps one day we shall explore it together.'
+        ]),
+        createSimpleDialogue('kyle-father', 'kyle', 'Kyle', [
+          "Garet's father here. Stay safe, you two!",
+          'The mountains can be treacherous.'
+        ]),
+        createSimpleDialogue('jenna-friend', 'jenna', 'Jenna', [
+          'Hi Isaac!',
+          'Have you seen Felix? I miss him...'
+        ]),
+        createSimpleDialogue('healer-wisdom', 'healer', 'Great Healer', [
+          'The light of healing shines upon this village.',
+          'May it protect you on your journey.'
+        ]),
+        createSimpleDialogue('aaron-parent', 'aaron', 'Aaron', [
+          'Keep an eye on Jenna for us, Isaac.',
+          'She looks up to you.'
+        ]),
+        createSimpleDialogue('kay-parent', 'kay', 'Kay', [
+          'Such brave children you all are.',
+          'Please be careful out there.'
+        ]),
+        createSimpleDialogue('innkeeper-rest', 'innkeeper', 'Innkeeper', [
+          'Welcome to the inn!',
+          'Rest here to restore your energy.',
+          '30 coins per night.'
+        ]),
+        createSimpleDialogue('armor-shop', 'armor-shop-owner', 'Shop Owner', [
+          'Welcome to the armor shop!',
+          'We have the finest equipment in Vale.'
+        ]),
+        createSimpleDialogue('scholar-1', 'scholar-1', 'Scholar', [
+          'I study the ancient texts of Alchemy.',
+          'Fascinating stuff!'
+        ]),
+        createSimpleDialogue('scholar-2', 'scholar-2', 'Scholar', [
+          'The power of Psynergy flows through all things.',
+          'Can you feel it?'
+        ]),
+        createSimpleDialogue('villager-1', 'villager-1', 'Villager', [
+          "It's a beautiful day in Vale!",
+          'Have you been to the plaza?'
+        ]),
+        createSimpleDialogue('villager-2', 'villager-2', 'Villager', [
+          'I heard strange noises from Sol Sanctum.',
+          'Be careful if you go there.'
+        ]),
+        createSimpleDialogue('villager-3', 'villager-3', 'Villager', [
+          'Hello there!',
+          'Enjoy your stay in Vale Village.'
+        ])
+      ];
 
-      let regResult = registerDialogue(dRegistry, garetDialogue);
-      if (regResult.ok) dRegistry = regResult.value;
-      
-      regResult = registerDialogue(dRegistry, doraDialogue);
-      if (regResult.ok) dRegistry = regResult.value;
+      // Register all dialogues
+      for (const dialogue of dialogues) {
+        const regResult = registerDialogue(dRegistry, dialogue);
+        if (regResult.ok) dRegistry = regResult.value;
+      }
 
       setDialogueRegistry(dRegistry);
 
