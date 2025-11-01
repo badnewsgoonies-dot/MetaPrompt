@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golden Sun - Vale Village Mockup</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="overworld.css">
+  <style>
+    /* Mockup-specific layout helpers */
+    .building-placeholder {
+      background: rgba(139, 69, 19, 0.6);
+      border: 2px solid #8B4513;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      text-align: center;
+      padding: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="stage">
+  <!-- Location Banner (appears on entry) -->
+  <div class="location-banner" style="animation-delay: 0.5s;">
+    Vale Village
+  </div>
+
+  <main class="scene" role="application" aria-label="Vale Village">
+
+    <!-- ===== BACKGROUND ===== -->
+    <div class="bg" aria-hidden="true"></div>
+
+    <!-- ===== PATHS (Dirt roads) ===== -->
+    <!-- Main horizontal path (east-west through center) -->
+    <div class="path horizontal" style="left: 200px; top: 300px; width: 560px;"></div>
+    
+    <!-- Vertical path to north (Sol Sanctum direction) -->
+    <div class="path vertical" style="left: 464px; top: 100px; height: 200px;"></div>
+    
+    <!-- Path to Isaac's house -->
+    <div class="path horizontal" style="left: 200px; top: 200px; width: 280px;"></div>
+    
+    <!-- Path to shops -->
+    <div class="path vertical" style="left: 600px; top: 300px; height: 160px;"></div>
+
+    <!-- ===== SCENERY: TREES ===== -->
+    <img class="scenery tree" src="./assets/Tree1.gif" alt="" 
+         style="left: 120px; top: 140px;">
+    <img class="scenery tree" src="./assets/Tree2.gif" alt="" 
+         style="right: 120px; top: 140px;">
+    <img class="scenery tree" src="./assets/Tree1.gif" alt="" 
+         style="left: 360px; top: 80px;">
+    <img class="scenery tree" src="./assets/Tree2.gif" alt="" 
+         style="right: 360px; top: 80px;">
+
+    <!-- ===== SCENERY: GATE (Vale Exit) ===== -->
+    <img class="scenery gate" src="./assets/Vale_Gate.gif" alt="Vale Gate" 
+         style="left: 440px; top: 540px;">
+
+    <!-- ===== BUILDINGS ===== -->
+    
+    <!-- Isaac's House (Northwest) -->
+    <div class="building" data-enterable="true" data-building-id="isaac-house"
+         style="left: 240px; top: 160px;">
+      <div class="building-placeholder" style="width: 96px; height: 80px;">
+        Isaac's<br>House
+      </div>
+    </div>
+
+    <!-- Garet's House (Southwest) -->
+    <div class="building" data-enterable="true" data-building-id="garet-house"
+         style="left: 200px; top: 360px;">
+      <div class="building-placeholder" style="width: 96px; height: 80px;">
+        Garet's<br>House
+      </div>
+    </div>
+
+    <!-- Elder's House (North-Central) -->
+    <div class="building" data-enterable="true" data-building-id="elder-house"
+         style="left: 420px; top: 120px;">
+      <div class="building-placeholder" style="width: 112px; height: 96px;">
+        Elder's<br>House
+      </div>
+    </div>
+
+    <!-- Item Shop (East) -->
+    <div class="building" data-enterable="true" data-building-id="item-shop"
+         style="left: 620px; top: 240px;">
+      <div class="building-placeholder" style="width: 96px; height: 80px;">
+        Item<br>Shop
+      </div>
+    </div>
+
+    <!-- Armor Shop (Southeast) -->
+    <div class="building" data-enterable="true" data-building-id="armor-shop"
+         style="left: 640px; top: 380px;">
+      <div class="building-placeholder" style="width: 96px; height: 80px;">
+        Armor<br>Shop
+      </div>
+    </div>
+
+    <!-- Inn (East-Central) -->
+    <div class="building" data-enterable="true" data-building-id="inn"
+         style="left: 760px; top: 280px;">
+      <div class="building-placeholder" style="width: 96px; height: 80px;">
+        Inn
+      </div>
+    </div>
+
+    <!-- Kraden's House (Northeast) -->
+    <div class="building" data-enterable="true" data-building-id="kraden-house"
+         style="left: 700px; top: 140px;">
+      <div class="building-placeholder" style="width: 96px; height: 80px;">
+        Kraden's<br>Study
+      </div>
+    </div>
+
+    <!-- ===== ENTITIES: NPCS ===== -->
+
+    <!-- PLAYER: Isaac (Central Plaza) -->
+    <div class="entity player" id="isaac"
+         style="left: 480px; top: 320px;"
+         data-facing="down">
+      <img src="./assets/Isaac.gif" alt="Isaac (player character)">
+    </div>
+
+    <!-- Main NPCs (Quest-critical) -->
+
+    <!-- Garet (Outside Isaac's house) -->
+    <div class="entity npc" data-npc-id="garet"
+         role="button" tabindex="0"
+         aria-label="Talk to Garet"
+         style="left: 340px; top: 220px;"
+         data-facing="right"
+         data-dialogue="garet-intro">
+      <img src="./assets/Garet.gif" alt="">
+      <span class="sr-only">Garet is waiting near Isaac's house</span>
+    </div>
+
+    <!-- Dora (Near Isaac's house) -->
+    <div class="entity npc" data-npc-id="dora"
+         role="button" tabindex="0"
+         aria-label="Talk to Dora"
+         style="left: 280px; top: 260px;"
+         data-facing="down"
+         data-dialogue="dora-greeting">
+      <img src="./assets/Dora.gif" alt="">
+      <span class="sr-only">Dora, Isaac's mother</span>
+    </div>
+
+    <!-- Elder (Central plaza) -->
+    <div class="entity npc" data-npc-id="elder"
+         role="button" tabindex="0"
+         aria-label="Talk to Elder"
+         style="left: 520px; top: 280px;"
+         data-facing="down"
+         data-dialogue="elder-warning">
+      <img src="./assets/Elder.gif" alt="">
+      <span class="sr-only">Village Elder</span>
+    </div>
+
+    <!-- Kraden (Near his study) -->
+    <div class="entity npc" data-npc-id="kraden"
+         role="button" tabindex="0"
+         aria-label="Talk to Kraden"
+         style="left: 740px; top: 240px;"
+         data-facing="left"
+         data-dialogue="kraden-scholar">
+      <img src="./assets/Kraden.gif" alt="">
+      <span class="sr-only">Kraden, the scholar</span>
+    </div>
+
+    <!-- Kyle (Near Garet's house) -->
+    <div class="entity npc" data-npc-id="kyle"
+         role="button" tabindex="0"
+         aria-label="Talk to Kyle"
+         style="left: 300px; top: 400px;"
+         data-facing="up"
+         data-dialogue="kyle-father">
+      <img src="./assets/Kyle.gif" alt="">
+      <span class="sr-only">Kyle, Garet's father</span>
+    </div>
+
+    <!-- Jenna (Central plaza) -->
+    <div class="entity npc" data-npc-id="jenna"
+         role="button" tabindex="0"
+         aria-label="Talk to Jenna"
+         style="left: 440px; top: 340px;"
+         data-facing="right"
+         data-dialogue="jenna-friend">
+      <img src="./assets/Jenna.gif" alt="">
+      <span class="sr-only">Jenna, Felix's sister</span>
+    </div>
+
+    <!-- Great Healer (Near Elder's house) -->
+    <div class="entity npc" data-npc-id="great-healer"
+         role="button" tabindex="0"
+         aria-label="Talk to Great Healer"
+         style="left: 500px; top: 240px;"
+         data-facing="down"
+         data-dialogue="healer-wisdom">
+      <img src="./assets/Great_Healer.gif" alt="">
+      <span class="sr-only">Great Healer</span>
+    </div>
+
+    <!-- Aaron (near plaza) -->
+    <div class="entity npc" data-npc-id="aaron"
+         role="button" tabindex="0"
+         aria-label="Talk to Aaron"
+         style="left: 380px; top: 300px;"
+         data-facing="left"
+         data-dialogue="aaron-parent">
+      <img src="./assets/Aaron_Jerra.gif" alt="">
+      <span class="sr-only">Aaron, Jenna's father</span>
+    </div>
+
+    <!-- Kay (near Aaron) -->
+    <div class="entity npc" data-npc-id="kay"
+         role="button" tabindex="0"
+         aria-label="Talk to Kay"
+         style="left: 400px; top: 360px;"
+         data-facing="right"
+         data-dialogue="kay-parent">
+      <img src="./assets/Kay_Jerra.gif" alt="">
+      <span class="sr-only">Kay, Jenna's mother</span>
+    </div>
+
+    <!-- Innkeeper (outside inn) -->
+    <div class="entity npc" data-npc-id="innkeeper"
+         role="button" tabindex="0"
+         aria-label="Talk to Innkeeper"
+         style="left: 800px; top: 320px;"
+         data-facing="left"
+         data-dialogue="innkeeper-rest">
+      <img src="./assets/Innkeeper.gif" alt="">
+      <span class="sr-only">Innkeeper</span>
+    </div>
+
+    <!-- Armor Shop Owner (outside shop) -->
+    <div class="entity npc" data-npc-id="armor-shop-owner"
+         role="button" tabindex="0"
+         aria-label="Talk to Armor Shop Owner"
+         style="left: 680px; top: 480px;"
+         data-facing="up"
+         data-dialogue="armor-shop">
+      <img src="./assets/Armorshop_Owner.gif" alt="">
+      <span class="sr-only">Armor Shop Owner</span>
+    </div>
+
+    <!-- Scholars (near Elder's house) -->
+    <div class="entity npc" data-npc-id="scholar-1"
+         role="button" tabindex="0"
+         aria-label="Talk to Scholar"
+         style="left: 560px; top: 200px;"
+         data-facing="down"
+         data-dialogue="scholar-1">
+      <img src="./assets/Scholar-1.gif" alt="">
+      <span class="sr-only">Scholar studying ancient texts</span>
+    </div>
+
+    <div class="entity npc" data-npc-id="scholar-2"
+         role="button" tabindex="0"
+         aria-label="Talk to Scholar"
+         style="left: 620px; top: 200px;"
+         data-facing="down"
+         data-dialogue="scholar-2">
+      <img src="./assets/Scholar-2.gif" alt="">
+      <span class="sr-only">Scholar researching Alchemy</span>
+    </div>
+
+    <!-- Generic Villagers (ambient population) -->
+    <div class="entity npc" data-npc-id="villager-1"
+         role="button" tabindex="0"
+         aria-label="Talk to Villager"
+         style="left: 320px; top: 320px;"
+         data-facing="right"
+         data-dialogue="villager-1">
+      <img src="./assets/Villager1.gif" alt="">
+      <span class="sr-only">Villager</span>
+    </div>
+
+    <div class="entity npc" data-npc-id="villager-2"
+         role="button" tabindex="0"
+         aria-label="Talk to Villager"
+         style="left: 660px; top: 340px;"
+         data-facing="left"
+         data-dialogue="villager-2">
+      <img src="./assets/Villager2.gif" alt="">
+      <span class="sr-only">Villager</span>
+    </div>
+
+    <div class="entity npc" data-npc-id="villager-3"
+         role="button" tabindex="0"
+         aria-label="Talk to Villager"
+         style="left: 540px; top: 420px;"
+         data-facing="up"
+         data-dialogue="villager-3">
+      <img src="./assets/Villager3.gif" alt="">
+      <span class="sr-only">Villager</span>
+    </div>
+
+    <!-- Other Characters (for later story beats) -->
+
+    <!-- Ivan (Hidden initially, joins party later) -->
+    <div class="entity npc" data-npc-id="ivan"
+         role="button" tabindex="0"
+         aria-label="Talk to Ivan"
+         style="left: 720px; top: 360px; display: none;"
+         data-facing="left"
+         data-dialogue="ivan-joins">
+      <img src="./assets/Ivan.gif" alt="">
+      <span class="sr-only">Ivan, wind adept</span>
+    </div>
+
+    <!-- Mia (Hidden initially, from Imil) -->
+    <div class="entity npc" data-npc-id="mia"
+         role="button" tabindex="0"
+         aria-label="Talk to Mia"
+         style="left: 600px; top: 300px; display: none;"
+         data-facing="down"
+         data-dialogue="mia-healer">
+      <img src="./assets/Mia.gif" alt="">
+      <span class="sr-only">Mia, mercury adept</span>
+    </div>
+
+    <!-- Felix (referenced in dialogue, not present post-tragedy) -->
+    <div class="entity npc" data-npc-id="felix"
+         role="button" tabindex="0"
+         aria-label="Felix's Memorial"
+         style="left: 420px; top: 420px; display: none;"
+         data-facing="down">
+      <img src="./assets/Felix.gif" alt="">
+      <span class="sr-only">Felix, Jenna's brother (memory)</span>
+    </div>
+
+    <!-- Sheba (with Kraden initially) -->
+    <div class="entity npc" data-npc-id="sheba"
+         role="button" tabindex="0"
+         aria-label="Talk to Sheba"
+         style="left: 760px; top: 240px; display: none;"
+         data-facing="right"
+         data-dialogue="sheba-mysterious">
+      <img src="./assets/Sheba.gif" alt="">
+      <span class="sr-only">Sheba, mysterious girl</span>
+    </div>
+
+    <!-- Alex (mysterious appearance) -->
+    <div class="entity npc" data-npc-id="alex"
+         role="button" tabindex="0"
+         aria-label="Talk to Alex"
+         style="left: 240px; top: 480px; display: none;"
+         data-facing="right"
+         data-dialogue="alex-mysterious">
+      <img src="./assets/Alex.gif" alt="">
+      <span class="sr-only">Alex, mercury adept</span>
+    </div>
+
+    <!-- Saturos (antagonist, appears in cutscenes only) -->
+    <div class="entity npc" data-npc-id="saturos"
+         style="left: 100px; top: 100px; display: none;">
+      <img src="./assets/Saturos.gif" alt="">
+      <span class="sr-only">Saturos, Mars Clan leader</span>
+    </div>
+
+  </main>
+
+  <!-- ===== DIALOGUE BOX (Hidden by default, shows on NPC interaction) ===== -->
+  <div class="dialogue-box" role="region" aria-live="polite" aria-atomic="true">
+    <!-- Portrait -->
+    <div class="portrait">
+      <img src="./assets/Garet.gif" alt="Garet">
+    </div>
+
+    <!-- Dialogue Content -->
+    <div class="dialogue-content">
+      <div class="speaker-name">Garet</div>
+      <div class="dialogue-text">
+        <p>Hey Isaac! Ready for an adventure? Kraden wants us to come to his place. Let's check out the shops first though!</p>
+      </div>
+      <div class="continue-indicator" aria-label="Press A to continue">▼</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Accessibility: Screen Reader Announcements -->
+<div class="sr-announcements" role="status" aria-live="polite" aria-atomic="true" class="sr-only">
+  <!-- JavaScript will update this with game status announcements -->
+</div>
+
+<!-- ===== MOCKUP NOTES (Remove in Phase 2) ===== -->
+<div style="position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #fff; padding: 8px; font-size: 10px; font-family: monospace; border: 1px solid #666; max-width: 200px; z-index: 1000;">
+  <strong>Mockup Phase 1</strong><br>
+  • HTML/CSS only (no JS)<br>
+  • Dialogue box: example state<br>
+  • NPCs: positioned, not interactive<br>
+  • Buildings: placeholders<br>
+  • Phase 2: React integration
+</div>
+
+</body>
+</html>
