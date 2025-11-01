@@ -14,9 +14,9 @@ export const PLAYER_COLLISION_RADIUS = 12; // pixels
 export const NPC_COLLISION_RADIUS = 12; // pixels
 export const BUILDING_COLLISION_PADDING = 8; // extra padding for building collision
 
-// Scene constants
-export const SCENE_WIDTH = 960; // Total scene width (2× GBA resolution)
-export const SCENE_HEIGHT = 640; // Total scene height
+// Scene constants - EXPANDED for full authentic Vale
+export const SCENE_WIDTH = 1920; // Total scene width (expanded 2x for full Vale)
+export const SCENE_HEIGHT = 1280; // Total scene height (expanded 2x for full Vale)
 export const VIEWPORT_WIDTH = 480; // Visible viewport width (GBA 2×)
 export const VIEWPORT_HEIGHT = 320; // Visible viewport height
 

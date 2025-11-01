@@ -301,18 +301,19 @@ export function enterDoor(
 
 /**
  * Create Vale Village scene (main overworld)
+ * EXPANDED: Now 1920x1280 (2x original) for full authentic Vale layout
  */
 export function createValeVillageScene(): Scene {
   return {
     id: 'vale-village',
     name: 'Vale Village',
     type: 'overworld',
-    width: 960,
-    height: 640,
+    width: 1920, // Expanded from 960
+    height: 1280, // Expanded from 640
     doors: [
       {
         id: 'isaac-house-entrance',
-        position: { x: 200, y: 250 },
+        position: { x: 400, y: 500 }, // Scaled 2x from (200, 250)
         width: 32,
         height: 8,
         targetScene: 'isaac-house',
@@ -322,7 +323,7 @@ export function createValeVillageScene(): Scene {
       },
       {
         id: 'item-shop-entrance',
-        position: { x: 450, y: 200 },
+        position: { x: 900, y: 400 }, // Scaled 2x from (450, 200)
         width: 32,
         height: 8,
         targetScene: 'item-shop',
@@ -332,7 +333,7 @@ export function createValeVillageScene(): Scene {
       },
       {
         id: 'armor-shop-entrance',
-        position: { x: 650, y: 300 },
+        position: { x: 1300, y: 600 }, // Scaled 2x from (650, 300)
         width: 32,
         height: 8,
         targetScene: 'armor-shop',
@@ -342,13 +343,13 @@ export function createValeVillageScene(): Scene {
       }
     ],
     obstacles: [
-      // Buildings (placeholder sizes)
-      { id: 'isaac-house', position: { x: 180, y: 200 }, width: 80, height: 60, type: 'building' },
-      { id: 'item-shop', position: { x: 430, y: 150 }, width: 80, height: 60, type: 'building' },
-      { id: 'armor-shop', position: { x: 630, y: 250 }, width: 80, height: 60, type: 'building' }
+      // Buildings (scaled 2x positions and sizes)
+      { id: 'isaac-house', position: { x: 360, y: 400 }, width: 160, height: 120, type: 'building' }, // Scaled from (180, 200, 80, 60)
+      { id: 'item-shop', position: { x: 860, y: 300 }, width: 160, height: 120, type: 'building' }, // Scaled from (430, 150, 80, 60)
+      { id: 'armor-shop', position: { x: 1260, y: 500 }, width: 160, height: 120, type: 'building' } // Scaled from (630, 250, 80, 60)
     ],
     npcIds: ['garet', 'dora', 'ivan', 'mia', 'shopkeeper', 'elder'],
-    spawnPosition: { x: 480, y: 320 },
+    spawnPosition: { x: 960, y: 640 }, // Scaled 2x from (480, 320) - center of new map
     cameraMode: 'follow'
   };
 }

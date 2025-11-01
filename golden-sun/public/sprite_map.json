@@ -1,42 +1,82 @@
 {
   "screen": "vale-village-overworld",
-  "resolution": "480x320",
-  "scene_size": "960x640",
+  "resolution": "960x640",
+  "scene_size": "1920x1280",
   "tile_size": 8,
   "scale": 2,
   "background": {
     "type": "gradient",
-    "colors": ["#88C070", "#68A050", "#48A038"],
+    "colors": [
+      "#88C070",
+      "#68A050",
+      "#48A038"
+    ],
     "pattern": "grass_texture_overlay"
   },
   "paths": [
     {
       "id": "main-horizontal",
       "type": "dirt_road",
-      "position": {"x": 200, "y": 300},
-      "size": {"width": 560, "height": 32},
-      "connects": ["west_exit", "east_shops"]
+      "position": {
+        "x": 400,
+        "y": 600
+      },
+      "size": {
+        "width": 1120,
+        "height": 64
+      },
+      "connects": [
+        "west_exit",
+        "east_shops"
+      ]
     },
     {
       "id": "north-vertical",
       "type": "dirt_road",
-      "position": {"x": 464, "y": 100},
-      "size": {"width": 32, "height": 200},
-      "connects": ["sol_sanctum_path", "main_plaza"]
+      "position": {
+        "x": 928,
+        "y": 200
+      },
+      "size": {
+        "width": 64,
+        "height": 400
+      },
+      "connects": [
+        "sol_sanctum_path",
+        "main_plaza"
+      ]
     },
     {
       "id": "isaac-house-path",
       "type": "dirt_road",
-      "position": {"x": 200, "y": 200},
-      "size": {"width": 280, "height": 32},
-      "connects": ["isaac_house", "main_horizontal"]
+      "position": {
+        "x": 400,
+        "y": 400
+      },
+      "size": {
+        "width": 560,
+        "height": 64
+      },
+      "connects": [
+        "isaac_house",
+        "main_horizontal"
+      ]
     },
     {
       "id": "shop-path",
       "type": "dirt_road",
-      "position": {"x": 600, "y": 300},
-      "size": {"width": 32, "height": 160},
-      "connects": ["main_horizontal", "shops_area"]
+      "position": {
+        "x": 1200,
+        "y": 600
+      },
+      "size": {
+        "width": 64,
+        "height": 320
+      },
+      "connects": [
+        "main_horizontal",
+        "shops_area"
+      ]
     }
   ],
   "scenery": [
@@ -44,7 +84,10 @@
       "id": "tree-nw",
       "type": "tree",
       "sprite": "./assets/Tree1.gif",
-      "position": {"x": 120, "y": 140},
+      "position": {
+        "x": 240,
+        "y": 280
+      },
       "z_index": 5,
       "collision": true
     },
@@ -52,7 +95,10 @@
       "id": "tree-ne",
       "type": "tree",
       "sprite": "./assets/Tree2.gif",
-      "position": {"x": 840, "y": 140},
+      "position": {
+        "x": 1680,
+        "y": 280
+      },
       "z_index": 5,
       "collision": true
     },
@@ -60,7 +106,10 @@
       "id": "tree-n1",
       "type": "tree",
       "sprite": "./assets/Tree1.gif",
-      "position": {"x": 360, "y": 80},
+      "position": {
+        "x": 720,
+        "y": 160
+      },
       "z_index": 5,
       "collision": true
     },
@@ -68,7 +117,10 @@
       "id": "tree-n2",
       "type": "tree",
       "sprite": "./assets/Tree2.gif",
-      "position": {"x": 600, "y": 80},
+      "position": {
+        "x": 1200,
+        "y": 160
+      },
       "z_index": 5,
       "collision": true
     },
@@ -76,7 +128,10 @@
       "id": "vale-gate",
       "type": "gate",
       "sprite": "./assets/Vale_Gate.gif",
-      "position": {"x": 440, "y": 540},
+      "position": {
+        "x": 880,
+        "y": 1080
+      },
       "z_index": 5,
       "collision": false,
       "exit_to": "world_map_south"
@@ -87,77 +142,140 @@
       "id": "isaac-house",
       "name": "Isaac's House",
       "sprite": "placeholder",
-      "position": {"x": 240, "y": 160},
-      "size": {"width": 96, "height": 80},
+      "position": {
+        "x": 480,
+        "y": 320
+      },
+      "size": {
+        "width": 192,
+        "height": 160
+      },
       "z_index": 5,
       "enterable": true,
-      "door_position": {"x": 288, "y": 230},
+      "door_position": {
+        "x": 576,
+        "y": 460
+      },
       "interior": "isaac-house-interior"
     },
     {
       "id": "garet-house",
       "name": "Garet's House",
       "sprite": "placeholder",
-      "position": {"x": 200, "y": 360},
-      "size": {"width": 96, "height": 80},
+      "position": {
+        "x": 400,
+        "y": 720
+      },
+      "size": {
+        "width": 192,
+        "height": 160
+      },
       "z_index": 5,
       "enterable": true,
-      "door_position": {"x": 248, "y": 430},
+      "door_position": {
+        "x": 496,
+        "y": 860
+      },
       "interior": "garet-house-interior"
     },
     {
       "id": "elder-house",
       "name": "Elder's House",
       "sprite": "placeholder",
-      "position": {"x": 420, "y": 120},
-      "size": {"width": 112, "height": 96},
+      "position": {
+        "x": 840,
+        "y": 240
+      },
+      "size": {
+        "width": 224,
+        "height": 192
+      },
       "z_index": 5,
       "enterable": true,
-      "door_position": {"x": 476, "y": 206},
+      "door_position": {
+        "x": 952,
+        "y": 412
+      },
       "interior": "elder-house-interior"
     },
     {
       "id": "item-shop",
       "name": "Item Shop",
       "sprite": "placeholder",
-      "position": {"x": 620, "y": 240},
-      "size": {"width": 96, "height": 80},
+      "position": {
+        "x": 1240,
+        "y": 480
+      },
+      "size": {
+        "width": 192,
+        "height": 160
+      },
       "z_index": 5,
       "enterable": true,
-      "door_position": {"x": 668, "y": 310},
+      "door_position": {
+        "x": 1336,
+        "y": 620
+      },
       "interior": "item-shop-interior"
     },
     {
       "id": "armor-shop",
       "name": "Armor Shop",
       "sprite": "placeholder",
-      "position": {"x": 640, "y": 380},
-      "size": {"width": 96, "height": 80},
+      "position": {
+        "x": 1280,
+        "y": 760
+      },
+      "size": {
+        "width": 192,
+        "height": 160
+      },
       "z_index": 5,
       "enterable": true,
-      "door_position": {"x": 688, "y": 450},
+      "door_position": {
+        "x": 1376,
+        "y": 900
+      },
       "interior": "armor-shop-interior"
     },
     {
       "id": "inn",
       "name": "Inn",
       "sprite": "placeholder",
-      "position": {"x": 760, "y": 280},
-      "size": {"width": 96, "height": 80},
+      "position": {
+        "x": 1520,
+        "y": 560
+      },
+      "size": {
+        "width": 192,
+        "height": 160
+      },
       "z_index": 5,
       "enterable": true,
-      "door_position": {"x": 808, "y": 350},
+      "door_position": {
+        "x": 1616,
+        "y": 700
+      },
       "interior": "inn-interior"
     },
     {
       "id": "kraden-house",
       "name": "Kraden's Study",
       "sprite": "placeholder",
-      "position": {"x": 700, "y": 140},
-      "size": {"width": 96, "height": 80},
+      "position": {
+        "x": 1400,
+        "y": 280
+      },
+      "size": {
+        "width": 192,
+        "height": 160
+      },
       "z_index": 5,
       "enterable": true,
-      "door_position": {"x": 748, "y": 210},
+      "door_position": {
+        "x": 1496,
+        "y": 420
+      },
       "interior": "kraden-house-interior"
     }
   ],
@@ -167,12 +285,21 @@
       "type": "player",
       "name": "Isaac",
       "sprite": "./assets/Isaac.gif",
-      "position": {"x": 480, "y": 320},
+      "position": {
+        "x": 960,
+        "y": 640
+      },
       "z_index": 10,
       "facing": "down",
       "animations": {
-        "idle": {"frames": 2, "fps": 2},
-        "walk": {"frames": 4, "fps": 8}
+        "idle": {
+          "frames": 2,
+          "fps": 2
+        },
+        "walk": {
+          "frames": 4,
+          "fps": 8
+        }
       },
       "element": "Venus",
       "role": "protagonist"
@@ -182,7 +309,10 @@
       "type": "npc",
       "name": "Garet",
       "sprite": "./assets/Garet.gif",
-      "position": {"x": 340, "y": 220},
+      "position": {
+        "x": 680,
+        "y": 440
+      },
       "z_index": 10,
       "facing": "right",
       "dialogue_id": "garet-intro",
@@ -195,7 +325,10 @@
       "type": "npc",
       "name": "Dora",
       "sprite": "./assets/Dora.gif",
-      "position": {"x": 280, "y": 260},
+      "position": {
+        "x": 560,
+        "y": 520
+      },
       "z_index": 10,
       "facing": "down",
       "dialogue_id": "dora-greeting",
@@ -207,7 +340,10 @@
       "type": "npc",
       "name": "Elder",
       "sprite": "./assets/Elder.gif",
-      "position": {"x": 520, "y": 280},
+      "position": {
+        "x": 1040,
+        "y": 560
+      },
       "z_index": 10,
       "facing": "down",
       "dialogue_id": "elder-warning",
@@ -219,7 +355,10 @@
       "type": "npc",
       "name": "Kraden",
       "sprite": "./assets/Kraden.gif",
-      "position": {"x": 740, "y": 240},
+      "position": {
+        "x": 1480,
+        "y": 480
+      },
       "z_index": 10,
       "facing": "left",
       "dialogue_id": "kraden-scholar",
@@ -231,7 +370,10 @@
       "type": "npc",
       "name": "Kyle",
       "sprite": "./assets/Kyle.gif",
-      "position": {"x": 300, "y": 400},
+      "position": {
+        "x": 600,
+        "y": 800
+      },
       "z_index": 10,
       "facing": "up",
       "dialogue_id": "kyle-father",
@@ -243,7 +385,10 @@
       "type": "npc",
       "name": "Jenna",
       "sprite": "./assets/Jenna.gif",
-      "position": {"x": 440, "y": 340},
+      "position": {
+        "x": 880,
+        "y": 680
+      },
       "z_index": 10,
       "facing": "right",
       "dialogue_id": "jenna-friend",
@@ -255,7 +400,10 @@
       "type": "npc",
       "name": "Great Healer",
       "sprite": "./assets/Great_Healer.gif",
-      "position": {"x": 500, "y": 240},
+      "position": {
+        "x": 1000,
+        "y": 480
+      },
       "z_index": 10,
       "facing": "down",
       "dialogue_id": "healer-wisdom",
@@ -267,7 +415,10 @@
       "type": "npc",
       "name": "Aaron",
       "sprite": "./assets/Aaron_Jerra.gif",
-      "position": {"x": 380, "y": 300},
+      "position": {
+        "x": 760,
+        "y": 600
+      },
       "z_index": 10,
       "facing": "left",
       "dialogue_id": "aaron-parent",
@@ -279,7 +430,10 @@
       "type": "npc",
       "name": "Kay",
       "sprite": "./assets/Kay_Jerra.gif",
-      "position": {"x": 400, "y": 360},
+      "position": {
+        "x": 800,
+        "y": 720
+      },
       "z_index": 10,
       "facing": "right",
       "dialogue_id": "kay-parent",
@@ -291,7 +445,10 @@
       "type": "npc",
       "name": "Innkeeper",
       "sprite": "./assets/Innkeeper.gif",
-      "position": {"x": 800, "y": 320},
+      "position": {
+        "x": 1600,
+        "y": 640
+      },
       "z_index": 10,
       "facing": "left",
       "dialogue_id": "innkeeper-rest",
@@ -303,7 +460,10 @@
       "type": "npc",
       "name": "Armor Shop Owner",
       "sprite": "./assets/Armorshop_Owner.gif",
-      "position": {"x": 680, "y": 480},
+      "position": {
+        "x": 1360,
+        "y": 960
+      },
       "z_index": 10,
       "facing": "up",
       "dialogue_id": "armor-shop",
@@ -315,7 +475,10 @@
       "type": "npc",
       "name": "Scholar One",
       "sprite": "./assets/Scholar-1.gif",
-      "position": {"x": 560, "y": 200},
+      "position": {
+        "x": 1120,
+        "y": 400
+      },
       "z_index": 10,
       "facing": "down",
       "dialogue_id": "scholar-1",
@@ -327,7 +490,10 @@
       "type": "npc",
       "name": "Scholar Two",
       "sprite": "./assets/Scholar-2.gif",
-      "position": {"x": 620, "y": 200},
+      "position": {
+        "x": 1240,
+        "y": 400
+      },
       "z_index": 10,
       "facing": "down",
       "dialogue_id": "scholar-2",
@@ -339,7 +505,10 @@
       "type": "npc",
       "name": "Villager",
       "sprite": "./assets/Villager1.gif",
-      "position": {"x": 320, "y": 320},
+      "position": {
+        "x": 640,
+        "y": 640
+      },
       "z_index": 10,
       "facing": "right",
       "dialogue_id": "villager-1",
@@ -351,7 +520,10 @@
       "type": "npc",
       "name": "Villager",
       "sprite": "./assets/Villager2.gif",
-      "position": {"x": 660, "y": 340},
+      "position": {
+        "x": 1320,
+        "y": 680
+      },
       "z_index": 10,
       "facing": "left",
       "dialogue_id": "villager-2",
@@ -363,7 +535,10 @@
       "type": "npc",
       "name": "Villager",
       "sprite": "./assets/Villager3.gif",
-      "position": {"x": 540, "y": 420},
+      "position": {
+        "x": 1080,
+        "y": 840
+      },
       "z_index": 10,
       "facing": "up",
       "dialogue_id": "villager-3",
@@ -375,7 +550,10 @@
       "type": "npc",
       "name": "Ivan",
       "sprite": "./assets/Ivan.gif",
-      "position": {"x": 720, "y": 360},
+      "position": {
+        "x": 1440,
+        "y": 720
+      },
       "z_index": 10,
       "facing": "left",
       "dialogue_id": "ivan-joins",
@@ -389,7 +567,10 @@
       "type": "npc",
       "name": "Mia",
       "sprite": "./assets/Mia.gif",
-      "position": {"x": 600, "y": 300},
+      "position": {
+        "x": 1200,
+        "y": 600
+      },
       "z_index": 10,
       "facing": "down",
       "dialogue_id": "mia-healer",
@@ -403,7 +584,10 @@
       "type": "npc",
       "name": "Felix",
       "sprite": "./assets/Felix.gif",
-      "position": {"x": 420, "y": 420},
+      "position": {
+        "x": 840,
+        "y": 840
+      },
       "z_index": 10,
       "facing": "down",
       "element": "Venus",
@@ -416,7 +600,10 @@
       "type": "npc",
       "name": "Sheba",
       "sprite": "./assets/Sheba.gif",
-      "position": {"x": 760, "y": 240},
+      "position": {
+        "x": 1520,
+        "y": 480
+      },
       "z_index": 10,
       "facing": "right",
       "dialogue_id": "sheba-mysterious",
@@ -430,7 +617,10 @@
       "type": "npc",
       "name": "Alex",
       "sprite": "./assets/Alex.gif",
-      "position": {"x": 240, "y": 480},
+      "position": {
+        "x": 480,
+        "y": 960
+      },
       "z_index": 10,
       "facing": "right",
       "dialogue_id": "alex-mysterious",
@@ -444,7 +634,10 @@
       "type": "npc",
       "name": "Saturos",
       "sprite": "./assets/Saturos.gif",
-      "position": {"x": 100, "y": 100},
+      "position": {
+        "x": 200,
+        "y": 200
+      },
       "z_index": 10,
       "facing": "down",
       "element": "Mars",
@@ -465,7 +658,12 @@
   },
   "dialogue_system": {
     "format": "character_portrait + name + text",
-    "text_speed": ["slow", "normal", "fast", "instant"],
+    "text_speed": [
+      "slow",
+      "normal",
+      "fast",
+      "instant"
+    ],
     "max_characters_per_box": 120,
     "continue_indicator": "▼",
     "portrait_size": "64x64"
