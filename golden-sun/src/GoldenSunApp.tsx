@@ -7,6 +7,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { GameWorld } from './components/GameWorld';
 import { DialogueBox } from './components/DialogueBox';
 import { ShopMenu } from './components/ShopMenu';
+import { OnScreenController } from './components/OnScreenController';
 import { NPCRegistry } from './types/npc';
 import { initializeNPCs, findInteractableNPC, markNPCAsTalkedTo } from './systems/npcSystem';
 import { 
@@ -83,6 +84,27 @@ const GoldenSunApp: React.FC = () => {
   // Refs
   const gameLoopRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
+
+  // On-screen controller handlers
+  const handleControllerKeyDown = useCallback((key: string) => {
+    setKeysPressed(prev => new Set(prev).add(key.toLowerCase()));
+    
+    // Trigger keyboard event for interaction logic
+    const event = new KeyboardEvent('keydown', { key });
+    window.dispatchEvent(event);
+  }, []);
+
+  const handleControllerKeyUp = useCallback((key: string) => {
+    setKeysPressed(prev => {
+      const next = new Set(prev);
+      next.delete(key.toLowerCase());
+      return next;
+    });
+    
+    // Trigger keyboard event
+    const event = new KeyboardEvent('keyup', { key });
+    window.dispatchEvent(event);
+  }, []);
 
   // Initialize game
   useEffect(() => {
@@ -549,6 +571,12 @@ const GoldenSunApp: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* On-Screen Controller (Touch Devices) */}
+      <OnScreenController
+        onKeyDown={handleControllerKeyDown}
+        onKeyUp={handleControllerKeyUp}
+      />
     </div>
   );
 };

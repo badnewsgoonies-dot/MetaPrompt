@@ -1,0 +1,326 @@
+/**
+ * On-Screen Controller Styles
+ * GBA-inspired touch controls
+ */
+
+.on-screen-controller {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 220px;
+  background: linear-gradient(180deg, rgba(32, 32, 48, 0.85) 0%, rgba(24, 24, 36, 0.95) 100%);
+  backdrop-filter: blur(4px);
+  border-top: 2px solid rgba(80, 80, 120, 0.6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  z-index: 1000;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.controller-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.controller-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== D-PAD (LEFT SIDE) ===== */
+.dpad-section {
+  flex: 0 0 auto;
+}
+
+.dpad {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: grid;
+  grid-template-columns: 40px 60px 40px;
+  grid-template-rows: 40px 60px 40px;
+  gap: 0;
+}
+
+.dpad-button {
+  background: linear-gradient(145deg, #3a3a4a, #2a2a3a);
+  border: 2px solid #1a1a2a;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dpad-button:active {
+  background: linear-gradient(145deg, #5a5a7a, #4a4a6a);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6) inset;
+  transform: translateY(2px);
+}
+
+.dpad-button .arrow {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
+}
+
+.dpad-up {
+  grid-column: 2;
+  grid-row: 1;
+  border-radius: 8px 8px 0 0;
+}
+
+.dpad-down {
+  grid-column: 2;
+  grid-row: 3;
+  border-radius: 0 0 8px 8px;
+}
+
+.dpad-left {
+  grid-column: 1;
+  grid-row: 2;
+  border-radius: 8px 0 0 8px;
+}
+
+.dpad-right {
+  grid-column: 3;
+  grid-row: 2;
+  border-radius: 0 8px 8px 0;
+}
+
+.dpad-center {
+  grid-column: 2;
+  grid-row: 2;
+  background: #1a1a2a;
+  border: 2px solid #0a0a1a;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  margin: auto;
+}
+
+/* ===== ACTION BUTTONS (RIGHT SIDE) ===== */
+.buttons-section {
+  flex: 0 0 auto;
+}
+
+.action-buttons {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  display: grid;
+  grid-template-columns: repeat(3, 50px);
+  grid-template-rows: repeat(3, 50px);
+  gap: 5px;
+  align-items: center;
+  justify-items: center;
+}
+
+.action-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 3px solid #1a1a2a;
+  color: white;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action-button:active {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6) inset;
+  transform: translateY(2px);
+}
+
+.button-y {
+  grid-column: 2;
+  grid-row: 1;
+  background: linear-gradient(145deg, #6a9adc, #4a7abc);
+}
+
+.button-y:active {
+  background: linear-gradient(145deg, #8abafc, #6a9adc);
+}
+
+.button-x {
+  grid-column: 1;
+  grid-row: 2;
+  background: linear-gradient(145deg, #6ab6dc, #4a96bc);
+}
+
+.button-x:active {
+  background: linear-gradient(145deg, #8ad6fc, #6ab6dc);
+}
+
+.button-a {
+  grid-column: 2;
+  grid-row: 3;
+  background: linear-gradient(145deg, #dc6a6a, #bc4a4a);
+}
+
+.button-a:active {
+  background: linear-gradient(145deg, #fc8a8a, #dc6a6a);
+}
+
+.button-b {
+  grid-column: 3;
+  grid-row: 2;
+  background: linear-gradient(145deg, #dcdc6a, #bcbc4a);
+}
+
+.button-b:active {
+  background: linear-gradient(145deg, #fcfc8a, #dcdc6a);
+}
+
+.button-label {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== CENTER BUTTONS (START/SELECT) ===== */
+.center-section {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 30px;
+}
+
+.center-buttons {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.center-button {
+  padding: 8px 16px;
+  background: linear-gradient(145deg, #4a4a5a, #3a3a4a);
+  border: 2px solid #2a2a3a;
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  cursor: pointer;
+  transition: all 0.1s;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  transform: rotate(-25deg);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.center-button:active {
+  background: linear-gradient(145deg, #6a6a7a, #5a5a6a);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) inset;
+  transform: rotate(-25deg) translateY(2px);
+}
+
+.select-button {
+  transform: rotate(-25deg);
+}
+
+.start-button {
+  transform: rotate(-25deg);
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 768px) {
+  .on-screen-controller {
+    padding: 15px 20px;
+    height: 200px;
+  }
+
+  .dpad {
+    width: 120px;
+    height: 120px;
+    grid-template-columns: 35px 50px 35px;
+    grid-template-rows: 35px 50px 35px;
+  }
+
+  .action-buttons {
+    width: 140px;
+    height: 140px;
+    grid-template-columns: repeat(3, 45px);
+    grid-template-rows: repeat(3, 45px);
+  }
+
+  .action-button {
+    width: 45px;
+    height: 45px;
+    font-size: 12px;
+  }
+
+  .center-button {
+    padding: 6px 12px;
+    font-size: 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .on-screen-controller {
+    padding: 10px 15px;
+    height: 180px;
+  }
+
+  .dpad {
+    width: 100px;
+    height: 100px;
+    grid-template-columns: 30px 40px 30px;
+    grid-template-rows: 30px 40px 30px;
+  }
+
+  .action-buttons {
+    width: 120px;
+    height: 120px;
+    grid-template-columns: repeat(3, 38px);
+    grid-template-rows: repeat(3, 38px);
+    gap: 4px;
+  }
+
+  .action-button {
+    width: 38px;
+    height: 38px;
+    font-size: 10px;
+    border-width: 2px;
+  }
+
+  .center-button {
+    padding: 5px 10px;
+    font-size: 6px;
+  }
+
+  .controller-label {
+    font-size: 7px;
+  }
+}
+
+/* Hide on desktop by default - can be toggled */
+@media (min-width: 1024px) {
+  .on-screen-controller {
+    display: none;
+  }
+}
+
+/* Show controller when touch is available */
+@media (hover: none) and (pointer: coarse) {
+  .on-screen-controller {
+    display: flex;
+  }
+}
