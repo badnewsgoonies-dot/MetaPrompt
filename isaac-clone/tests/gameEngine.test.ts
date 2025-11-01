@@ -12,7 +12,7 @@ describe('Game Engine', () => {
     expect(state.phase).toBe('playing');
     expect(state.seed).toBe(12345);
     expect(state.player.stats.currentHealth).toBe(6);
-    expect(state.dungeon.rooms.length).toBe(9); // 3x3 grid
+    expect(state.dungeon.rooms.length).toBe(5); // 5-room linear dungeon
     expect(state.enemies.length).toBe(0); // Start room has no enemies
     expect(state.score).toBe(0);
   });

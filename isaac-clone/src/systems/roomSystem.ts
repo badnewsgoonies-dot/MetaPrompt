@@ -9,147 +9,83 @@ import { Result } from '../utils/result';
 
 /**
  * Generate a procedural dungeon with connected rooms
+ * STRUCTURE: Linear 5-room dungeon (4 normal + 1 boss)
+ * Room 0 (start) -> Room 1 (normal) -> Room 2 (normal) -> Room 3 (normal) -> Room 4 (boss)
  */
-export function generateDungeon(rng: SeededRNG): Result<Dungeon, string> {
-  const gridSize = 3;
+export function generateDungeon(_rng: SeededRNG): Result<Dungeon, string> {
+  const totalRooms = 5;
   const rooms: Room[] = [];
 
-  // Create 3x3 grid of rooms
-  for (let y = 0; y < gridSize; y++) {
-    for (let x = 0; x < gridSize; x++) {
-      const roomType = determineRoomType(x, y, gridSize, rng);
-      const doors = generateDoors(x, y, gridSize, roomType, rng);
+  // Create linear dungeon (5 rooms in a row)
+  for (let i = 0; i < totalRooms; i++) {
+    const roomType = determineRoomTypeLinear(i, totalRooms);
+    const doors = generateDoorsLinear(i, totalRooms, roomType);
 
-      rooms.push({
-        id: `room_${x}_${y}`,
-        type: roomType,
-        gridX: x,
-        gridY: y,
-        doors,
-        cleared: roomType === 'start',  // Start room is pre-cleared
-        visited: roomType === 'start'   // Start room is pre-visited
-      });
-    }
+    rooms.push({
+      id: `room_${i}_0`,
+      type: roomType,
+      gridX: i,
+      gridY: 0,
+      doors,
+      cleared: roomType === 'start',  // Start room is pre-cleared
+      visited: roomType === 'start'   // Start room is pre-visited
+    });
   }
 
   return {
     ok: true,
     value: {
       rooms,
-      gridSize
+      gridSize: totalRooms  // Use totalRooms for compatibility
     }
   };
 }
 
 /**
- * Determine room type based on position in grid
+ * Determine room type for linear dungeon
  */
-function determineRoomType(
-  x: number,
-  y: number,
-  gridSize: number,
-  rng: SeededRNG
+function determineRoomTypeLinear(
+  index: number,
+  totalRooms: number
 ): RoomType {
-  // Center room is always start
-  const center = Math.floor(gridSize / 2);
-  if (x === center && y === center) {
+  // First room is always start
+  if (index === 0) {
     return 'start';
   }
 
-  // Boss room in one of the corners
-  if ((x === 0 || x === gridSize - 1) && (y === 0 || y === gridSize - 1)) {
-    if (rng.chance(0.4)) {  // 40% chance for corner to be boss
-      return 'boss';
-    }
+  // Last room is always boss
+  if (index === totalRooms - 1) {
+    return 'boss';
   }
 
-  // Shop room - guaranteed one per floor
-  if (x === 0 && y === center) {
-    return 'shop';
-  }
-
-  // Secret room - hidden, accessed from edges
-  if (x === gridSize - 1 && y === center) {
-    if (rng.chance(0.3)) {
-      return 'secret';
-    }
-  }
-
-  // Treasure rooms randomly placed
-  if (rng.chance(0.2)) {  // 20% chance
-    return 'treasure';
-  }
-
+  // Middle rooms are normal
   return 'normal';
 }
 
 /**
- * Generate doors for a room based on its grid position and type
+ * Generate doors for linear dungeon
  */
-function generateDoors(
-  x: number,
-  y: number,
-  gridSize: number,
-  roomType: RoomType,
-  rng: SeededRNG
+function generateDoorsLinear(
+  index: number,
+  totalRooms: number,
+  _roomType: RoomType
 ): Door[] {
   const doors: Door[] = [];
 
-  // Add door to north if not at top edge
-  if (y > 0) {
-    doors.push({
-      direction: 'north',
-      locked: false
-    });
-  }
-
-  // Add door to south if not at bottom edge
-  if (y < gridSize - 1) {
-    doors.push({
-      direction: 'south',
-      locked: false
-    });
-  }
-
-  // Add door to west if not at left edge
-  if (x > 0) {
+  // Add door to west (previous room) if not first room
+  if (index > 0) {
     doors.push({
       direction: 'west',
       locked: false
     });
   }
 
-  // Add door to east if not at right edge
-  if (x < gridSize - 1) {
+  // Add door to east (next room) if not last room
+  if (index < totalRooms - 1) {
     doors.push({
       direction: 'east',
       locked: false
     });
-  }
-
-  // Treasure rooms and shops have one locked door
-  if (roomType === 'treasure' || roomType === 'shop') {
-    if (doors.length > 0) {
-      const doorToLock = rng.nextInt(0, doors.length);
-      const door = doors[doorToLock];
-      if (door) {
-        doors[doorToLock] = { ...door, locked: true };
-      }
-    }
-  }
-
-  // Secret rooms have all doors initially locked
-  if (roomType === 'secret') {
-    return doors.map((d: Door) => ({ ...d, locked: true }));
-  }
-
-  // Randomly remove some doors from normal rooms
-  if (roomType === 'normal' && doors.length > 1) {
-    const doorsToKeep = Math.max(1, rng.nextInt(1, doors.length + 1));
-    while (doors.length > doorsToKeep) {
-      const indexToRemove = rng.nextInt(0, doors.length);
-      doors.splice(indexToRemove, 1);
-    }
   }
 
   return doors;

@@ -30,29 +30,33 @@ export interface Enemy {
 
 /**
  * Enemy stat definitions
+ * BALANCE: Player has 6 health (3 hearts), damage 3.5
+ * - Enemy projectiles: 2 damage (1 heart per hit)
+ * - Enemy health: 7-14 (dies in 2-4 player hits)
+ * - Contact damage: reduced to 0.1x per frame in combat system
  */
 export const ENEMY_STATS: Record<EnemyType, EnemyStats> = {
   fly: {
     type: 'fly',
-    maxHealth: 20,
+    maxHealth: 7,      // Dies in 2 hits (3.5 * 2 = 7)
     speed: 80,
-    damage: 5,
+    damage: 1,         // Contact damage (reduced to 0.1/frame)
     behavior: 'erratic',
     size: 12
   },
   spider: {
     type: 'spider',
-    maxHealth: 40,
+    maxHealth: 10,     // Dies in 3 hits (3.5 * 3 = 10.5)
     speed: 100,
-    damage: 10,
+    damage: 1,         // Contact damage (reduced to 0.1/frame)
     behavior: 'chase',
     size: 14
   },
   maw: {
     type: 'maw',
-    maxHealth: 80,
+    maxHealth: 14,     // Dies in 4 hits (3.5 * 4 = 14)
     speed: 40,
-    damage: 15,
+    damage: 2,         // Projectile damage = 1 heart
     behavior: 'shoot',
     shootInterval: 2000,  // Shoot every 2 seconds
     size: 16
