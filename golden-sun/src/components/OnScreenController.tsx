@@ -17,21 +17,25 @@ export const OnScreenController: React.FC<OnScreenControllerProps> = ({
 }) => {
   const handleTouchStart = useCallback((key: string) => (e: React.TouchEvent) => {
     e.preventDefault();
+    console.log(`[Touch] Button pressed: ${key}`);
     onKeyDown(key);
   }, [onKeyDown]);
 
   const handleTouchEnd = useCallback((key: string) => (e: React.TouchEvent) => {
     e.preventDefault();
+    console.log(`[Touch] Button released: ${key}`);
     onKeyUp(key);
   }, [onKeyUp]);
 
   const handleMouseDown = useCallback((key: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    console.log(`[Mouse] Button pressed: ${key}`);
     onKeyDown(key);
   }, [onKeyDown]);
 
   const handleMouseUp = useCallback((key: string) => (e: React.MouseEvent) => {
     e.preventDefault();
+    console.log(`[Mouse] Button released: ${key}`);
     onKeyUp(key);
   }, [onKeyUp]);
 

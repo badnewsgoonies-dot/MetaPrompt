@@ -85,14 +85,108 @@ const GoldenSunApp: React.FC = () => {
   const gameLoopRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
 
+  // Extract interaction logic for reuse by both keyboard and touch
+  const handleInteract = useCallback(() => {
+    // Don't interact if dialogue is active or shop is open
+    if (isDialogueActive(activeDialogue) || shopState?.isOpen) return;
+
+    // Try to interact with door first (shops, buildings)
+    if (player && activeScene) {
+      const nearestDoor = findNearestDoor(player.position, activeScene.current, 48);
+      
+      if (nearestDoor) {
+        const doorCheck = canEnterDoor(nearestDoor);
+        
+        if (doorCheck.ok) {
+          // Check if it's a shop door
+          const shopId = nearestDoor.id.includes('item-shop') ? 'item-shop' 
+            : nearestDoor.id.includes('armor-shop') ? 'armor-shop'
+            : null;
+
+          if (shopId && shops.has(shopId) && shopState && inventory) {
+            // Open shop
+            const shop = shops.get(shopId)!;
+            const newShopState = openShop(shopState, shop);
+            setShopState(newShopState);
+            return; // Don't check for NPCs if entering shop
+          }
+        }
+      }
+    }
+    
+    // Try to interact with NPC if not entering a door
+    if (player && npcRegistry && dialogueRegistry) {
+      const interactionCheck = findInteractableNPC(
+        player.position,
+        player.facing,
+        npcRegistry
+      );
+
+      if (interactionCheck.canInteract && interactionCheck.npc) {
+        // Start dialogue
+        const dialogueResult = startDialogue(interactionCheck.npc.dialogue_id, dialogueRegistry);
+        if (dialogueResult.ok) {
+          const dialogue = setDialogueState(dialogueResult.value, 'displaying');
+          setActiveDialogue(dialogue);
+          
+          // Mark NPC as talked to
+          const updateResult = markNPCAsTalkedTo(npcRegistry, interactionCheck.npc.id);
+          if (updateResult.ok) {
+            setNPCRegistry(updateResult.value);
+          }
+        }
+      }
+    }
+  }, [player, activeScene, npcRegistry, dialogueRegistry, activeDialogue, shopState, shops, inventory]);
+
+  const handleAdvanceDialogue = useCallback(() => {
+    if (!activeDialogue || !dialogueRegistry) return;
+    
+    if (activeDialogue.state === 'displaying' || activeDialogue.state === 'waiting') {
+      const advanceResult = advanceDialogue(activeDialogue);
+      if (advanceResult.ok) {
+        if (advanceResult.value.state === 'closing') {
+          setActiveDialogue(null);
+        } else {
+          setActiveDialogue(advanceResult.value);
+        }
+      }
+    }
+  }, [activeDialogue, dialogueRegistry]);
+
+  const handleCancel = useCallback(() => {
+    // Close dialogue
+    if (activeDialogue) {
+      setActiveDialogue(null);
+      return;
+    }
+    
+    // Close shop
+    if (shopState?.isOpen) {
+      const newState = closeShop(shopState);
+      setShopState(newState);
+      return;
+    }
+  }, [activeDialogue, shopState]);
+
   // On-screen controller handlers
   const handleControllerKeyDown = useCallback((key: string) => {
-    setKeysPressed(prev => new Set(prev).add(key.toLowerCase()));
+    const lowerKey = key.toLowerCase();
+    setKeysPressed(prev => new Set(prev).add(lowerKey));
     
-    // Trigger keyboard event for interaction logic
-    const event = new KeyboardEvent('keydown', { key });
-    window.dispatchEvent(event);
-  }, []);
+    // Handle action buttons directly
+    if (key === 'Enter' || lowerKey === 'a') {
+      // If dialogue is active, advance it
+      if (isDialogueActive(activeDialogue)) {
+        handleAdvanceDialogue();
+      } else {
+        // Otherwise, try to interact
+        handleInteract();
+      }
+    } else if (key === 'Escape') {
+      handleCancel();
+    }
+  }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel]);
 
   const handleControllerKeyUp = useCallback((key: string) => {
     setKeysPressed(prev => {
@@ -100,10 +194,6 @@ const GoldenSunApp: React.FC = () => {
       next.delete(key.toLowerCase());
       return next;
     });
-    
-    // Trigger keyboard event
-    const event = new KeyboardEvent('keyup', { key });
-    window.dispatchEvent(event);
   }, []);
 
   // Initialize game
@@ -213,85 +303,22 @@ const GoldenSunApp: React.FC = () => {
       setKeysPressed(prev => new Set(prev).add(e.key.toLowerCase()));
 
       // Interaction key (Enter/A)
-      if ((e.key === 'Enter' || e.key.toLowerCase() === 'a') && !isDialogueActive(activeDialogue) && !shopState?.isOpen) {
+      if (e.key === 'Enter' || e.key.toLowerCase() === 'a') {
         e.preventDefault();
         
-        // Try to interact with door first (shops, buildings)
-        if (player && activeScene) {
-          const nearestDoor = findNearestDoor(player.position, activeScene.current, 48);
-          
-          if (nearestDoor) {
-            const doorCheck = canEnterDoor(nearestDoor);
-            
-            if (doorCheck.ok) {
-              // Check if it's a shop door
-              const shopId = nearestDoor.id.includes('item-shop') ? 'item-shop' 
-                : nearestDoor.id.includes('armor-shop') ? 'armor-shop'
-                : null;
-
-              if (shopId && shops.has(shopId) && shopState && inventory) {
-                // Open shop
-                const shop = shops.get(shopId)!;
-                const newShopState = openShop(shopState, shop);
-                setShopState(newShopState);
-                return; // Don't check for NPCs if entering shop
-              }
-            }
-          }
-        }
-        
-        // Try to interact with NPC if not entering a door
-        if (player && npcRegistry && dialogueRegistry) {
-          const interactionCheck = findInteractableNPC(
-            player.position,
-            player.facing,
-            npcRegistry
-          );
-
-          if (interactionCheck.canInteract && interactionCheck.npc) {
-            // Start dialogue
-            const dialogueResult = startDialogue(interactionCheck.npc.dialogue_id, dialogueRegistry);
-            if (dialogueResult.ok) {
-              const dialogue = setDialogueState(dialogueResult.value, 'displaying');
-              setActiveDialogue(dialogue);
-              
-              // Mark NPC as talked to
-              const updateResult = markNPCAsTalkedTo(npcRegistry, interactionCheck.npc.id);
-              if (updateResult.ok) {
-                setNPCRegistry(updateResult.value);
-              }
-            }
-          }
+        // If dialogue is active, advance it
+        if (isDialogueActive(activeDialogue)) {
+          handleAdvanceDialogue();
+        } else {
+          // Otherwise, try to interact
+          handleInteract();
         }
       }
 
-      // Advance dialogue
-      if ((e.key === 'Enter' || e.key.toLowerCase() === 'a') && activeDialogue && dialogueRegistry) {
+      // Close dialogue or shop (Escape/B)
+      if (e.key === 'Escape') {
         e.preventDefault();
-        
-        if (activeDialogue.state === 'displaying' || activeDialogue.state === 'waiting') {
-          const advanceResult = advanceDialogue(activeDialogue);
-          if (advanceResult.ok) {
-            if (advanceResult.value.state === 'closing') {
-              setActiveDialogue(null);
-            } else {
-              setActiveDialogue(advanceResult.value);
-            }
-          }
-        }
-      }
-
-      // Close dialogue
-      if (e.key === 'Escape' && activeDialogue) {
-        e.preventDefault();
-        setActiveDialogue(null);
-      }
-
-      // Close shop
-      if (e.key === 'Escape' && shopState?.isOpen) {
-        e.preventDefault();
-        const newState = closeShop(shopState);
-        setShopState(newState);
+        handleCancel();
       }
 
       // Shop navigation
@@ -353,7 +380,7 @@ const GoldenSunApp: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [player, npcRegistry, dialogueRegistry, activeDialogue, shopState, activeScene, shops, inventory]);
+  }, [player, npcRegistry, dialogueRegistry, activeDialogue, shopState, activeScene, shops, inventory, handleInteract, handleAdvanceDialogue, handleCancel]);
 
   // Game loop
   useEffect(() => {
