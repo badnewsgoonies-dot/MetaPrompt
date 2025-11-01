@@ -19,6 +19,7 @@ export interface Room {
   readonly doors: ReadonlyArray<Door>;
   readonly cleared: boolean;
   readonly visited: boolean;
+  readonly bossExitUnlocked: boolean;  // For boss rooms: unlocks when boss defeated
 }
 
 export interface RoomLayout {
