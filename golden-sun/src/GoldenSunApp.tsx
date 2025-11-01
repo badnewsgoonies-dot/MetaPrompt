@@ -1,6 +1,6 @@
 /**
- * Golden Sun Vale Village - Main App Component
- * Integrates all systems into playable game
+ * Golden Sun Vale Village - Main App Component (Updated for New Dialogue System)
+ * Integrates all systems into playable game with Pokemon-style trainer battles
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -16,29 +16,15 @@ import {
   MovementInput,
   updatePlayerMovement, 
   updateCamera, 
-  createCamera,
-  createSceneBounds,
-  isPlayerMoving
+  createCamera
 } from './systems/movementSystem';
-import {
-  DialogueState
-} from './types/dialogue';
+import { DialogueState } from './types/dialogue';
+import { FlagSystem } from './types/storyFlags';
 import {
   startDialogue,
-  advanceDialogue,
-  getCurrentLine
+  advanceDialogue
 } from './systems/dialogueSystem';
-import {
-  DialogueRegistry,
-  ActiveDialogue,
-  createDialogueRegistry,
-  registerDialogue,
-  setDialogueState,
-  createSimpleDialogue,
-  isDialogueActive,
-  updateDialogueReveal,
-  selectDialogueChoice
-} from './systems/dialogueSystemCompat';
+import { createFlagSystem, loadFlags, saveFlags } from './systems/storyFlagSystem';
 import {
   ShopState,
   Inventory,
@@ -48,34 +34,21 @@ import {
   createShopState,
   openShop,
   closeShop,
-  navigateShop,
   buyItem,
-  sellItem,
-  createItemShop,
-  createArmorShop,
   createInventory
 } from './systems/shopSystem';
-import {
-  ActiveScene
-} from './types/scene';
-import {
-  createSceneRegistry,
-  registerScene,
-  createActiveScene,
-  createValeVillageScene,
-  findNearestDoor,
-  canEnterDoor
-} from './systems/overworldSystem';
+import { createValeVillageScene, findNearestDoor, canEnterDoor } from './systems/overworldSystem';
+import type { ActiveScene } from './types/scene';
 import './GoldenSunApp.css';
 
 const GoldenSunApp: React.FC = () => {
   // Game state
   const [npcRegistry, setNPCRegistry] = useState<NPCRegistry | null>(null);
-  const [dialogueRegistry, setDialogueRegistry] = useState<DialogueRegistry | null>(null);
   const [activeScene, setActiveScene] = useState<ActiveScene | null>(null);
   const [player, setPlayer] = useState<PlayerMovement | null>(null);
   const [camera, setCamera] = useState<Camera | null>(null);
-  const [activeDialogue, setActiveDialogue] = useState<ActiveDialogue | null>(null);
+  const [activeDialogue, setActiveDialogue] = useState<DialogueState | null>(null);
+  const [storyFlags, setStoryFlags] = useState<FlagSystem | null>(null);
   const [shopState, setShopState] = useState<ShopState | null>(null);
   const [inventory, setInventory] = useState<Inventory | null>(null);
   const [shops, setShops] = useState<Map<string, Shop>>(new Map());
@@ -83,80 +56,69 @@ const GoldenSunApp: React.FC = () => {
 
   // Input state
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
-  
-  // Debug state - shows what buttons are being pressed
-  const [debugInfo, setDebugInfo] = useState<string>('No input');
 
   // Refs
   const gameLoopRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
 
-  // Extract interaction logic for reuse by both keyboard and touch
+  // Initialize story flags
+  useEffect(() => {
+    const loadResult = loadFlags();
+    if (loadResult.ok) {
+      setStoryFlags(loadResult.value);
+    } else {
+      // Create new flag system if no saved flags
+      setStoryFlags(createFlagSystem());
+    }
+  }, []);
+
+  // Handle interact (talk to NPCs, enter doors)
   const handleInteract = useCallback(() => {
-    console.log('[handleInteract] Called!');
-    console.log('[handleInteract] - Player:', player ? `(${Math.round(player.position.x)}, ${Math.round(player.position.y)})` : 'NULL');
-    console.log('[handleInteract] - Active Scene:', activeScene ? 'EXISTS' : 'NULL');
-    console.log('[handleInteract] - NPC Registry:', npcRegistry ? `${npcRegistry.npcs.size} NPCs` : 'NULL');
-    console.log('[handleInteract] - Dialogue Active:', isDialogueActive(activeDialogue));
-    console.log('[handleInteract] - Shop Open:', shopState?.isOpen);
+    if (!player || !activeScene || !storyFlags) return;
     
     // Don't interact if dialogue is active or shop is open
-    if (isDialogueActive(activeDialogue) || shopState?.isOpen) {
-      console.log('[handleInteract] Blocked - dialogue or shop open');
-      return;
-    }
+    if (activeDialogue || shopState?.isOpen) return;
 
-    // Try to interact with door first (shops, buildings)
-    if (player && activeScene) {
-      const nearestDoor = findNearestDoor(player.position, activeScene.current, 48);
+    // Try to interact with door first
+    const nearestDoor = findNearestDoor(player.position, activeScene.current, 48);
+    
+    if (nearestDoor) {
+      const doorCheck = canEnterDoor(nearestDoor);
       
-      if (nearestDoor) {
-        const doorCheck = canEnterDoor(nearestDoor);
-        
-        if (doorCheck.ok) {
-          // Check if it's a shop door
-          const shopId = nearestDoor.id.includes('item-shop') ? 'item-shop' 
-            : nearestDoor.id.includes('armor-shop') ? 'armor-shop'
-            : null;
+      if (doorCheck.ok) {
+        // Check if it's a shop door
+        const shopId = nearestDoor.id.includes('item-shop') ? 'item-shop' 
+          : nearestDoor.id.includes('armor-shop') ? 'armor-shop'
+          : null;
 
-          if (shopId && shops.has(shopId) && shopState && inventory) {
-            // Open shop
-            const shop = shops.get(shopId)!;
-            const newShopState = openShop(shopState, shop);
-            setShopState(newShopState);
-            return; // Don't check for NPCs if entering shop
-          }
+        if (shopId && shops.has(shopId) && shopState && inventory) {
+          // Open shop
+          const shop = shops.get(shopId)!;
+          const newShopState = openShop(shopState, shop);
+          setShopState(newShopState);
+          return;
         }
       }
     }
     
-    // Try to interact with NPC if not entering a door
-    if (player && npcRegistry && dialogueRegistry) {
-      console.log('[handleInteract] Checking for interactable NPC...');
-      console.log('[handleInteract] Player facing:', player.facing);
-      
+    // Try to interact with NPC
+    if (npcRegistry) {
       const interactionCheck = findInteractableNPC(
         player.position,
         player.facing,
         npcRegistry
       );
 
-      console.log('[handleInteract] Interaction check result:', interactionCheck);
-      console.log('[handleInteract] - Can interact:', interactionCheck.canInteract);
-      console.log('[handleInteract] - NPC found:', interactionCheck.npc?.name || 'none');
-      console.log('[handleInteract] - Distance:', interactionCheck.distance);
-
       if (interactionCheck.canInteract && interactionCheck.npc) {
-        console.log('[handleInteract] Starting dialogue with:', interactionCheck.npc.name);
-        
-        // Start dialogue
-        const dialogueResult = startDialogue(interactionCheck.npc.dialogue_id, dialogueRegistry);
-        console.log('[handleInteract] Dialogue result:', dialogueResult.ok ? 'SUCCESS' : `FAIL: ${dialogueResult.error}`);
+        // Start dialogue with story flags
+        const dialogueResult = startDialogue(
+          interactionCheck.npc.id,
+          interactionCheck.npc.dialogue_id,
+          storyFlags
+        );
         
         if (dialogueResult.ok) {
-          const dialogue = setDialogueState(dialogueResult.value, 'displaying');
-          setActiveDialogue(dialogue);
-          console.log('[handleInteract] Dialogue set to active');
+          setActiveDialogue(dialogueResult.value);
           
           // Mark NPC as talked to
           const updateResult = markNPCAsTalkedTo(npcRegistry, interactionCheck.npc.id);
@@ -164,311 +126,71 @@ const GoldenSunApp: React.FC = () => {
             setNPCRegistry(updateResult.value);
           }
         }
+      }
+    }
+  }, [player, activeScene, npcRegistry, storyFlags, activeDialogue, shopState, shops, inventory]);
+
+  // Handle dialogue advance
+  const handleDialogueAdvance = useCallback(() => {
+    if (!activeDialogue || !storyFlags) return;
+    
+    const advanceResult = advanceDialogue(activeDialogue, storyFlags);
+    
+    if (advanceResult.ok) {
+      const { state: newState, flags: newFlags } = advanceResult.value;
+      
+      if (newState.completed) {
+        // Dialogue completed, close it
+        setActiveDialogue(null);
       } else {
-        console.log('[handleInteract] NO interactable NPC found');
-        console.log('[handleInteract] Try facing the NPC directly (press D-pad towards them)');
+        // Continue dialogue
+        setActiveDialogue(newState);
       }
-    }
-  }, [player, activeScene, npcRegistry, dialogueRegistry, activeDialogue, shopState, shops, inventory]);
-
-  const handleAdvanceDialogue = useCallback(() => {
-    if (!activeDialogue || !dialogueRegistry) return;
-    
-    if (activeDialogue.state === 'displaying' || activeDialogue.state === 'waiting') {
-      const advanceResult = advanceDialogue(activeDialogue);
-      if (advanceResult.ok) {
-        if (advanceResult.value.state === 'closing') {
-          setActiveDialogue(null);
-        } else {
-          setActiveDialogue(advanceResult.value);
-        }
-      }
-    }
-  }, [activeDialogue, dialogueRegistry]);
-
-  const handleCancel = useCallback(() => {
-    // Close dialogue
-    if (activeDialogue) {
-      setActiveDialogue(null);
-      return;
-    }
-    
-    // Close shop
-    if (shopState?.isOpen) {
-      const newState = closeShop(shopState);
-      setShopState(newState);
-      return;
-    }
-  }, [activeDialogue, shopState]);
-
-  // On-screen controller handlers
-  const handleControllerKeyDown = useCallback((key: string) => {
-    const timestamp = new Date().toISOString().split('T')[1];
-    console.log(`[${timestamp}] Controller Down: "${key}"`);
-    
-    setDebugInfo(`Pressed: ${key} at ${timestamp}`);
-    
-    // Only add movement keys to keysPressed (D-pad)
-    if (key.startsWith('Arrow')) {
-      const lowerKey = key.toLowerCase();
-      setKeysPressed(prev => new Set(prev).add(lowerKey));
-      console.log(`[${timestamp}] Added to keysPressed: ${lowerKey}`);
-    }
-    
-    // Handle action buttons directly (don't add to keysPressed to avoid WASD conflicts)
-    if (key === 'Enter') {
-      console.log(`[${timestamp}] A/Enter button pressed!`);
-      console.log(`[${timestamp}] - Active Dialogue: ${isDialogueActive(activeDialogue)}`);
-      console.log(`[${timestamp}] - Shop Open: ${shopState?.isOpen}`);
-      console.log(`[${timestamp}] - Player: ${player ? `(${Math.round(player.position.x)}, ${Math.round(player.position.y)})` : 'null'}`);
-      console.log(`[${timestamp}] - NPC Registry: ${npcRegistry ? `${npcRegistry.npcs.size} NPCs` : 'null'}`);
       
-      setDebugInfo(`A pressed - Dialogue: ${isDialogueActive(activeDialogue)}`);
-      
-      // If dialogue is active, advance it
-      if (isDialogueActive(activeDialogue)) {
-        console.log(`[${timestamp}] ? Advancing dialogue`);
-        setDebugInfo('A pressed - Advancing dialogue');
-        handleAdvanceDialogue();
-      } else {
-        console.log(`[${timestamp}] ? Attempting interaction`);
-        setDebugInfo('A pressed - Trying to interact');
-        // Otherwise, try to interact
-        handleInteract();
-      }
-    } else if (key === 'Escape') {
-      console.log(`[${timestamp}] B/Escape button pressed!`);
-      setDebugInfo(`B pressed - Cancelling`);
-      handleCancel();
+      // Update flags and save
+      setStoryFlags(newFlags);
+      saveFlags(newFlags);
     }
-  }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel, shopState, player, npcRegistry]);
+  }, [activeDialogue, storyFlags]);
 
-  const handleControllerKeyUp = useCallback((key: string) => {
-    // Only remove movement keys from keysPressed (D-pad)
-    if (key.startsWith('Arrow')) {
-      setKeysPressed(prev => {
-        const next = new Set(prev);
-        next.delete(key.toLowerCase());
-        return next;
-      });
-    }
-  }, []);
-
-  // Initialize game
-  useEffect(() => {
-    async function loadGameData() {
-      try {
-        // Load sprite map data
-        const response = await fetch('/sprite_map.json');
-        if (!response.ok) {
-          throw new Error('Failed to load sprite map data');
-        }
-        const spriteMapData = await response.json();
-
-        // Initialize NPCs
-        const npcResult = initializeNPCs(spriteMapData);
-      if (!npcResult.ok) {
-        setError(`Failed to initialize NPCs: ${npcResult.error}`);
-        return;
-      }
-      setNPCRegistry(npcResult.value);
-
-      // Initialize dialogue registry with sample dialogues
-      let dRegistry = createDialogueRegistry();
+  // Handle dialogue choice
+  const handleDialogueChoice = useCallback((choiceIndex: number) => {
+    if (!activeDialogue || !storyFlags) return;
+    
+    const advanceResult = advanceDialogue(activeDialogue, storyFlags, choiceIndex);
+    
+    if (advanceResult.ok) {
+      const { state: newState, flags: newFlags } = advanceResult.value;
       
-      // Add sample dialogues for all NPCs
-      const dialogues = [
-        createSimpleDialogue('garet-intro', 'garet', 'Garet', [
-          'Hey Isaac! Ready for an adventure?',
-          'The Elder wants to see us at the plaza.',
-          "Let's not keep him waiting!"
-        ]),
-        createSimpleDialogue('dora-greeting', 'dora', 'Dora', [
-          'Good morning, Isaac!',
-          'Be careful if you go near Sol Sanctum.',
-          'Strange things have been happening there lately.'
-        ]),
-        createSimpleDialogue('elder-warning', 'elder', 'Elder', [
-          'Welcome, Isaac.',
-          'I sense a great destiny awaits you.',
-          'The powers of Alchemy are awakening...'
-        ]),
-        createSimpleDialogue('kraden-scholar', 'kraden', 'Kraden', [
-          'Ah, Isaac! Studying ancient texts as always.',
-          'Sol Sanctum holds many mysteries.',
-          'Perhaps one day we shall explore it together.'
-        ]),
-        createSimpleDialogue('kyle-father', 'kyle', 'Kyle', [
-          "Garet's father here. Stay safe, you two!",
-          'The mountains can be treacherous.'
-        ]),
-        createSimpleDialogue('jenna-friend', 'jenna', 'Jenna', [
-          'Hi Isaac!',
-          'Have you seen Felix? I miss him...'
-        ]),
-        createSimpleDialogue('healer-wisdom', 'healer', 'Great Healer', [
-          'The light of healing shines upon this village.',
-          'May it protect you on your journey.'
-        ]),
-        createSimpleDialogue('aaron-parent', 'aaron', 'Aaron', [
-          'Keep an eye on Jenna for us, Isaac.',
-          'She looks up to you.'
-        ]),
-        createSimpleDialogue('kay-parent', 'kay', 'Kay', [
-          'Such brave children you all are.',
-          'Please be careful out there.'
-        ]),
-        createSimpleDialogue('innkeeper-rest', 'innkeeper', 'Innkeeper', [
-          'Welcome to the inn!',
-          'Rest here to restore your energy.',
-          '30 coins per night.'
-        ]),
-        createSimpleDialogue('armor-shop', 'armor-shop-owner', 'Shop Owner', [
-          'Welcome to the armor shop!',
-          'We have the finest equipment in Vale.'
-        ]),
-        createSimpleDialogue('scholar-1', 'scholar-1', 'Scholar', [
-          'I study the ancient texts of Alchemy.',
-          'Fascinating stuff!'
-        ]),
-        createSimpleDialogue('scholar-2', 'scholar-2', 'Scholar', [
-          'The power of Psynergy flows through all things.',
-          'Can you feel it?'
-        ]),
-        createSimpleDialogue('villager-1', 'villager-1', 'Villager', [
-          "It's a beautiful day in Vale!",
-          'Have you been to the plaza?'
-        ]),
-        createSimpleDialogue('villager-2', 'villager-2', 'Villager', [
-          'I heard strange noises from Sol Sanctum.',
-          'Be careful if you go there.'
-        ]),
-        createSimpleDialogue('villager-3', 'villager-3', 'Villager', [
-          'Hello there!',
-          'Enjoy your stay in Vale Village.'
-        ])
-      ];
-
-      // Register all dialogues
-      for (const dialogue of dialogues) {
-        const regResult = registerDialogue(dRegistry, dialogue);
-        if (regResult.ok) dRegistry = regResult.value;
-      }
-
-      setDialogueRegistry(dRegistry);
-
-      // Initialize scenes
-      let sRegistry = createSceneRegistry();
-      const valeScene = createValeVillageScene();
-      
-      const sceneResult = registerScene(sRegistry, valeScene);
-      if (!sceneResult.ok) {
-        setError(`Failed to register scene: ${sceneResult.error}`);
-        return;
-      }
-      // Scene registry not needed in state, just use active scene
-
-      const active = createActiveScene(valeScene);
-      setActiveScene(active);
-
-      // Initialize player
-      const initialPlayer: PlayerMovement = {
-        position: valeScene.spawnPosition,
-        velocity: { dx: 0, dy: 0 },
-        facing: 'down'
-      };
-      setPlayer(initialPlayer);
-
-      // Initialize camera
-      const initialCamera = createCamera(valeScene.spawnPosition, 0.15);
-      setCamera(initialCamera);
-
-      // Initialize inventory and shops
-      const startingInventory = createInventory(20, 100); // 20 slots, 100 coins
-      setInventory(startingInventory);
-
-      const itemShop = createItemShop();
-      const armorShop = createArmorShop();
-      const shopsMap = new Map<string, Shop>();
-      shopsMap.set('item-shop', itemShop);
-      shopsMap.set('armor-shop', armorShop);
-      setShops(shopsMap);
-
-      const initialShopState = createShopState();
-      setShopState(initialShopState);
-
-      } catch (err) {
-        setError(`Initialization failed: ${err}`);
-      }
+      setActiveDialogue(newState);
+      setStoryFlags(newFlags);
+      saveFlags(newFlags);
     }
+  }, [activeDialogue, storyFlags]);
 
-    loadGameData();
-  }, []);
-
-  // Handle keyboard input
+  // Keyboard input handlers
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       setKeysPressed(prev => new Set(prev).add(e.key.toLowerCase()));
-
-      // Interaction key (Enter/A)
-      if (e.key === 'Enter' || e.key.toLowerCase() === 'a') {
+      
+      // Handle interact key (Space/Enter)
+      if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         
-        // If dialogue is active, advance it
-        if (isDialogueActive(activeDialogue)) {
-          handleAdvanceDialogue();
+        if (activeDialogue) {
+          handleDialogueAdvance();
         } else {
-          // Otherwise, try to interact
           handleInteract();
         }
       }
-
-      // Close dialogue or shop (Escape/B)
+      
+      // Handle escape (close dialogue/shop)
       if (e.key === 'Escape') {
-        e.preventDefault();
-        handleCancel();
-      }
-
-      // Shop navigation
-      if (shopState?.isOpen && shopState.activeShop && inventory) {
-        const maxIndex = shopState.mode === 'buy' 
-          ? shopState.activeShop.inventory.length - 1
-          : inventory.items.filter(item => item.quantity > 0).length - 1;
-
-        if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          const newState = navigateShop(shopState, -1, maxIndex);
-          setShopState(newState);
+        if (activeDialogue) {
+          setActiveDialogue(null);
         }
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          const newState = navigateShop(shopState, 1, maxIndex);
-          setShopState(newState);
-        }
-        if (e.key === 'Tab') {
-          e.preventDefault();
-          // Toggle between buy and sell modes
-          const newMode = shopState.mode === 'buy' ? 'sell' : 'buy';
-          setShopState({ ...shopState, mode: newMode, selectedIndex: 0 });
-        }
-      }
-
-      // Navigate dialogue choices
-      if (activeDialogue && activeDialogue.isTextComplete) {
-        const currentLine = getCurrentLine(activeDialogue);
-        if (currentLine?.choices && currentLine.choices.length > 0) {
-          if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            const newIndex = Math.max(0, activeDialogue.selectedChoice - 1);
-            const selectResult = selectDialogueChoice(activeDialogue, newIndex);
-            if (selectResult.ok) setActiveDialogue(selectResult.value);
-          }
-          if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            const newIndex = Math.min(currentLine.choices.length - 1, activeDialogue.selectedChoice + 1);
-            const selectResult = selectDialogueChoice(activeDialogue, newIndex);
-            if (selectResult.ok) setActiveDialogue(selectResult.value);
-          }
+        if (shopState?.isOpen) {
+          setShopState(closeShop(shopState));
         }
       }
     };
@@ -488,160 +210,162 @@ const GoldenSunApp: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [player, npcRegistry, dialogueRegistry, activeDialogue, shopState, activeScene, shops, inventory, handleInteract, handleAdvanceDialogue, handleCancel]);
+  }, [activeDialogue, handleInteract, handleDialogueAdvance, shopState]);
+
+  // Initialize game
+  useEffect(() => {
+    try {
+      // Create Vale Village scene
+      const vale = createValeVillageScene();
+      const scene: ActiveScene = {
+        current: vale,
+        previous: undefined,
+        transitionState: { type: 'fade', phase: 'idle', progress: 1 }
+      };
+      setActiveScene(scene);
+
+      // Initialize NPCs - need to load sprite_map.json
+      fetch('/sprite_map.json')
+        .then(res => res.json())
+        .then(data => {
+          const npcResult = initializeNPCs(data);
+          if (npcResult.ok) {
+            setNPCRegistry(npcResult.value);
+          }
+        })
+        .catch(err => console.error('Failed to load NPCs:', err));
+
+      // Create player at spawn position
+      setPlayer({
+        position: vale.spawnPosition,
+        velocity: { dx: 0, dy: 0 },
+        facing: 'down'
+      });
+
+      // Create camera
+      setCamera(createCamera(vale.spawnPosition));
+
+      // Initialize shop system
+      const shops = new Map<string, Shop>();
+      shops.set('item-shop', {
+        id: 'item-shop',
+        name: 'Vale Item Shop',
+        type: 'item',
+        inventory: [
+          { id: 'potion', name: 'Potion', type: 'consumable', price: 50, description: 'Restores 50 HP', maxStack: 99 },
+          { id: 'ether', name: 'Ether', type: 'consumable', price: 80, description: 'Restores 20 PP', maxStack: 99 },
+        ],
+        buybackItems: [],
+        sellPriceMultiplier: 0.5
+      });
+      shops.set('armor-shop', {
+        id: 'armor-shop',
+        name: 'Vale Armor Shop',
+        type: 'armor',
+        inventory: [
+          { id: 'leather-vest', name: 'Leather Vest', type: 'armor', price: 200, description: '+10 Defense', maxStack: 1 },
+          { id: 'bronze-sword', name: 'Bronze Sword', type: 'weapon', price: 300, description: '+15 Attack', maxStack: 1 },
+        ],
+        buybackItems: [],
+        sellPriceMultiplier: 0.5
+      });
+      setShops(shops);
+
+      // Initialize inventory and shop state
+      setInventory(createInventory(500)); // Start with 500 coins
+      setShopState(createShopState());
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to initialize game');
+    }
+  }, []);
 
   // Game loop
   useEffect(() => {
-    if (!player || !camera || !activeScene || !npcRegistry) {
-      return;
-    }
+    if (!player || !activeScene || !camera) return;
 
-    const loop = (currentTime: number) => {
+    const gameLoop = (currentTime: number) => {
       const deltaTime = currentTime - lastTimeRef.current;
       lastTimeRef.current = currentTime;
 
-      if (deltaTime > 0 && deltaTime < 100) {
-        // Don't update movement if dialogue is active
-        if (!isDialogueActive(activeDialogue)) {
-          // Build movement input from keyboard
-          const input: MovementInput = {
-            up: keysPressed.has('arrowup') || keysPressed.has('w'),
-            down: keysPressed.has('arrowdown') || keysPressed.has('s'),
-            left: keysPressed.has('arrowleft') || keysPressed.has('a'),
-            right: keysPressed.has('arrowright') || keysPressed.has('d')
-          };
-
-          // Get NPC positions for collision
-          const npcPositions = Array.from(npcRegistry.npcs.values())
-            .filter(npc => npc.visible && npc.id !== 'isaac')
-            .map(npc => npc.position);
-
-          // Update player movement
-          const bounds = createSceneBounds();
-          const moveResult = updatePlayerMovement(
-            player,
-            input,
-            deltaTime,
-            npcPositions,
-            activeScene.current.obstacles,
-            bounds
-          );
-
-          if (moveResult.ok) {
-            setPlayer(moveResult.value);
-
-            // Update camera to follow player
-            const updatedCamera = updateCamera(camera, moveResult.value.position, deltaTime);
-            setCamera(updatedCamera);
-          }
-        }
-
-        // Update dialogue reveal
-        if (activeDialogue && activeDialogue.state === 'displaying') {
-          const updatedDialogue = updateDialogueReveal(activeDialogue, deltaTime);
-          setActiveDialogue(updatedDialogue);
-        }
+      // Skip if delta is too large (tab was inactive)
+      if (deltaTime > 100) {
+        gameLoopRef.current = requestAnimationFrame(gameLoop);
+        return;
       }
 
-      gameLoopRef.current = requestAnimationFrame(loop);
+      // Don't update player if dialogue or shop is open
+      if (activeDialogue || shopState?.isOpen) {
+        gameLoopRef.current = requestAnimationFrame(gameLoop);
+        return;
+      }
+
+      // Convert keys to movement input
+      const input: MovementInput = {
+        up: keysPressed.has('w') || keysPressed.has('arrowup'),
+        down: keysPressed.has('s') || keysPressed.has('arrowdown'),
+        left: keysPressed.has('a') || keysPressed.has('arrowleft'),
+        right: keysPressed.has('d') || keysPressed.has('arrowright')
+      };
+
+      // Update player
+      const bounds = {
+        minX: 0,
+        minY: 0,
+        maxX: activeScene.current.width,
+        maxY: activeScene.current.height
+      };
+      
+      const updateResult = updatePlayerMovement(
+        player,
+        input,
+        deltaTime,
+        npcRegistry ? Array.from(npcRegistry.npcs.values()).map(npc => npc.position) : [],
+        activeScene.current.obstacles,
+        bounds
+      );
+
+      if (updateResult.ok) {
+        setPlayer(updateResult.value);
+        
+        // Update camera
+        const newCamera = updateCamera(camera, updateResult.value.position, deltaTime);
+        setCamera(newCamera);
+      }
+
+      gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
-    lastTimeRef.current = performance.now();
-    gameLoopRef.current = requestAnimationFrame(loop);
+    gameLoopRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
       if (gameLoopRef.current) {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [player, camera, activeScene, npcRegistry, keysPressed, activeDialogue]);
+  }, [player, activeScene, camera, keysPressed, npcRegistry, activeDialogue, shopState]);
 
-  const handleSelectChoice = useCallback((choiceIndex: number) => {
-    if (!activeDialogue) return;
-    
-    const selectResult = selectDialogueChoice(activeDialogue, choiceIndex);
-    if (selectResult.ok) {
-      setActiveDialogue(selectResult.value);
-    }
-  }, [activeDialogue]);
-
-  // Shop handlers
-  const handleBuyItem = useCallback(() => {
-    if (!shopState?.activeShop || !inventory) return;
-
-    const itemToBuy = shopState.activeShop.inventory[shopState.selectedIndex];
-    if (!itemToBuy) return;
-
-    const buyResult = buyItem(inventory, shopState.activeShop, itemToBuy, 1);
-    if (buyResult.ok) {
-      setInventory(buyResult.value.inventory);
-      // Update shop in map if needed
-      const updatedShops = new Map(shops);
-      updatedShops.set(shopState.activeShop.id, buyResult.value.shop);
-      setShops(updatedShops);
-    }
-  }, [shopState, inventory, shops]);
-
-  const handleSellItem = useCallback(() => {
-    if (!shopState?.activeShop || !inventory) return;
-
-    const sellableItems = inventory.items.filter(item => item.quantity > 0);
-    const invItem = sellableItems[shopState.selectedIndex];
-    if (!invItem) return;
-
-    // Find the ShopItem
-    const shopItem = shopState.activeShop.inventory.find(si => si.id === invItem.itemId);
-    if (!shopItem) return;
-
-    const sellResult = sellItem(inventory, shopState.activeShop, shopItem, 1);
-    if (sellResult.ok) {
-      setInventory(sellResult.value.inventory);
-      const updatedShops = new Map(shops);
-      updatedShops.set(shopState.activeShop.id, sellResult.value.shop);
-      setShops(updatedShops);
-    }
-  }, [shopState, inventory, shops]);
-
-  const handleCloseShop = useCallback(() => {
-    if (!shopState) return;
-    const newState = closeShop(shopState);
-    setShopState(newState);
-  }, [shopState]);
-
-  const handleShopModeChange = useCallback((mode: 'buy' | 'sell') => {
-    if (!shopState) return;
-    setShopState({ ...shopState, mode, selectedIndex: 0 });
-  }, [shopState]);
-
-  // handleShopNavigate removed - navigation is handled in keyboard handler
-
+  // Error display
   if (error) {
     return (
-      <div className="error-screen">
+      <div style={{ padding: '20px', color: 'red' }}>
         <h1>Error</h1>
         <p>{error}</p>
       </div>
     );
   }
 
-  if (!player || !camera || !activeScene || !npcRegistry) {
+  // Loading display
+  if (!player || !activeScene || !camera || !npcRegistry || !storyFlags) {
     return (
-      <div className="loading-screen">
-        <h1>Loading Vale Village...</h1>
-        <div className="loading-spinner"></div>
+      <div style={{ padding: '20px' }}>
+        <h1>Loading Golden Sun: Vale Village...</h1>
       </div>
     );
   }
 
   return (
     <div className="golden-sun-app">
-      {/* Title */}
-      <header className="game-header">
-        <h1 className="game-title">Golden Sun: Vale Village</h1>
-        <div className="game-subtitle">Mockup Integration - Phase 2</div>
-      </header>
-
-      {/* Game World */}
       <GameWorld
         scene={activeScene.current}
         npcRegistry={npcRegistry}
@@ -649,100 +373,58 @@ const GoldenSunApp: React.FC = () => {
         camera={camera}
       />
 
-      {/* Dialogue Box (when active) */}
-      {activeDialogue && isDialogueActive(activeDialogue) && (
+      {activeDialogue && (
         <DialogueBox
           dialogue={activeDialogue}
-          onSelectChoice={handleSelectChoice}
+          onSelectChoice={handleDialogueChoice}
         />
       )}
 
-      {/* Shop Menu (when open) */}
-      {shopState?.isOpen && shopState.activeShop && inventory && (
+      {shopState?.activeShop && inventory && (
         <ShopMenu
           shopState={shopState}
           playerInventory={inventory}
           shopItems={shopState.activeShop.inventory}
-          onBuy={handleBuyItem}
-          onSell={handleSellItem}
-          onClose={handleCloseShop}
-          onChangeMode={handleShopModeChange}
+          onBuy={() => {
+            const selectedItem = shopState.activeShop!.inventory[shopState.selectedIndex];
+            if (selectedItem) {
+              const result = buyItem(inventory, shopState.activeShop!, selectedItem, 1);
+              if (result.ok) {
+                setShopState({ ...shopState, activeShop: result.value.shop });
+                setInventory(result.value.inventory);
+              }
+            }
+          }}
+          onSell={() => {
+            // Selling not implemented yet
+          }}
+          onClose={() => setShopState(closeShop(shopState))}
+          onChangeMode={(mode) => {
+            setShopState({ ...shopState, mode });
+          }}
         />
       )}
 
-      {/* HUD */}
-      <div className="game-hud">
-        <div className="hud-item">
-          <span className="hud-label">NPCs Talked To:</span>
-          <span className="hud-value">
-            {Array.from(npcRegistry.npcs.values()).filter(n => n.hasBeenTalkedTo).length} / {npcRegistry.visible.length}
-          </span>
-        </div>
-        <div className="hud-item">
-          <span className="hud-label">Scene:</span>
-          <span className="hud-value">{activeScene.current.name}</span>
-        </div>
-        <div className="hud-item">
-          <span className="hud-label">Moving:</span>
-          <span className="hud-value">{isPlayerMoving(player) ? 'Yes' : 'No'}</span>
-        </div>
-        <div className="hud-item" style={{ borderTop: '1px solid #d4a857', marginTop: '8px', paddingTop: '8px' }}>
-          <span className="hud-label">Debug:</span>
-          <span className="hud-value" style={{ fontSize: '10px', wordBreak: 'break-all' }}>{debugInfo}</span>
-        </div>
-        <div className="hud-item">
-          <span className="hud-label">Player Pos:</span>
-          <span className="hud-value" style={{ fontSize: '10px' }}>
-            ({Math.round(player.position.x)}, {Math.round(player.position.y)})
-          </span>
-        </div>
-        <div className="hud-item">
-          <span className="hud-label">Facing:</span>
-          <span className="hud-value" style={{ fontSize: '12px' }}>
-            {player.facing === 'up' ? '?' : player.facing === 'down' ? '?' : player.facing === 'left' ? '?' : '?'} {player.facing}
-          </span>
-        </div>
-        <div className="hud-item">
-          <span className="hud-label">Nearby NPCs:</span>
-          <span className="hud-value" style={{ fontSize: '10px' }}>
-            {(() => {
-              const nearby = Array.from(npcRegistry.npcs.values()).filter(npc => {
-                if (!npc.visible) return false;
-                if (npc.id === 'isaac') return false; // Exclude player
-                const dx = npc.position.x - player.position.x;
-                const dy = npc.position.y - player.position.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                return distance <= 48;
-              });
-              return nearby.length > 0 ? nearby.map(n => n.name).join(', ') : 'None';
-            })()}
-          </span>
-        </div>
-      </div>
-
-      {/* Controls Guide */}
-      <div className="controls-guide">
-        <h3>Controls</h3>
-        <div className="control-grid">
-          <div className="control-item">
-            <kbd>Arrow Keys / WASD</kbd>
-            <span>Move</span>
-          </div>
-          <div className="control-item">
-            <kbd>Enter / A</kbd>
-            <span>Talk / Advance</span>
-          </div>
-          <div className="control-item">
-            <kbd>Esc</kbd>
-            <span>Close Dialogue</span>
-          </div>
-        </div>
-      </div>
-
-      {/* On-Screen Controller (Touch Devices) */}
       <OnScreenController
-        onKeyDown={handleControllerKeyDown}
-        onKeyUp={handleControllerKeyUp}
+        onKeyDown={(key: string) => {
+          setKeysPressed(prev => new Set(prev).add(key));
+          
+          // Handle action key
+          if (key === ' ' || key === 'Enter') {
+            if (activeDialogue) {
+              handleDialogueAdvance();
+            } else {
+              handleInteract();
+            }
+          }
+        }}
+        onKeyUp={(key: string) => {
+          setKeysPressed(prev => {
+            const next = new Set(prev);
+            next.delete(key);
+            return next;
+          });
+        }}
       />
     </div>
   );

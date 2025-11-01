@@ -131,7 +131,7 @@ export interface Scene {
 // Active scene state
 export interface ActiveScene {
   current: Scene;
-  previous?: SceneId;
+  previous?: SceneId | undefined;
   transitionState: SceneTransitionState;
 }
 
