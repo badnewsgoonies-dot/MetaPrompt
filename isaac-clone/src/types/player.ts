@@ -13,12 +13,21 @@ export interface PlayerStats {
   readonly range: number;     // Tear travel distance in pixels
 }
 
+export interface PlayerResources {
+  readonly keys: number;
+  readonly bombs: number;
+  readonly coins: number;
+  readonly hasGoldenKey: boolean;
+}
+
 export interface Player {
   readonly position: Position;
   readonly velocity: Vector2D;
   readonly stats: PlayerStats;
+  readonly resources: PlayerResources;
   readonly size: number;  // Collision radius
   readonly lastTearTime: number;  // Timestamp of last tear fired
+  readonly lastBombTime: number;  // Timestamp of last bomb placed
   readonly facing: Vector2D;  // Direction player is facing
 }
 
@@ -35,3 +44,10 @@ export const DEFAULT_PLAYER_STATS: PlayerStats = {
 };
 
 export const PLAYER_SIZE = 16;  // Collision radius in pixels
+
+export const DEFAULT_PLAYER_RESOURCES: PlayerResources = {
+  keys: 0,
+  bombs: 0,
+  coins: 0,
+  hasGoldenKey: false
+};
