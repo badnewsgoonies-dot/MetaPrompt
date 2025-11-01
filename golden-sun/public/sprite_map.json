@@ -277,6 +277,381 @@
         "y": 420
       },
       "interior": "kraden-house-interior"
+    },
+    {
+      "id": "sanctum-entrance",
+      "name": "Sol Sanctum Entrance",
+      "sprite": "placeholder",
+      "position": {
+        "x": 900,
+        "y": 120
+      },
+      "size": {
+        "width": 160,
+        "height": 140
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 980,
+        "y": 250
+      },
+      "interior": "sanctum-entrance-interior"
+    },
+    {
+      "id": "sanctum-guard-post",
+      "name": "Sanctum Guard Post",
+      "sprite": "placeholder",
+      "position": {
+        "x": 760,
+        "y": 200
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "plaza-pavilion-1",
+      "name": "Plaza Pavilion",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1100,
+        "y": 180
+      },
+      "size": {
+        "width": 96,
+        "height": 80
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "jenna-house",
+      "name": "Jenna's House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 520,
+        "y": 680
+      },
+      "size": {
+        "width": 96,
+        "height": 80
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 568,
+        "y": 750
+      },
+      "interior": "jenna-house-interior"
+    },
+    {
+      "id": "villager-house-1",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 320,
+        "y": 600
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 360,
+        "y": 660
+      },
+      "interior": "villager-house-1-interior"
+    },
+    {
+      "id": "villager-house-2",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 600,
+        "y": 540
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 640,
+        "y": 600
+      },
+      "interior": "villager-house-2-interior"
+    },
+    {
+      "id": "blacksmith-shop",
+      "name": "Blacksmith",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1100,
+        "y": 600
+      },
+      "size": {
+        "width": 96,
+        "height": 80
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 1148,
+        "y": 670
+      },
+      "interior": "blacksmith-shop-interior"
+    },
+    {
+      "id": "well-house",
+      "name": "Well",
+      "sprite": "placeholder",
+      "position": {
+        "x": 720,
+        "y": 620
+      },
+      "size": {
+        "width": 48,
+        "height": 48
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "villager-house-3",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1360,
+        "y": 400
+      },
+      "size": {
+        "width": 96,
+        "height": 80
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 1408,
+        "y": 470
+      },
+      "interior": "villager-house-3-interior"
+    },
+    {
+      "id": "villager-house-4",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1520,
+        "y": 500
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 1560,
+        "y": 560
+      },
+      "interior": "villager-house-4-interior"
+    },
+    {
+      "id": "villager-house-5",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1400,
+        "y": 640
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 1440,
+        "y": 700
+      },
+      "interior": "villager-house-5-interior"
+    },
+    {
+      "id": "garden-greenhouse",
+      "name": "Greenhouse",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1600,
+        "y": 720
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "storage-shed-1",
+      "name": "Storage Shed",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1680,
+        "y": 600
+      },
+      "size": {
+        "width": 64,
+        "height": 60
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "villager-house-6",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 200,
+        "y": 540
+      },
+      "size": {
+        "width": 96,
+        "height": 80
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 248,
+        "y": 610
+      },
+      "interior": "villager-house-6-interior"
+    },
+    {
+      "id": "barn",
+      "name": "Barn",
+      "sprite": "placeholder",
+      "position": {
+        "x": 120,
+        "y": 720
+      },
+      "size": {
+        "width": 128,
+        "height": 110
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "storage-shed-2",
+      "name": "Storage Shed",
+      "sprite": "placeholder",
+      "position": {
+        "x": 280,
+        "y": 800
+      },
+      "size": {
+        "width": 64,
+        "height": 60
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "farmhouse",
+      "name": "Farmhouse",
+      "sprite": "placeholder",
+      "position": {
+        "x": 160,
+        "y": 940
+      },
+      "size": {
+        "width": 96,
+        "height": 80
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 208,
+        "y": 1010
+      },
+      "interior": "farmhouse-interior"
+    },
+    {
+      "id": "villager-house-7",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 600,
+        "y": 1040
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 640,
+        "y": 1100
+      },
+      "interior": "villager-house-7-interior"
+    },
+    {
+      "id": "villager-house-8",
+      "name": "Villager House",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1200,
+        "y": 1060
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {
+        "x": 1240,
+        "y": 1120
+      },
+      "interior": "villager-house-8-interior"
+    },
+    {
+      "id": "watchtower",
+      "name": "Watchtower",
+      "sprite": "placeholder",
+      "position": {
+        "x": 880,
+        "y": 1140
+      },
+      "size": {
+        "width": 64,
+        "height": 100
+      },
+      "z_index": 5,
+      "enterable": false
+    },
+    {
+      "id": "gate-guard-post",
+      "name": "Gate Guard Post",
+      "sprite": "placeholder",
+      "position": {
+        "x": 1040,
+        "y": 1160
+      },
+      "size": {
+        "width": 80,
+        "height": 70
+      },
+      "z_index": 5,
+      "enterable": false
     }
   ],
   "entities": [
@@ -651,10 +1026,10 @@
     "visible_npcs": 16,
     "hidden_npcs": 6,
     "player": 1,
-    "buildings": 7,
+    "buildings": 28,
     "scenery": 5,
     "paths": 4,
-    "total_interactables": 23
+    "total_interactables": 44
   },
   "dialogue_system": {
     "format": "character_portrait + name + text",

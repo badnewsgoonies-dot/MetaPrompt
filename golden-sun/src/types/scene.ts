@@ -74,13 +74,27 @@ export type SceneType = 'overworld' | 'interior' | 'dungeon' | 'menu';
 // Scene ID
 export type SceneId = 
   | 'vale-village'
+  // Existing interiors
   | 'isaac-house'
   | 'item-shop'
   | 'armor-shop'
   | 'inn'
   | 'elder-house'
   | 'garet-house'
-  | 'kraden-study';
+  | 'kraden-study'
+  // NEW: Task 2 buildings
+  | 'sanctum-entrance'
+  | 'jenna-house'
+  | 'villager-house-1'
+  | 'villager-house-2'
+  | 'blacksmith-shop'
+  | 'villager-house-3'
+  | 'villager-house-4'
+  | 'villager-house-5'
+  | 'villager-house-6'
+  | 'farmhouse'
+  | 'villager-house-7'
+  | 'villager-house-8';
 
 // Scene transition type
 export type TransitionType = 'fade' | 'slide' | 'instant';
