@@ -141,7 +141,7 @@
     {
       "id": "isaac-house",
       "name": "Isaac's House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/isaac-house.png",
       "position": {
         "x": 480,
         "y": 320
@@ -161,7 +161,7 @@
     {
       "id": "garet-house",
       "name": "Garet's House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/garet-house.png",
       "position": {
         "x": 400,
         "y": 720
@@ -181,7 +181,7 @@
     {
       "id": "elder-house",
       "name": "Elder's House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/elder-house.png",
       "position": {
         "x": 840,
         "y": 240
@@ -201,7 +201,7 @@
     {
       "id": "item-shop",
       "name": "Item Shop",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/shops/item-shop.png",
       "position": {
         "x": 1240,
         "y": 480
@@ -221,7 +221,7 @@
     {
       "id": "armor-shop",
       "name": "Armor Shop",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/shops/armor-shop.png",
       "position": {
         "x": 1280,
         "y": 760
@@ -241,7 +241,7 @@
     {
       "id": "inn",
       "name": "Inn",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/shops/inn.png",
       "position": {
         "x": 1520,
         "y": 560
@@ -261,7 +261,7 @@
     {
       "id": "kraden-house",
       "name": "Kraden's Study",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/kraden-house.png",
       "position": {
         "x": 1400,
         "y": 280
@@ -281,7 +281,7 @@
     {
       "id": "sanctum-entrance",
       "name": "Sol Sanctum Entrance",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/sanctum-entrance.png",
       "position": {
         "x": 900,
         "y": 120
@@ -301,7 +301,7 @@
     {
       "id": "sanctum-guard-post",
       "name": "Sanctum Guard Post",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/sanctum-guard-post.png",
       "position": {
         "x": 760,
         "y": 200
@@ -316,7 +316,7 @@
     {
       "id": "plaza-pavilion-1",
       "name": "Plaza Pavilion",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/plaza-pavilion.png",
       "position": {
         "x": 1100,
         "y": 180
@@ -331,7 +331,7 @@
     {
       "id": "jenna-house",
       "name": "Jenna's House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/jenna-house.png",
       "position": {
         "x": 520,
         "y": 680
@@ -351,7 +351,7 @@
     {
       "id": "villager-house-1",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-1.png",
       "position": {
         "x": 320,
         "y": 600
@@ -371,7 +371,7 @@
     {
       "id": "villager-house-2",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-2.png",
       "position": {
         "x": 600,
         "y": 540
@@ -391,7 +391,7 @@
     {
       "id": "blacksmith-shop",
       "name": "Blacksmith",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/shops/blacksmith.png",
       "position": {
         "x": 1100,
         "y": 600
@@ -411,7 +411,7 @@
     {
       "id": "well-house",
       "name": "Well",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/well.png",
       "position": {
         "x": 720,
         "y": 620
@@ -426,7 +426,7 @@
     {
       "id": "villager-house-3",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-3.png",
       "position": {
         "x": 1360,
         "y": 400
@@ -446,7 +446,7 @@
     {
       "id": "villager-house-4",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-1.png",
       "position": {
         "x": 1520,
         "y": 500
@@ -466,7 +466,7 @@
     {
       "id": "villager-house-5",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-2.png",
       "position": {
         "x": 1400,
         "y": 640
@@ -486,7 +486,7 @@
     {
       "id": "garden-greenhouse",
       "name": "Greenhouse",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/greenhouse.png",
       "position": {
         "x": 1600,
         "y": 720
@@ -501,7 +501,7 @@
     {
       "id": "storage-shed-1",
       "name": "Storage Shed",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/storage-shed.png",
       "position": {
         "x": 1680,
         "y": 600
@@ -516,7 +516,7 @@
     {
       "id": "villager-house-6",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-3.png",
       "position": {
         "x": 200,
         "y": 540
@@ -536,7 +536,7 @@
     {
       "id": "barn",
       "name": "Barn",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/barn.png",
       "position": {
         "x": 120,
         "y": 720
@@ -551,7 +551,7 @@
     {
       "id": "storage-shed-2",
       "name": "Storage Shed",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/storage-shed.png",
       "position": {
         "x": 280,
         "y": 800
@@ -566,7 +566,7 @@
     {
       "id": "farmhouse",
       "name": "Farmhouse",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/farmhouse.png",
       "position": {
         "x": 160,
         "y": 940
@@ -586,7 +586,7 @@
     {
       "id": "villager-house-7",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-1.png",
       "position": {
         "x": 600,
         "y": 1040
@@ -606,7 +606,7 @@
     {
       "id": "villager-house-8",
       "name": "Villager House",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/houses/villager-house-2.png",
       "position": {
         "x": 1200,
         "y": 1060
@@ -626,7 +626,7 @@
     {
       "id": "watchtower",
       "name": "Watchtower",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/watchtower.png",
       "position": {
         "x": 880,
         "y": 1140
@@ -641,7 +641,7 @@
     {
       "id": "gate-guard-post",
       "name": "Gate Guard Post",
-      "sprite": "placeholder",
+      "sprite": "./assets/buildings/special/gate-guard-post.png",
       "position": {
         "x": 1040,
         "y": 1160
