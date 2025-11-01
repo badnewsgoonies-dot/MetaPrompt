@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harvest Moon Inspired Farm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Nunito", sans-serif;
+        background: #1b1d2a;
+        color: #f4f4f8;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        min-height: 100vh;
+      }
+
+      header {
+        padding: 1rem;
+        text-align: center;
+      }
+
+      #game-container {
+        position: relative;
+        width: 960px;
+        margin-bottom: 1rem;
+      }
+
+      canvas {
+        border: 3px solid #f4f4f8;
+        background: #283044;
+        display: block;
+      }
+
+      #hud-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 0.5rem;
+        pointer-events: none;
+        font-size: 0.95rem;
+      }
+
+      #hud-overlay .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.25rem;
+      }
+
+      #hud-overlay .panel {
+        background: rgba(16, 20, 32, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        padding: 0.35rem 0.5rem;
+        margin-right: 0.5rem;
+      }
+
+      #hud-overlay .panel:last-child {
+        margin-right: 0;
+      }
+
+      #hud-overlay .panel.toolbelt {
+        display: flex;
+        gap: 0.35rem;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        min-width: 260px;
+      }
+
+      #hud-overlay .panel.toolbelt .tool {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        letter-spacing: 0.02em;
+      }
+
+      #hud-overlay .panel.toolbelt .tool.active {
+        background: linear-gradient(90deg, #f2a65a, #f58549);
+        color: #101420;
+        font-weight: 700;
+      }
+
+      #hud-overlay .panel.toolbelt .tool.hint {
+        background: transparent;
+        border: 1px dashed rgba(255, 255, 255, 0.3);
+        color: rgba(255, 255, 255, 0.7);
+        font-weight: 400;
+      }
+
+      #hud-overlay .progress {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-top: 0.25rem;
+      }
+
+      #hud-overlay .progress span {
+        display: block;
+        height: 100%;
+        background: linear-gradient(90deg, #6de195, #4ea5d9);
+      }
+
+      #hud-overlay .panel.warning {
+        border-color: rgba(255, 99, 71, 0.6);
+        box-shadow: 0 0 8px rgba(255, 99, 71, 0.35);
+      }
+
+      #hud-overlay .panel.warning .progress span {
+        background: linear-gradient(90deg, #ff9966, #ff5e62);
+      }
+
+      #hud-overlay .warning-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.03em;
+        color: #ffb4a2;
+      }
+
+      #menu-overlay {
+        position: absolute;
+        inset: 0;
+        display: none;
+        background: rgba(0, 0, 0, 0.75);
+        align-items: center;
+        justify-content: center;
+      }
+
+      #menu-overlay.active {
+        display: flex;
+      }
+
+      #menu-overlay .menu-panel {
+        background: #182033;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 1.5rem;
+        width: 420px;
+      }
+
+      #menu-overlay h2 {
+        margin-top: 0;
+        margin-bottom: 0.75rem;
+        font-size: 1.4rem;
+      }
+
+      #menu-overlay ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      #menu-overlay li {
+        margin-bottom: 0.5rem;
+      }
+
+      #menu-overlay li.selected {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        padding: 0.35rem 0.5rem;
+      }
+
+      #menu-overlay .menu-detail {
+        margin-top: 1rem;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.7);
+        min-height: 2.5rem;
+      }
+
+      #debug-overlay {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        max-width: 280px;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.18s ease;
+      }
+
+      #debug-overlay.active {
+        opacity: 1;
+      }
+
+      #debug-overlay strong {
+        font-size: 0.95rem;
+        display: block;
+        margin-bottom: 0.35rem;
+      }
+
+      #debug-overlay code {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0 0.25rem;
+        border-radius: 3px;
+      }
+
+      #debug-overlay ul {
+        margin: 0.45rem 0 0;
+        padding-left: 1.1rem;
+      }
+
+      footer {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1.5rem;
+        max-width: 960px;
+      }
+
+      @media (max-width: 980px) {
+        #game-container,
+        canvas {
+          width: 100vw;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Harvest Moon Daily Loop Prototype</h1>
+      <p>
+        Arrow keys or WASD to move · Space to use tools · 1-4 or Q/R to swap tools (Hoe, Seeds, Watering
+        Can, Sickle) · E to talk/interact · M to open/close menu · Esc closes menu · F1 debug overlay · F2
+        infinite stamina · F3 tile IDs · F4 skip 1 hour · F5 jump to dawn
+      </p>
+    </header>
+
+    <div id="game-container">
+      <canvas id="gameCanvas" width="960" height="640"></canvas>
+      <div id="hud-overlay"></div>
+      <div id="menu-overlay">
+        <div class="menu-panel">
+          <h2>Farm Summary</h2>
+          <ul id="menu-content"></ul>
+          <div id="menu-detail" class="menu-detail"></div>
+          <p style="margin-top: 1rem; font-size: 0.85rem; color: rgba(255,255,255,0.6);">
+            Press M to close · Changes save automatically when you sleep
+          </p>
+        </div>
+      </div>
+      <div id="debug-overlay"></div>
+    </div>
+
+    <footer>
+      Prototype focuses on the farming core loop: cultivate soil, plant turnips, manage stamina, water daily,
+      harvest for profit, and ship goods before sleeping to progress the calendar. Animals and villagers follow
+      simplified schedules to demonstrate extensibility beyond crops.
+    </footer>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
