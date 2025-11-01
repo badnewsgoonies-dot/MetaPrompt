@@ -1,368 +1,355 @@
 /**
- * Dialogue System for Golden Sun Vale Village
- * Handles dialogue rendering, text reveal, choices, and progression
+ * Dialogue System
+ * Manages NPC conversations, choices, and battle challenges
  */
 
-import {
-  DialogueSequence,
-  DialogueLine,
-  ActiveDialogue,
-  DialogueState,
-  DialogueConfig,
-  DialogueRegistry,
-  DialogueHistoryEntry,
-  DEFAULT_DIALOGUE_CONFIG
-} from '../types/dialogue';
 import { Result, Ok, Err } from '../utils/result';
+import { DialogueTree, DialogueLine, DialogueState, DialogueAction } from '../types/dialogue';
+import { FlagSystem, setFlag, setFlags, checkCondition } from './storyFlagSystem';
+import { DIALOGUE_DATA } from '../data/dialogueData';
 
 /**
- * Create a new dialogue registry
- */
-export function createDialogueRegistry(): DialogueRegistry {
-  return {
-    sequences: new Map(),
-    history: []
-  };
-}
-
-/**
- * Register a dialogue sequence
- */
-export function registerDialogue(
-  registry: DialogueRegistry,
-  sequence: DialogueSequence
-): Result<DialogueRegistry, string> {
-  if (registry.sequences.has(sequence.id)) {
-    return Err(`Dialogue sequence already exists: ${sequence.id}`);
-  }
-
-  const updatedSequences = new Map(registry.sequences);
-  updatedSequences.set(sequence.id, sequence);
-
-  return Ok({
-    ...registry,
-    sequences: updatedSequences
-  });
-}
-
-/**
- * Start a dialogue sequence
+ * Start a dialogue with an NPC
+ * Returns initial dialogue state
  */
 export function startDialogue(
+  npcId: string,
   dialogueId: string,
-  registry: DialogueRegistry
-): Result<ActiveDialogue, string> {
-  const sequence = registry.sequences.get(dialogueId);
+  flags: FlagSystem
+): Result<DialogueState, string> {
+  // Get the dialogue tree
+  const tree = DIALOGUE_DATA[dialogueId];
   
-  if (!sequence) {
-    return Err(`Dialogue sequence not found: ${dialogueId}`);
+  if (!tree) {
+    return Err(`Dialogue tree not found: ${dialogueId}`);
   }
 
-  if (sequence.lines.length === 0) {
-    return Err(`Dialogue sequence has no lines: ${dialogueId}`);
+  // Find the correct starting line based on flags
+  const startLineId = findStartingLine(tree, flags);
+  
+  if (!tree.lines[startLineId]) {
+    return Err(`Starting dialogue line not found: ${startLineId} in tree ${dialogueId}`);
   }
 
   return Ok({
-    sequence,
-    currentLineIndex: 0,
-    currentCharIndex: 0,
-    isTextComplete: false,
-    state: 'opening',
-    selectedChoice: 0
+    treeId: dialogueId,
+    currentLineId: startLineId,
+    history: [startLineId],
+    completed: false
   });
 }
 
 /**
- * Update dialogue text reveal animation
- * Returns updated dialogue state with next character revealed
+ * Find the correct starting dialogue line based on story flags
+ * Checks conditions on dialogue lines to find best match
  */
-export function updateDialogueReveal(
-  dialogue: ActiveDialogue,
-  deltaTime: number,
-  config: DialogueConfig = DEFAULT_DIALOGUE_CONFIG
-): ActiveDialogue {
-  if (dialogue.state !== 'displaying') {
-    return dialogue;
-  }
-
-  const currentLine = dialogue.sequence.lines[dialogue.currentLineIndex];
-  if (!currentLine) {
-    return dialogue;
-  }
-
-  const textLength = currentLine.text.length;
-
-  // Already finished revealing text
-  if (dialogue.currentCharIndex >= textLength) {
-    if (!dialogue.isTextComplete) {
-      return {
-        ...dialogue,
-        isTextComplete: true,
-        state: 'waiting'
-      };
+function findStartingLine(tree: DialogueTree, flags: FlagSystem): string {
+  // Check all lines for one with a matching condition
+  for (const [lineId, line] of Object.entries(tree.lines)) {
+    if (line.condition && checkCondition(flags, line.condition)) {
+      return lineId;
     }
-    return dialogue;
   }
 
-  // Calculate how many characters to reveal based on deltaTime and text speed
-  const msPerChar = 1000 / config.textSpeed;
-  const charsToReveal = Math.floor(deltaTime / msPerChar);
-  const newCharIndex = Math.min(
-    dialogue.currentCharIndex + Math.max(1, charsToReveal),
-    textLength
-  );
-
-  const isComplete = newCharIndex >= textLength;
-
-  return {
-    ...dialogue,
-    currentCharIndex: newCharIndex,
-    isTextComplete: isComplete,
-    state: isComplete ? 'waiting' : 'displaying'
-  };
+  // Default to tree's start
+  return tree.start;
 }
 
 /**
- * Advance to next line in dialogue
+ * Get the current dialogue line
+ */
+export function getCurrentLine(
+  state: DialogueState,
+  dialogueId?: string
+): Result<DialogueLine, string> {
+  const tree = DIALOGUE_DATA[dialogueId || state.treeId];
+  
+  if (!tree) {
+    return Err(`Dialogue tree not found: ${state.treeId}`);
+  }
+
+  const line = tree.lines[state.currentLineId];
+  
+  if (!line) {
+    return Err(`Dialogue line not found: ${state.currentLineId}`);
+  }
+
+  return Ok(line);
+}
+
+/**
+ * Advance dialogue to next line or handle player choice
  */
 export function advanceDialogue(
-  dialogue: ActiveDialogue
-): Result<ActiveDialogue, string> {
-  // If text not complete, instantly complete it
-  if (!dialogue.isTextComplete && dialogue.state === 'displaying') {
-    const currentLine = dialogue.sequence.lines[dialogue.currentLineIndex];
-    if (!currentLine) {
-      return Err('Invalid dialogue state: no current line');
+  state: DialogueState,
+  flags: FlagSystem,
+  choice?: number
+): Result<{ state: DialogueState; flags: FlagSystem }, string> {
+  const lineResult = getCurrentLine(state);
+  
+  if (!lineResult.ok) {
+    return Err(lineResult.error);
+  }
+
+  const currentLine = lineResult.value;
+  let updatedFlags = flags;
+
+  // Set any flags from current line
+  if (currentLine.setFlag) {
+    const flagsToSet = Array.isArray(currentLine.setFlag) 
+      ? currentLine.setFlag 
+      : [currentLine.setFlag];
+    
+    for (const flagName of flagsToSet) {
+      const result = setFlag(updatedFlags, flagName, true);
+      if (!result.ok) {
+        return Err(result.error);
+      }
+      updatedFlags = result.value;
     }
-    return Ok({
-      ...dialogue,
-      currentCharIndex: currentLine.text.length,
-      isTextComplete: true,
-      state: 'waiting'
-    });
   }
 
-  // Check if current line has choices (must select before advancing)
-  const currentLine = dialogue.sequence.lines[dialogue.currentLineIndex];
-  if (currentLine && currentLine.choices && currentLine.choices.length > 0) {
-    return Err('Cannot advance: must select choice first');
+  // Determine next line
+  let nextLineId: string | undefined;
+
+  if (currentLine.next) {
+    if (Array.isArray(currentLine.next)) {
+      // Player made a choice
+      if (choice === undefined) {
+        return Err('Choice required but not provided');
+      }
+      
+      if (choice < 0 || choice >= currentLine.next.length) {
+        return Err(`Invalid choice index: ${choice}`);
+      }
+      
+      nextLineId = currentLine.next[choice];
+    } else {
+      // Automatic progression
+      nextLineId = currentLine.next;
+    }
   }
 
-  // Advance to next line
-  const nextLineIndex = dialogue.currentLineIndex + 1;
-
-  if (nextLineIndex >= dialogue.sequence.lines.length) {
-    // Dialogue complete
+  // Check if dialogue is complete
+  if (!nextLineId) {
     return Ok({
-      ...dialogue,
-      state: 'closing'
+      state: {
+        ...state,
+        completed: true
+      },
+      flags: updatedFlags
     });
   }
 
   // Move to next line
   return Ok({
-    ...dialogue,
-    currentLineIndex: nextLineIndex,
-    currentCharIndex: 0,
-    isTextComplete: false,
-    state: 'displaying',
-    selectedChoice: 0
+    state: {
+      ...state,
+      currentLineId: nextLineId,
+      history: [...state.history, nextLineId],
+      completed: false
+    },
+    flags: updatedFlags
   });
 }
 
 /**
- * Select a dialogue choice (for branching dialogues)
+ * Check if dialogue is complete
  */
-export function selectDialogueChoice(
-  dialogue: ActiveDialogue,
-  choiceIndex: number
-): Result<ActiveDialogue, string> {
-  const currentLine = dialogue.sequence.lines[dialogue.currentLineIndex];
-
-  if (!currentLine || !currentLine.choices || currentLine.choices.length === 0) {
-    return Err('Current line has no choices');
-  }
-
-  if (choiceIndex < 0 || choiceIndex >= currentLine.choices.length) {
-    return Err(`Invalid choice index: ${choiceIndex}`);
-  }
-
-  return Ok({
-    ...dialogue,
-    selectedChoice: choiceIndex
-  });
+export function isDialogueComplete(state: DialogueState): boolean {
+  return state.completed;
 }
 
 /**
- * Confirm selected choice and branch dialogue
+ * Handle special dialogue actions (battle, shop, quest, etc.)
  */
-export function confirmDialogueChoice(
-  dialogue: ActiveDialogue,
-  registry: DialogueRegistry
-): Result<ActiveDialogue, string> {
-  const currentLine = dialogue.sequence.lines[dialogue.currentLineIndex];
+export function handleDialogueAction(
+  action: DialogueAction,
+  state: DialogueState,
+  flags: FlagSystem
+): Result<{
+  state: DialogueState;
+  flags: FlagSystem;
+  specialAction?: DialogueAction;
+}, string> {
+  switch (action.type) {
+    case 'battle':
+      // Return the action for the game to handle
+      // Game will trigger battle, then resume dialogue
+      return Ok({
+        state,
+        flags,
+        specialAction: action
+      });
 
-  if (!currentLine || !currentLine.choices || currentLine.choices.length === 0) {
-    return Err('Current line has no choices');
+    case 'shop':
+      // Return the action for the game to handle
+      return Ok({
+        state,
+        flags,
+        specialAction: action
+      });
+
+    case 'quest_start':
+      // Set flag that quest has started
+      const startResult = setFlag(flags, `quest_${action.questId}_started`, true);
+      if (!startResult.ok) {
+        return Err(startResult.error);
+      }
+      return Ok({
+        state,
+        flags: startResult.value,
+        specialAction: action
+      });
+
+    case 'quest_complete':
+      // Set flag that quest is completed
+      const completeResult = setFlag(flags, `quest_${action.questId}_completed`, true);
+      if (!completeResult.ok) {
+        return Err(completeResult.error);
+      }
+      return Ok({
+        state,
+        flags: completeResult.value,
+        specialAction: action
+      });
+
+    case 'give_item':
+      // Flag for inventory system to handle
+      return Ok({
+        state,
+        flags,
+        specialAction: action
+      });
+
+    case 'heal':
+      // Flag for game to heal player
+      return Ok({
+        state,
+        flags,
+        specialAction: action
+      });
+
+    case 'save':
+      // Flag for game to save
+      return Ok({
+        state,
+        flags,
+        specialAction: action
+      });
+
+    default:
+      return Err(`Unknown action type: ${(action as any).type}`);
   }
-
-  const selectedChoice = currentLine.choices[dialogue.selectedChoice];
-  if (!selectedChoice) {
-    return Err('Invalid selected choice');
-  }
-
-  // If choice has next dialogue sequence, start it
-  if (selectedChoice.next) {
-    return startDialogue(selectedChoice.next, registry);
-  }
-
-  // Otherwise, close dialogue
-  return Ok({
-    ...dialogue,
-    state: 'closing'
-  });
 }
 
 /**
- * Skip text reveal and show full text immediately
+ * Get available dialogue choices for current line
  */
-export function skipTextReveal(dialogue: ActiveDialogue): ActiveDialogue {
-  if (dialogue.state !== 'displaying') {
-    return dialogue;
-  }
-
-  const currentLine = dialogue.sequence.lines[dialogue.currentLineIndex];
-  if (!currentLine) {
-    return dialogue;
-  }
+export function getDialogueChoices(
+  state: DialogueState
+): Result<{ text: string; index: number }[], string> {
+  const lineResult = getCurrentLine(state);
   
-  return {
-    ...dialogue,
-    currentCharIndex: currentLine.text.length,
-    isTextComplete: true,
-    state: 'waiting'
-  };
-}
+  if (!lineResult.ok) {
+    return Err(lineResult.error);
+  }
 
-/**
- * Close dialogue
- */
-export function closeDialogue(dialogue: ActiveDialogue): ActiveDialogue {
-  return {
-    ...dialogue,
-    state: 'closing'
-  };
-}
+  const line = lineResult.value;
 
-/**
- * Check if dialogue is active (not closed)
- */
-export function isDialogueActive(dialogue: ActiveDialogue | null): boolean {
-  return dialogue !== null && dialogue.state !== 'closed';
-}
+  if (!line.choices || !Array.isArray(line.next)) {
+    return Ok([]);
+  }
 
-/**
- * Get visible text for current line (based on reveal progress)
- */
-export function getVisibleText(dialogue: ActiveDialogue): string {
-  const currentLine = dialogue.sequence.lines[dialogue.currentLineIndex];
-  if (!currentLine) return '';
-
-  return currentLine.text.substring(0, dialogue.currentCharIndex);
-}
-
-/**
- * Get current dialogue line
- */
-export function getCurrentLine(dialogue: ActiveDialogue): DialogueLine | null {
-  const line = dialogue.sequence.lines[dialogue.currentLineIndex];
-  return line || null;
-}
-
-/**
- * Add dialogue to history
- */
-export function addDialogueHistory(
-  registry: DialogueRegistry,
-  npcId: string,
-  dialogueId: string,
-  completed: boolean
-): DialogueRegistry {
-  const entry: DialogueHistoryEntry = {
-    npcId,
-    dialogueId,
-    timestamp: Date.now(),
-    completed
-  };
-
-  return {
-    ...registry,
-    history: [...registry.history, entry]
-  };
-}
-
-/**
- * Check if dialogue has been completed before
- */
-export function hasCompletedDialogue(
-  registry: DialogueRegistry,
-  npcId: string,
-  dialogueId: string
-): boolean {
-  return registry.history.some(
-    entry => entry.npcId === npcId && entry.dialogueId === dialogueId && entry.completed
+  return Ok(
+    line.choices.map((choice, index) => ({
+      text: choice.text,
+      index
+    }))
   );
 }
 
 /**
- * Get progress through dialogue sequence (0-1)
+ * Check if current dialogue line has an action
  */
-export function getDialogueProgress(dialogue: ActiveDialogue): number {
-  const totalLines = dialogue.sequence.lines.length;
-  if (totalLines === 0) return 1;
+export function hasDialogueAction(state: DialogueState): Result<boolean, string> {
+  const lineResult = getCurrentLine(state);
+  
+  if (!lineResult.ok) {
+    return Err(lineResult.error);
+  }
 
-  const completedLines = dialogue.currentLineIndex;
-  const currentLineProgress = dialogue.isTextComplete ? 1 : 0;
-
-  return (completedLines + currentLineProgress) / totalLines;
+  return Ok(!!lineResult.value.action);
 }
 
 /**
- * Update dialogue state (for state machine transitions)
+ * Get the action from current dialogue line
  */
-export function setDialogueState(
-  dialogue: ActiveDialogue,
-  state: DialogueState
-): ActiveDialogue {
-  return {
-    ...dialogue,
-    state
-  };
+export function getDialogueAction(state: DialogueState): Result<DialogueAction | undefined, string> {
+  const lineResult = getCurrentLine(state);
+  
+  if (!lineResult.ok) {
+    return Err(lineResult.error);
+  }
+
+  return Ok(lineResult.value.action);
 }
 
 /**
- * Create a simple dialogue sequence (single speaker, no choices)
+ * Restart dialogue from the beginning
  */
-export function createSimpleDialogue(
-  id: string,
-  speakerId: string,
-  speakerName: string,
-  texts: string[],
-  portrait?: string
-): DialogueSequence {
-  const speaker = {
-    id: speakerId,
-    name: speakerName,
-    ...(portrait ? { portrait } : {})
-  };
+export function restartDialogue(
+  state: DialogueState,
+  flags: FlagSystem
+): Result<DialogueState, string> {
+  const tree = DIALOGUE_DATA[state.treeId];
+  
+  if (!tree) {
+    return Err(`Dialogue tree not found: ${state.treeId}`);
+  }
 
-  const lines: DialogueLine[] = texts.map(text => ({
-    speaker,
-    text
-  }));
+  const startLineId = findStartingLine(tree, flags);
+  
+  return Ok({
+    treeId: state.treeId,
+    currentLineId: startLineId,
+    history: [startLineId],
+    completed: false
+  });
+}
 
-  return {
-    id,
-    lines
-  };
+/**
+ * Check if an NPC has dialogue available
+ */
+export function hasDialogue(dialogueId: string): boolean {
+  return !!DIALOGUE_DATA[dialogueId];
+}
+
+/**
+ * Get all available dialogue trees
+ */
+export function getAllDialogueIds(): string[] {
+  return Object.keys(DIALOGUE_DATA);
+}
+
+/**
+ * Preview dialogue line without advancing state (for debugging)
+ */
+export function previewDialogueLine(
+  dialogueId: string,
+  lineId: string
+): Result<DialogueLine, string> {
+  const tree = DIALOGUE_DATA[dialogueId];
+  
+  if (!tree) {
+    return Err(`Dialogue tree not found: ${dialogueId}`);
+  }
+
+  const line = tree.lines[lineId];
+  
+  if (!line) {
+    return Err(`Dialogue line not found: ${lineId}`);
+  }
+
+  return Ok(line);
 }
