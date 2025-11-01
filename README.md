@@ -63,6 +63,10 @@ MetaPrompt/
 │   ├── graphics-mockup-template.md        # HTML/CSS mockup-first workflow
 │   └── graphics-decisions-reference.md    # Production graphics values
 │
+├── screenshots/                       # 📸 Auto-generated mockup screenshots
+│   ├── README.md                      # Screenshot gallery and documentation
+│   └── *.png                          # 16 screenshots of all HTML mockups
+│
 └── UPDATED DOCS/                      # Six-role CI/CD system
     ├── README.md                      # Six-role overview
     ├── PROCESS_GUIDE.md               # End-to-end pipeline
@@ -81,6 +85,20 @@ MetaPrompt/
         ├── QUESTIONNAIRE_CODER_EXPERT.md
         └── QUESTIONNAIRE_GRAPHICS_EXPERT.md
 ```
+
+---
+
+## 📸 Mockup Screenshots Gallery
+
+All HTML mockups have been captured as screenshots for quick visual reference. View the complete gallery in [`screenshots/README.md`](screenshots/README.md).
+
+**Featured Screenshots:**
+- 🏰 6 Golden Sun/Isaac Clone scenes (village, temple, cave, palace, battle, menus)
+- ⚔️ 2 Pokemon battle screens
+- 🗼 2 Tower defense game screens
+- 🃏 1 Yu-Gi-Oh! simulator
+
+**Regenerate screenshots:** Run `npm run generate-screenshots` from the workspace root.
 
 ---
 
