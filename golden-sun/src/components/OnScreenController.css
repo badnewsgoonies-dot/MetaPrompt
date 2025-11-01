@@ -9,9 +9,9 @@
   left: 0;
   right: 0;
   height: 220px;
-  background: linear-gradient(180deg, rgba(32, 32, 48, 0.85) 0%, rgba(24, 24, 36, 0.95) 100%);
-  backdrop-filter: blur(4px);
-  border-top: 2px solid rgba(80, 80, 120, 0.6);
+  background: linear-gradient(180deg, rgba(32, 32, 48, 0.15) 0%, rgba(24, 24, 36, 0.25) 100%);
+  backdrop-filter: blur(2px);
+  border-top: 2px solid rgba(80, 80, 120, 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -53,16 +53,16 @@
 }
 
 .dpad-button {
-  background: linear-gradient(145deg, #3a3a4a, #2a2a3a);
-  border: 2px solid #1a1a2a;
-  color: white;
+  background: linear-gradient(145deg, rgba(58, 58, 74, 0.4), rgba(42, 42, 58, 0.4));
+  border: 2px solid rgba(26, 26, 42, 0.5);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 20px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.1s;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   position: relative;
   -webkit-tap-highlight-color: transparent;
 }
@@ -134,8 +134,8 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border: 3px solid #1a1a2a;
-  color: white;
+  border: 3px solid rgba(26, 26, 42, 0.5);
+  color: rgba(255, 255, 255, 0.9);
   font-family: 'Press Start 2P', monospace;
   font-size: 14px;
   font-weight: bold;
@@ -144,7 +144,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.1s;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   -webkit-tap-highlight-color: transparent;
 }
 
