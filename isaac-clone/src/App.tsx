@@ -139,8 +139,17 @@ const App: React.FC = () => {
         const playerX = updatedState.player.position.x;
         const playerY = updatedState.player.position.y;
 
+        // Check if there are enemies in the current room (doors should be locked)
+        const hasEnemies = updatedState.enemies.length > 0;
+
         if (playerY < 80 && keysPressed.has('w')) {
-          // Try to unlock door if locked
+          // Block movement if enemies are present
+          if (hasEnemies) {
+            // Don't allow any door interaction while enemies are alive
+            return;
+          }
+
+          // Try to unlock door if locked (for key doors in empty rooms)
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
             const door = currentRoomResult.value.doors.find(d => d.direction === 'north');
@@ -154,6 +163,8 @@ const App: React.FC = () => {
                 });
                 return;
               }
+              // Door is locked and we couldn't unlock it - don't try to move
+              return;
             }
           }
 
@@ -163,6 +174,11 @@ const App: React.FC = () => {
             return;
           }
         } else if (playerY > 520 && keysPressed.has('s')) {
+          // Block movement if enemies are present
+          if (hasEnemies) {
+            return;
+          }
+
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
             const door = currentRoomResult.value.doors.find(d => d.direction === 'south');
@@ -176,6 +192,7 @@ const App: React.FC = () => {
                 });
                 return;
               }
+              return;
             }
           }
 
@@ -185,6 +202,11 @@ const App: React.FC = () => {
             return;
           }
         } else if (playerX < 80 && keysPressed.has('a')) {
+          // Block movement if enemies are present
+          if (hasEnemies) {
+            return;
+          }
+
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
             const door = currentRoomResult.value.doors.find(d => d.direction === 'west');
@@ -198,6 +220,7 @@ const App: React.FC = () => {
                 });
                 return;
               }
+              return;
             }
           }
 
@@ -207,6 +230,11 @@ const App: React.FC = () => {
             return;
           }
         } else if (playerX > 720 && keysPressed.has('d')) {
+          // Block movement if enemies are present
+          if (hasEnemies) {
+            return;
+          }
+
           const currentRoomResult = getCurrentRoom(updatedState.dungeon, updatedState.currentRoomId);
           if (currentRoomResult.ok) {
             const door = currentRoomResult.value.doors.find(d => d.direction === 'east');
@@ -220,6 +248,7 @@ const App: React.FC = () => {
                 });
                 return;
               }
+              return;
             }
           }
 
