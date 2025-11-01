@@ -28,6 +28,7 @@ export interface Player {
   readonly size: number;  // Collision radius
   readonly lastTearTime: number;  // Timestamp of last tear fired
   readonly lastBombTime: number;  // Timestamp of last bomb placed
+  readonly lastHitTime: number;   // Timestamp of last damage taken (for i-frames)
   readonly facing: Vector2D;  // Direction player is facing
 }
 
@@ -44,6 +45,7 @@ export const DEFAULT_PLAYER_STATS: PlayerStats = {
 };
 
 export const PLAYER_SIZE = 16;  // Collision radius in pixels
+export const INVINCIBILITY_DURATION = 300;  // 0.3 seconds in milliseconds
 
 export const DEFAULT_PLAYER_RESOURCES: PlayerResources = {
   keys: 0,

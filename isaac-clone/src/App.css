@@ -198,6 +198,19 @@ body {
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
 }
 
+.player.invincible {
+  animation: invincible-flash 0.15s steps(2, end) infinite;
+}
+
+@keyframes invincible-flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
 .enemy {
   z-index: 5;
   filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.6));

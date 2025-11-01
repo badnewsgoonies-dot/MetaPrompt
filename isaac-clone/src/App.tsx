@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GameState } from './types/game';
 import { Vector2D } from './types/common';
 import { initializeGame, updateGame, togglePause, tryMoveToAdjacentRoom } from './systems/gameEngine';
-import { setPlayerVelocity, setPlayerFacing, canShoot, recordShot } from './systems/playerSystem';
+import { setPlayerVelocity, setPlayerFacing, canShoot, recordShot, isPlayerInvincible } from './systems/playerSystem';
 import { createPlayerTear } from './systems/projectileSystem';
 import { getCurrentRoom } from './systems/roomSystem';
 import { getItemDefinition } from './systems/itemSystem';
@@ -327,7 +327,7 @@ const App: React.FC = () => {
 
         {/* Player */}
         <div
-          className="entity player"
+          className={`entity player ${isPlayerInvincible(gameState.player, gameState.time) ? 'invincible' : ''}`}
           style={{
             left: `${gameState.player.position.x}px`,
             top: `${gameState.player.position.y}px`

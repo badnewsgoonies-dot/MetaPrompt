@@ -55,9 +55,9 @@ export function getObstacleEmoji(type: ObstacleType): string {
     case 'rock':
       return '🪨';
     case 'spike':
-      return '⚠️';
+      return '🔺';  // Red triangle for spikes
     case 'pit':
-      return '🕳️';
+      return '⚫';  // Black circle for pit
     case 'fire':
       return '🔥';
     case 'poop':
