@@ -5,6 +5,68 @@
 
 import { NPCPosition } from './npc';
 import { CollisionObstacle } from '../systems/movementSystem';
+import { Position } from './common';
+
+// World map location (for expansion content)
+export interface Location {
+  id: string;
+  name: string;
+  type: 'town' | 'dungeon' | 'landmark' | 'poi';
+  description: string;
+  gridWidth: number;
+  gridHeight: number;
+  spawnPoint: Position;
+  musicId: string;
+  connections: {
+    north?: string;
+    south?: string;
+    east?: string;
+    west?: string;
+  };
+}
+
+// NPC for world map/new locations (expansion content)
+export interface NPC {
+  id: string;
+  name: string;
+  spriteId: string;
+  position: Position;
+  facing: 'up' | 'down' | 'left' | 'right';
+  dialogues: NPCDialogue[];
+  canMove: boolean;
+  movementPattern?: 'wander' | 'patrol' | 'static';
+  interactionRadius: number;
+}
+
+export interface NPCDialogue {
+  id: string;
+  text: string;
+  conditions?: {
+    flags?: string[];
+    items?: string[];
+  };
+  choices?: DialogueChoice[];
+  actions?: DialogueAction[];
+  nextDialogueId?: string;
+  action?: any; // For shops, quests, etc
+}
+
+export interface DialogueChoice {
+  text: string;
+  action?: any;
+  nextDialogueId?: string;
+}
+
+export interface DialogueAction {
+  type: 'giveItem' | 'giveCoins' | 'setFlag' | 'inn' | 'shop';
+  itemId?: string;
+  quantity?: number;
+  amount?: number;
+  cost?: number;
+  shopId?: string;
+  shopType?: string;
+  inventory?: any[];
+}
 
 // Scene types
 export type SceneType = 'overworld' | 'interior' | 'dungeon' | 'menu';

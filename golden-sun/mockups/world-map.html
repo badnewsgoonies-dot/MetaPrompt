@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golden Sun - World Map Mockup</title>
+  <link rel="stylesheet" href="tokens.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    .gba-screen {
+      width: 480px;
+      height: 320px;
+      background: #5a8f5a;
+      border: 4px solid #2a2a2a;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+      position: relative;
+      overflow: hidden;
+      image-rendering: pixelated;
+    }
+
+    /* World Map Terrain */
+    .world-map {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 40%, #8b7355 0%, transparent 15%),
+        radial-gradient(circle at 70% 60%, #4682b4 0%, transparent 20%),
+        linear-gradient(135deg, 
+          #6b8e23 0%, 
+          #5a8f5a 20%, 
+          #228b22 40%, 
+          #3d5a28 60%,
+          #8b7355 70%,
+          #6b8e23 100%
+        );
+    }
+
+    /* Terrain Details */
+    .terrain-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 7px, rgba(0,0,0,0.05) 7px, rgba(0,0,0,0.05) 8px),
+        repeating-linear-gradient(90deg, transparent, transparent 7px, rgba(0,0,0,0.05) 7px, rgba(0,0,0,0.05) 8px);
+    }
+
+    /* Mountains */
+    .mountain {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #8b7355 0%, #5a4a3a 50%, #3a2a1a 100%);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      border: 1px solid #3a2a1a;
+    }
+
+    .mountain.large {
+      width: 60px;
+      height: 60px;
+    }
+
+    /* Forests */
+    .forest {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: radial-gradient(circle, #2d5016 0%, #1a3010 70%);
+      border-radius: 50%;
+      border: 2px solid #1a3010;
+    }
+
+    .forest::after {
+      content: '🌲';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      filter: brightness(0.8);
+    }
+
+    /* Water/Ocean */
+    .water {
+      position: absolute;
+      width: 120px;
+      height: 80px;
+      background: linear-gradient(135deg, #4682b4 0%, #1e5a8a 100%);
+      border: 2px solid #1a4a7a;
+      border-radius: 20px;
+      animation: waterShimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes waterShimmer {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 1; }
+    }
+
+    /* Roads/Paths */
+    .road {
+      position: absolute;
+      background: #8b7355;
+      border: 1px solid #6b5335;
+    }
+
+    .road.horizontal {
+      width: 150px;
+      height: 8px;
+    }
+
+    .road.vertical {
+      width: 8px;
+      height: 100px;
+    }
+
+    /* Location Icons */
+    .location-icon {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      animation: iconPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .location-icon:hover {
+      transform: scale(1.2);
+      z-index: 10;
+    }
+
+    .location-icon.town {
+      background: #ffd700;
+      border-color: #ffa500;
+    }
+
+    .location-icon.dungeon {
+      background: #8b4513;
+      border-color: #654321;
+    }
+
+    .location-icon.landmark {
+      background: #4169e1;
+      border-color: #1e3a8a;
+    }
+
+    .location-icon::after {
+      content: attr(data-name);
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: white;
+      text-shadow: 1px 1px 2px black;
+      white-space: nowrap;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2px 4px;
+      border-radius: 2px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .location-icon:hover::after {
+      opacity: 1;
+    }
+
+    /* Player Party Icon */
+    .player-party {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #4169e1 0%, #1e3a8a 100%);
+      border: 3px solid white;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      z-index: 20;
+      animation: partyBounce 1.5s ease-in-out infinite;
+    }
+
+    @keyframes partyBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .player-party::before {
+      content: '👥';
+    }
+
+    /* Minimap */
+    .minimap {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 100px;
+      height: 80px;
+      background: rgba(20, 20, 40, 0.9);
+      border: 2px solid #f0e68c;
+      border-radius: 4px;
+      padding: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+    }
+
+    .minimap-content {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #5a8f5a 0%, #3d5a28 100%);
+      border: 1px solid #666;
+      position: relative;
+    }
+
+    .minimap-player {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: white;
+      border: 1px solid red;
+      border-radius: 50%;
+      top: 40%;
+      left: 35%;
+      animation: minimapPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes minimapPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .minimap-location {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: yellow;
+      border: 1px solid orange;
+      border-radius: 50%;
+    }
+
+    /* Location Info Panel */
+    .location-info {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(20, 20, 40, 0.95);
+      border: 3px solid #f0e68c;
+      border-radius: 4px;
+      padding: 8px 12px;
+      min-width: 160px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+    }
+
+    .location-name {
+      font-size: 12px;
+      color: #ffd700;
+      margin-bottom: 4px;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    .location-desc {
+      font-size: 7px;
+      color: #e0e0e0;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .location-level {
+      font-size: 6px;
+      color: #90ee90;
+      text-shadow: 1px 1px 1px black;
+    }
+
+    /* Menu Button */
+    .menu-button {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(20, 20, 40, 0.95);
+      border: 2px solid #f0e68c;
+      border-radius: 4px;
+      padding: 6px 12px;
+      color: white;
+      font-size: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .menu-button:hover {
+      background: #f0e68c;
+      color: #1a1a2e;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="gba-screen">
+    <div class="world-map"></div>
+    <div class="terrain-grid"></div>
+
+    <!-- Mountains -->
+    <div class="mountain large" style="top: 30px; left: 80px;"></div>
+    <div class="mountain" style="top: 50px; left: 110px;"></div>
+    <div class="mountain" style="top: 100px; left: 350px;"></div>
+
+    <!-- Forests -->
+    <div class="forest" style="top: 180px; left: 320px;"></div>
+    <div class="forest" style="top: 140px; left: 100px;"></div>
+
+    <!-- Water -->
+    <div class="water" style="top: 80px; right: 40px;"></div>
+
+    <!-- Roads -->
+    <div class="road horizontal" style="top: 150px; left: 120px;"></div>
+    <div class="road vertical" style="top: 100px; left: 200px;"></div>
+
+    <!-- Location Icons -->
+    <div class="location-icon town" data-name="Vale" style="top: 120px; left: 90px;">🏘️</div>
+    <div class="location-icon town" data-name="Vault" style="top: 180px; left: 180px;">🏛️</div>
+    <div class="location-icon town" data-name="Bilibin" style="top: 200px; left: 280px;">👑</div>
+    <div class="location-icon town" data-name="Kolima" style="top: 140px; left: 330px;">🌳</div>
+    
+    <div class="location-icon dungeon" data-name="Sol Sanctum" style="top: 60px; left: 70px;">⛩️</div>
+    <div class="location-icon dungeon" data-name="Goma Range" style="top: 160px; left: 220px;">⛰️</div>
+    <div class="location-icon dungeon" data-name="Kolima Forest" style="top: 180px; left: 360px;">🌲</div>
+    
+    <div class="location-icon landmark" data-name="Mercury Lighthouse" style="top: 40px; right: 60px;">🗼</div>
+
+    <!-- Player Party -->
+    <div class="player-party" style="top: 150px; left: 150px;"></div>
+
+    <!-- Location Info Panel -->
+    <div class="location-info">
+      <div class="location-name">VALE REGION</div>
+      <div class="location-desc">Peaceful grasslands surrounding your home village</div>
+      <div class="location-level">Enemy Level: 1-3</div>
+    </div>
+
+    <!-- Minimap -->
+    <div class="minimap">
+      <div class="minimap-content">
+        <div class="minimap-player"></div>
+        <div class="minimap-location" style="top: 30%; left: 20%;"></div>
+        <div class="minimap-location" style="top: 50%; left: 40%;"></div>
+        <div class="minimap-location" style="top: 60%; left: 60%;"></div>
+        <div class="minimap-location" style="top: 40%; left: 70%;"></div>
+      </div>
+    </div>
+
+    <!-- Menu Button -->
+    <div class="menu-button">MENU [START]</div>
+  </div>
+
+  <div style="margin-top: 20px; color: white; text-align: center; max-width: 480px;">
+    <h3>World Map Mockup</h3>
+    <p style="font-size: 12px;">
+      Golden Sun-style overworld map with:<br>
+      • Terrain (grassland, forest, mountain, water)<br>
+      • Location icons (towns, dungeons, landmarks)<br>
+      • Player party sprite (animated)<br>
+      • Minimap with fog-of-war<br>
+      • Location info panel<br>
+      • 8-directional movement
+    </p>
+  </div>
+</body>
+</html>
