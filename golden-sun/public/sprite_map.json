@@ -1,0 +1,481 @@
+{
+  "screen": "vale-village-overworld",
+  "resolution": "480x320",
+  "scene_size": "960x640",
+  "tile_size": 8,
+  "scale": 2,
+  "background": {
+    "type": "gradient",
+    "colors": ["#88C070", "#68A050", "#48A038"],
+    "pattern": "grass_texture_overlay"
+  },
+  "paths": [
+    {
+      "id": "main-horizontal",
+      "type": "dirt_road",
+      "position": {"x": 200, "y": 300},
+      "size": {"width": 560, "height": 32},
+      "connects": ["west_exit", "east_shops"]
+    },
+    {
+      "id": "north-vertical",
+      "type": "dirt_road",
+      "position": {"x": 464, "y": 100},
+      "size": {"width": 32, "height": 200},
+      "connects": ["sol_sanctum_path", "main_plaza"]
+    },
+    {
+      "id": "isaac-house-path",
+      "type": "dirt_road",
+      "position": {"x": 200, "y": 200},
+      "size": {"width": 280, "height": 32},
+      "connects": ["isaac_house", "main_horizontal"]
+    },
+    {
+      "id": "shop-path",
+      "type": "dirt_road",
+      "position": {"x": 600, "y": 300},
+      "size": {"width": 32, "height": 160},
+      "connects": ["main_horizontal", "shops_area"]
+    }
+  ],
+  "scenery": [
+    {
+      "id": "tree-nw",
+      "type": "tree",
+      "sprite": "./assets/Tree1.gif",
+      "position": {"x": 120, "y": 140},
+      "z_index": 5,
+      "collision": true
+    },
+    {
+      "id": "tree-ne",
+      "type": "tree",
+      "sprite": "./assets/Tree2.gif",
+      "position": {"x": 840, "y": 140},
+      "z_index": 5,
+      "collision": true
+    },
+    {
+      "id": "tree-n1",
+      "type": "tree",
+      "sprite": "./assets/Tree1.gif",
+      "position": {"x": 360, "y": 80},
+      "z_index": 5,
+      "collision": true
+    },
+    {
+      "id": "tree-n2",
+      "type": "tree",
+      "sprite": "./assets/Tree2.gif",
+      "position": {"x": 600, "y": 80},
+      "z_index": 5,
+      "collision": true
+    },
+    {
+      "id": "vale-gate",
+      "type": "gate",
+      "sprite": "./assets/Vale_Gate.gif",
+      "position": {"x": 440, "y": 540},
+      "z_index": 5,
+      "collision": false,
+      "exit_to": "world_map_south"
+    }
+  ],
+  "buildings": [
+    {
+      "id": "isaac-house",
+      "name": "Isaac's House",
+      "sprite": "placeholder",
+      "position": {"x": 240, "y": 160},
+      "size": {"width": 96, "height": 80},
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {"x": 288, "y": 230},
+      "interior": "isaac-house-interior"
+    },
+    {
+      "id": "garet-house",
+      "name": "Garet's House",
+      "sprite": "placeholder",
+      "position": {"x": 200, "y": 360},
+      "size": {"width": 96, "height": 80},
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {"x": 248, "y": 430},
+      "interior": "garet-house-interior"
+    },
+    {
+      "id": "elder-house",
+      "name": "Elder's House",
+      "sprite": "placeholder",
+      "position": {"x": 420, "y": 120},
+      "size": {"width": 112, "height": 96},
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {"x": 476, "y": 206},
+      "interior": "elder-house-interior"
+    },
+    {
+      "id": "item-shop",
+      "name": "Item Shop",
+      "sprite": "placeholder",
+      "position": {"x": 620, "y": 240},
+      "size": {"width": 96, "height": 80},
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {"x": 668, "y": 310},
+      "interior": "item-shop-interior"
+    },
+    {
+      "id": "armor-shop",
+      "name": "Armor Shop",
+      "sprite": "placeholder",
+      "position": {"x": 640, "y": 380},
+      "size": {"width": 96, "height": 80},
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {"x": 688, "y": 450},
+      "interior": "armor-shop-interior"
+    },
+    {
+      "id": "inn",
+      "name": "Inn",
+      "sprite": "placeholder",
+      "position": {"x": 760, "y": 280},
+      "size": {"width": 96, "height": 80},
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {"x": 808, "y": 350},
+      "interior": "inn-interior"
+    },
+    {
+      "id": "kraden-house",
+      "name": "Kraden's Study",
+      "sprite": "placeholder",
+      "position": {"x": 700, "y": 140},
+      "size": {"width": 96, "height": 80},
+      "z_index": 5,
+      "enterable": true,
+      "door_position": {"x": 748, "y": 210},
+      "interior": "kraden-house-interior"
+    }
+  ],
+  "entities": [
+    {
+      "id": "isaac",
+      "type": "player",
+      "name": "Isaac",
+      "sprite": "./assets/Isaac.gif",
+      "position": {"x": 480, "y": 320},
+      "z_index": 10,
+      "facing": "down",
+      "animations": {
+        "idle": {"frames": 2, "fps": 2},
+        "walk": {"frames": 4, "fps": 8}
+      },
+      "element": "Venus",
+      "role": "protagonist"
+    },
+    {
+      "id": "garet",
+      "type": "npc",
+      "name": "Garet",
+      "sprite": "./assets/Garet.gif",
+      "position": {"x": 340, "y": 220},
+      "z_index": 10,
+      "facing": "right",
+      "dialogue_id": "garet-intro",
+      "element": "Mars",
+      "role": "protagonist",
+      "description": "Isaac's childhood friend, waiting near the house"
+    },
+    {
+      "id": "dora",
+      "type": "npc",
+      "name": "Dora",
+      "sprite": "./assets/Dora.gif",
+      "position": {"x": 280, "y": 260},
+      "z_index": 10,
+      "facing": "down",
+      "dialogue_id": "dora-greeting",
+      "role": "major_npc",
+      "description": "Isaac's mother, caring and protective"
+    },
+    {
+      "id": "elder",
+      "type": "npc",
+      "name": "Elder",
+      "sprite": "./assets/Elder.gif",
+      "position": {"x": 520, "y": 280},
+      "z_index": 10,
+      "facing": "down",
+      "dialogue_id": "elder-warning",
+      "role": "major_npc",
+      "description": "Village leader, wise and protective"
+    },
+    {
+      "id": "kraden",
+      "type": "npc",
+      "name": "Kraden",
+      "sprite": "./assets/Kraden.gif",
+      "position": {"x": 740, "y": 240},
+      "z_index": 10,
+      "facing": "left",
+      "dialogue_id": "kraden-scholar",
+      "role": "major_npc",
+      "description": "Scholar studying Alchemy and Sol Sanctum"
+    },
+    {
+      "id": "kyle",
+      "type": "npc",
+      "name": "Kyle",
+      "sprite": "./assets/Kyle.gif",
+      "position": {"x": 300, "y": 400},
+      "z_index": 10,
+      "facing": "up",
+      "dialogue_id": "kyle-father",
+      "role": "major_npc",
+      "description": "Garet's father, strong warrior"
+    },
+    {
+      "id": "jenna",
+      "type": "npc",
+      "name": "Jenna",
+      "sprite": "./assets/Jenna.gif",
+      "position": {"x": 440, "y": 340},
+      "z_index": 10,
+      "facing": "right",
+      "dialogue_id": "jenna-friend",
+      "role": "major_npc",
+      "description": "Felix's sister, Isaac's close friend"
+    },
+    {
+      "id": "great-healer",
+      "type": "npc",
+      "name": "Great Healer",
+      "sprite": "./assets/Great_Healer.gif",
+      "position": {"x": 500, "y": 240},
+      "z_index": 10,
+      "facing": "down",
+      "dialogue_id": "healer-wisdom",
+      "role": "major_npc",
+      "description": "Village healer, provides wisdom"
+    },
+    {
+      "id": "aaron",
+      "type": "npc",
+      "name": "Aaron",
+      "sprite": "./assets/Aaron_Jerra.gif",
+      "position": {"x": 380, "y": 300},
+      "z_index": 10,
+      "facing": "left",
+      "dialogue_id": "aaron-parent",
+      "role": "major_npc",
+      "description": "Jenna's father, concerned parent"
+    },
+    {
+      "id": "kay",
+      "type": "npc",
+      "name": "Kay",
+      "sprite": "./assets/Kay_Jerra.gif",
+      "position": {"x": 400, "y": 360},
+      "z_index": 10,
+      "facing": "right",
+      "dialogue_id": "kay-parent",
+      "role": "major_npc",
+      "description": "Jenna's mother, worried about her children"
+    },
+    {
+      "id": "innkeeper",
+      "type": "npc",
+      "name": "Innkeeper",
+      "sprite": "./assets/Innkeeper.gif",
+      "position": {"x": 800, "y": 320},
+      "z_index": 10,
+      "facing": "left",
+      "dialogue_id": "innkeeper-rest",
+      "role": "major_npc",
+      "description": "Runs the village inn, friendly and gossipy"
+    },
+    {
+      "id": "armor-shop-owner",
+      "type": "npc",
+      "name": "Armor Shop Owner",
+      "sprite": "./assets/Armorshop_Owner.gif",
+      "position": {"x": 680, "y": 480},
+      "z_index": 10,
+      "facing": "up",
+      "dialogue_id": "armor-shop",
+      "role": "major_npc",
+      "description": "Sells weapons and armor"
+    },
+    {
+      "id": "scholar-1",
+      "type": "npc",
+      "name": "Scholar One",
+      "sprite": "./assets/Scholar-1.gif",
+      "position": {"x": 560, "y": 200},
+      "z_index": 10,
+      "facing": "down",
+      "dialogue_id": "scholar-1",
+      "role": "minor_npc",
+      "description": "Studies ancient texts"
+    },
+    {
+      "id": "scholar-2",
+      "type": "npc",
+      "name": "Scholar Two",
+      "sprite": "./assets/Scholar-2.gif",
+      "position": {"x": 620, "y": 200},
+      "z_index": 10,
+      "facing": "down",
+      "dialogue_id": "scholar-2",
+      "role": "minor_npc",
+      "description": "Researches Alchemy"
+    },
+    {
+      "id": "villager-1",
+      "type": "npc",
+      "name": "Villager",
+      "sprite": "./assets/Villager1.gif",
+      "position": {"x": 320, "y": 320},
+      "z_index": 10,
+      "facing": "right",
+      "dialogue_id": "villager-1",
+      "role": "minor_npc",
+      "description": "Generic townsperson"
+    },
+    {
+      "id": "villager-2",
+      "type": "npc",
+      "name": "Villager",
+      "sprite": "./assets/Villager2.gif",
+      "position": {"x": 660, "y": 340},
+      "z_index": 10,
+      "facing": "left",
+      "dialogue_id": "villager-2",
+      "role": "minor_npc",
+      "description": "Generic townsperson"
+    },
+    {
+      "id": "villager-3",
+      "type": "npc",
+      "name": "Villager",
+      "sprite": "./assets/Villager3.gif",
+      "position": {"x": 540, "y": 420},
+      "z_index": 10,
+      "facing": "up",
+      "dialogue_id": "villager-3",
+      "role": "minor_npc",
+      "description": "Generic townsperson"
+    },
+    {
+      "id": "ivan",
+      "type": "npc",
+      "name": "Ivan",
+      "sprite": "./assets/Ivan.gif",
+      "position": {"x": 720, "y": 360},
+      "z_index": 10,
+      "facing": "left",
+      "dialogue_id": "ivan-joins",
+      "element": "Jupiter",
+      "role": "protagonist",
+      "visible": false,
+      "description": "Wind adept, joins party later"
+    },
+    {
+      "id": "mia",
+      "type": "npc",
+      "name": "Mia",
+      "sprite": "./assets/Mia.gif",
+      "position": {"x": 600, "y": 300},
+      "z_index": 10,
+      "facing": "down",
+      "dialogue_id": "mia-healer",
+      "element": "Mercury",
+      "role": "protagonist",
+      "visible": false,
+      "description": "Mercury adept from Imil, healer"
+    },
+    {
+      "id": "felix",
+      "type": "npc",
+      "name": "Felix",
+      "sprite": "./assets/Felix.gif",
+      "position": {"x": 420, "y": 420},
+      "z_index": 10,
+      "facing": "down",
+      "element": "Venus",
+      "role": "protagonist",
+      "visible": false,
+      "description": "Jenna's brother, presumed lost"
+    },
+    {
+      "id": "sheba",
+      "type": "npc",
+      "name": "Sheba",
+      "sprite": "./assets/Sheba.gif",
+      "position": {"x": 760, "y": 240},
+      "z_index": 10,
+      "facing": "right",
+      "dialogue_id": "sheba-mysterious",
+      "element": "Jupiter",
+      "role": "protagonist",
+      "visible": false,
+      "description": "Mysterious girl with Kraden"
+    },
+    {
+      "id": "alex",
+      "type": "npc",
+      "name": "Alex",
+      "sprite": "./assets/Alex.gif",
+      "position": {"x": 240, "y": 480},
+      "z_index": 10,
+      "facing": "right",
+      "dialogue_id": "alex-mysterious",
+      "element": "Mercury",
+      "role": "antagonist",
+      "visible": false,
+      "description": "Mysterious Mercury adept"
+    },
+    {
+      "id": "saturos",
+      "type": "npc",
+      "name": "Saturos",
+      "sprite": "./assets/Saturos.gif",
+      "position": {"x": 100, "y": 100},
+      "z_index": 10,
+      "facing": "down",
+      "element": "Mars",
+      "role": "antagonist",
+      "visible": false,
+      "description": "Mars Clan leader, main antagonist"
+    }
+  ],
+  "stats": {
+    "total_sprites": 31,
+    "visible_npcs": 16,
+    "hidden_npcs": 6,
+    "player": 1,
+    "buildings": 7,
+    "scenery": 5,
+    "paths": 4,
+    "total_interactables": 23
+  },
+  "dialogue_system": {
+    "format": "character_portrait + name + text",
+    "text_speed": ["slow", "normal", "fast", "instant"],
+    "max_characters_per_box": 120,
+    "continue_indicator": "▼",
+    "portrait_size": "64x64"
+  },
+  "technical_notes": {
+    "coordinate_system": "Absolute positioning, top-left origin",
+    "collision_method": "Bounding box (Phase 2)",
+    "camera_follow": "Player-centered, constrained to scene bounds (Phase 2)",
+    "sprite_format": "GIF (animated, 2-4 frames)",
+    "tile_size": "8×8 pixels (GBA standard)",
+    "scene_padding": "48px border to prevent edge clipping"
+  }
+}
