@@ -129,18 +129,31 @@ const GoldenSunApp: React.FC = () => {
     
     // Try to interact with NPC if not entering a door
     if (player && npcRegistry && dialogueRegistry) {
+      console.log('[handleInteract] Checking for interactable NPC...');
+      console.log('[handleInteract] Player facing:', player.facing);
+      
       const interactionCheck = findInteractableNPC(
         player.position,
         player.facing,
         npcRegistry
       );
 
+      console.log('[handleInteract] Interaction check result:', interactionCheck);
+      console.log('[handleInteract] - Can interact:', interactionCheck.canInteract);
+      console.log('[handleInteract] - NPC found:', interactionCheck.npc?.name || 'none');
+      console.log('[handleInteract] - Distance:', interactionCheck.distance);
+
       if (interactionCheck.canInteract && interactionCheck.npc) {
+        console.log('[handleInteract] Starting dialogue with:', interactionCheck.npc.name);
+        
         // Start dialogue
         const dialogueResult = startDialogue(interactionCheck.npc.dialogue_id, dialogueRegistry);
+        console.log('[handleInteract] Dialogue result:', dialogueResult.ok ? 'SUCCESS' : `FAIL: ${dialogueResult.error}`);
+        
         if (dialogueResult.ok) {
           const dialogue = setDialogueState(dialogueResult.value, 'displaying');
           setActiveDialogue(dialogue);
+          console.log('[handleInteract] Dialogue set to active');
           
           // Mark NPC as talked to
           const updateResult = markNPCAsTalkedTo(npcRegistry, interactionCheck.npc.id);
@@ -148,6 +161,9 @@ const GoldenSunApp: React.FC = () => {
             setNPCRegistry(updateResult.value);
           }
         }
+      } else {
+        console.log('[handleInteract] NO interactable NPC found');
+        console.log('[handleInteract] Try facing the NPC directly (press D-pad towards them)');
       }
     }
   }, [player, activeScene, npcRegistry, dialogueRegistry, activeDialogue, shopState, shops, inventory]);
@@ -628,11 +644,18 @@ const GoldenSunApp: React.FC = () => {
           </span>
         </div>
         <div className="hud-item">
+          <span className="hud-label">Facing:</span>
+          <span className="hud-value" style={{ fontSize: '12px' }}>
+            {player.facing === 'up' ? '?' : player.facing === 'down' ? '?' : player.facing === 'left' ? '?' : '?'} {player.facing}
+          </span>
+        </div>
+        <div className="hud-item">
           <span className="hud-label">Nearby NPCs:</span>
           <span className="hud-value" style={{ fontSize: '10px' }}>
             {(() => {
               const nearby = Array.from(npcRegistry.npcs.values()).filter(npc => {
                 if (!npc.visible) return false;
+                if (npc.id === 'isaac') return false; // Exclude player
                 const dx = npc.position.x - player.position.x;
                 const dy = npc.position.y - player.position.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
