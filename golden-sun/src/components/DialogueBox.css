@@ -2,7 +2,7 @@
 
 .dialogue-box {
   position: fixed;
-  bottom: 20px;
+  bottom: 240px; /* Above controller (220px + 20px margin) */
   left: 50%;
   transform: translateX(-50%);
   width: 440px;
@@ -15,7 +15,7 @@
   padding: 16px;
   gap: 16px;
   font-family: 'Arial', sans-serif;
-  z-index: 1000;
+  z-index: 1100; /* Above controller (1000) */
   animation: dialogue-enter 0.2s ease-out;
 }
 
@@ -155,7 +155,23 @@
 @media (max-width: 600px) {
   .dialogue-box {
     width: calc(100% - 40px);
-    bottom: 10px;
+    bottom: 220px; /* Still above controller on mobile */
+  }
+}
+
+/* Adjust for smaller mobile screens */
+@media (max-width: 480px) {
+  .dialogue-box {
+    bottom: 200px; /* Controller is 180px tall on small screens */
+    min-height: 120px;
+    padding: 12px;
+  }
+}
+
+/* Desktop: no controller, so dialogue can be at bottom */
+@media (min-width: 1024px) {
+  .dialogue-box {
+    bottom: 20px; /* Original position when no controller */
   }
 }
 
