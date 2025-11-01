@@ -95,7 +95,7 @@ describe('npcSystem', () => {
         expect(garet).toBeDefined();
         if (garet) {
           expect(garet.hasBeenTalkedTo).toBe(false);
-          expect(garet.interactionRange).toBe(32);
+          expect(garet.interactionRange).toBe(48);
           expect(garet.visible).toBe(true);
         }
       }
@@ -156,7 +156,7 @@ describe('npcSystem', () => {
       role: 'protagonist' as const,
       element: 'Mars' as const,
       visible: true,
-      interactionRange: 32,
+      interactionRange: 48,
       hasBeenTalkedTo: false
     };
 
@@ -218,7 +218,7 @@ describe('npcSystem', () => {
     });
 
     it('should return false at exact interaction range boundary', () => {
-      const playerPos = { x: 340 + 33, y: 220 }; // Just beyond 32px
+      const playerPos = { x: 340 + 49, y: 220 }; // Just beyond 48px (updated for new range)
       const playerFacing = 'left' as const;
 
       const canInteract = canInteractWithNPC(playerPos, playerFacing, npc);
@@ -357,7 +357,7 @@ describe('npcSystem', () => {
 
       if (result.ok) {
         const registry = result.value;
-        const playerPos = { x: 300, y: 240 };
+        const playerPos = { x: 300, y: 150 }; // Adjusted to be further from NPCs
         const playerFacing = 'up' as const; // Facing up, away from NPCs below
 
         const check = findInteractableNPC(playerPos, playerFacing, registry);

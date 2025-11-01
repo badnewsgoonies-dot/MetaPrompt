@@ -78,11 +78,21 @@
   height: 32px;
   transform: translate(-16px, -24px);
   cursor: pointer;
-  transition: filter 0.2s ease;
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
 
 .entity.npc:hover {
   filter: drop-shadow(0 0 8px rgba(255, 216, 127, 0.8)) drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.4));
+}
+
+.entity.npc.interactable {
+  filter: drop-shadow(0 0 12px rgba(255, 216, 127, 1)) drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.4));
+  animation: npc-ready 1s ease-in-out infinite;
+}
+
+@keyframes npc-ready {
+  0%, 100% { transform: translate(-16px, -24px) scale(1); }
+  50% { transform: translate(-16px, -26px) scale(1.05); }
 }
 
 .npc-sprite {
@@ -108,20 +118,32 @@
 /* NPC Indicator */
 .npc-indicator {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 16px;
-  height: 16px;
-  background: #ffd87f;
-  border: 2px solid #fff;
-  border-radius: 50%;
+  top: -16px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 16px;
   font-weight: bold;
-  color: #1a2838;
-  animation: pulse-indicator 1.5s ease-in-out infinite;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 100;
+}
+
+.npc-indicator.interact {
+  animation: bounce-indicator 0.8s ease-in-out infinite;
+}
+
+.npc-indicator.talked {
+  color: #4ade80;
+  font-size: 14px;
+  animation: none;
+}
+
+@keyframes bounce-indicator {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
 }
 
 @keyframes pulse-indicator {
@@ -168,10 +190,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .door.locked {
   border-color: rgba(255, 100, 100, 0.4);
+}
+
+.door.near {
+  border-color: rgba(255, 216, 127, 0.8);
+  border-style: solid;
+  background: rgba(255, 216, 127, 0.15);
+  box-shadow: 0 0 16px rgba(255, 216, 127, 0.5);
+}
+
+.door.shop-door.near {
+  border-color: rgba(255, 215, 0, 1);
+  background: rgba(255, 215, 0, 0.2);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
 }
 
 .door-sparkle {
@@ -179,9 +215,23 @@
   animation: sparkle 1.2s ease-in-out infinite;
 }
 
+.door-indicator {
+  position: absolute;
+  top: -24px;
+  font-size: 20px;
+  animation: bounce-door 0.6s ease-in-out infinite;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
 @keyframes sparkle {
   0%, 100% { opacity: 0.4; transform: scale(0.8) rotate(0deg); }
   50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
+}
+
+@keyframes bounce-door {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 /* Scene Info */

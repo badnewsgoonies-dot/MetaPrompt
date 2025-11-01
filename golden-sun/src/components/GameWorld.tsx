@@ -64,49 +64,81 @@ export const GameWorld: React.FC<GameWorldProps> = ({
           ))}
 
           {/* Doors */}
-          {scene.doors.map(door => (
-            <div
-              key={door.id}
-              className={`door ${door.locked ? 'locked' : ''}`}
-              style={{
-                left: `${door.position.x}px`,
-                top: `${door.position.y}px`,
-                width: `${door.width}px`,
-                height: `${door.height}px`
-              }}
-              aria-label={`Door to ${door.targetScene}${door.locked ? ' (locked)' : ''}`}
-            >
-              {!door.locked && <span className="door-sparkle">✨</span>}
-            </div>
-          ))}
+          {scene.doors.map(door => {
+            // Check if player is near this door
+            const isNearDoor = player && (() => {
+              const doorCenterX = door.position.x + door.width / 2;
+              const doorCenterY = door.position.y + door.height / 2;
+              const dx = player.position.x - doorCenterX;
+              const dy = player.position.y - doorCenterY;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              return distance <= 48; // Same as NPC interaction range
+            })();
+
+            const isShopDoor = door.id.includes('shop');
+
+            return (
+              <div
+                key={door.id}
+                className={`door ${door.locked ? 'locked' : ''} ${isNearDoor ? 'near' : ''} ${isShopDoor ? 'shop-door' : ''}`}
+                style={{
+                  left: `${door.position.x}px`,
+                  top: `${door.position.y}px`,
+                  width: `${door.width}px`,
+                  height: `${door.height}px`
+                }}
+                aria-label={`Door to ${door.targetScene}${door.locked ? ' (locked)' : ''}`}
+              >
+                {!door.locked && <span className="door-sparkle">✨</span>}
+                {isNearDoor && !door.locked && (
+                  <div className="door-indicator">
+                    {isShopDoor ? '💰' : '🚪'}
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {/* NPCs */}
-          {visibleNPCs.map(npc => (
-            <div
-              key={npc.id}
-              className={`entity npc facing-${npc.facing}`}
-              style={{
-                left: `${npc.position.x}px`,
-                top: `${npc.position.y}px`
-              }}
-              role="button"
-              aria-label={`Talk to ${npc.name}`}
-              tabIndex={0}
-            >
-              {npc.sprite ? (
-                <img 
-                  src={npc.sprite} 
-                  alt={npc.name}
-                  className="npc-sprite"
-                />
-              ) : (
-                <div className="npc-placeholder">{npc.name[0]}</div>
-              )}
-              {npc.hasBeenTalkedTo && (
-                <div className="npc-indicator talked" aria-label="Already talked to">!</div>
-              )}
-            </div>
-          ))}
+          {visibleNPCs.map(npc => {
+            // Check if NPC is interactable with current player state
+            const isInteractable = player && npc.visible && (() => {
+              const dx = npc.position.x - player.position.x;
+              const dy = npc.position.y - player.position.y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              return distance <= npc.interactionRange;
+            })();
+
+            return (
+              <div
+                key={npc.id}
+                className={`entity npc facing-${npc.facing} ${isInteractable ? 'interactable' : ''}`}
+                style={{
+                  left: `${npc.position.x}px`,
+                  top: `${npc.position.y}px`
+                }}
+                role="button"
+                aria-label={`Talk to ${npc.name}`}
+                tabIndex={0}
+              >
+                {npc.sprite ? (
+                  <img 
+                    src={npc.sprite} 
+                    alt={npc.name}
+                    className="npc-sprite"
+                  />
+                ) : (
+                  <div className="npc-placeholder">{npc.name[0]}</div>
+                )}
+                {isInteractable && !npc.hasBeenTalkedTo && (
+                  <div className="npc-indicator interact" aria-label="Press Enter to talk">💬</div>
+                )}
+                {npc.hasBeenTalkedTo && (
+                  <div className="npc-indicator talked" aria-label="Already talked to">✓</div>
+                )}
+              </div>
+            );
+          })}
 
           {/* Player */}
           <div

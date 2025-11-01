@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { GameWorld } from './components/GameWorld';
 import { DialogueBox } from './components/DialogueBox';
+import { ShopMenu } from './components/ShopMenu';
 import { NPCRegistry } from './types/npc';
 import { initializeNPCs, findInteractableNPC, markNPCAsTalkedTo } from './systems/npcSystem';
 import { 
@@ -35,13 +36,31 @@ import {
   getCurrentLine
 } from './systems/dialogueSystem';
 import {
+  ShopState,
+  Inventory,
+  Shop
+} from './types/shop';
+import {
+  createShopState,
+  openShop,
+  closeShop,
+  navigateShop,
+  buyItem,
+  sellItem,
+  createItemShop,
+  createArmorShop,
+  createInventory
+} from './systems/shopSystem';
+import {
   ActiveScene
 } from './types/scene';
 import {
   createSceneRegistry,
   registerScene,
   createActiveScene,
-  createValeVillageScene
+  createValeVillageScene,
+  findNearestDoor,
+  canEnterDoor
 } from './systems/overworldSystem';
 import './GoldenSunApp.css';
 
@@ -53,6 +72,9 @@ const GoldenSunApp: React.FC = () => {
   const [player, setPlayer] = useState<PlayerMovement | null>(null);
   const [camera, setCamera] = useState<Camera | null>(null);
   const [activeDialogue, setActiveDialogue] = useState<ActiveDialogue | null>(null);
+  const [shopState, setShopState] = useState<ShopState | null>(null);
+  const [inventory, setInventory] = useState<Inventory | null>(null);
+  const [shops, setShops] = useState<Map<string, Shop>>(new Map());
   const [error, setError] = useState<string | null>(null);
 
   // Input state
@@ -141,6 +163,20 @@ const GoldenSunApp: React.FC = () => {
       const initialCamera = createCamera(valeScene.spawnPosition, 0.15);
       setCamera(initialCamera);
 
+      // Initialize inventory and shops
+      const startingInventory = createInventory(20, 100); // 20 slots, 100 coins
+      setInventory(startingInventory);
+
+      const itemShop = createItemShop();
+      const armorShop = createArmorShop();
+      const shopsMap = new Map<string, Shop>();
+      shopsMap.set('item-shop', itemShop);
+      shopsMap.set('armor-shop', armorShop);
+      setShops(shopsMap);
+
+      const initialShopState = createShopState();
+      setShopState(initialShopState);
+
       } catch (err) {
         setError(`Initialization failed: ${err}`);
       }
@@ -155,10 +191,34 @@ const GoldenSunApp: React.FC = () => {
       setKeysPressed(prev => new Set(prev).add(e.key.toLowerCase()));
 
       // Interaction key (Enter/A)
-      if ((e.key === 'Enter' || e.key.toLowerCase() === 'a') && !isDialogueActive(activeDialogue)) {
+      if ((e.key === 'Enter' || e.key.toLowerCase() === 'a') && !isDialogueActive(activeDialogue) && !shopState?.isOpen) {
         e.preventDefault();
         
-        // Try to interact with NPC
+        // Try to interact with door first (shops, buildings)
+        if (player && activeScene) {
+          const nearestDoor = findNearestDoor(player.position, activeScene.current, 48);
+          
+          if (nearestDoor) {
+            const doorCheck = canEnterDoor(nearestDoor);
+            
+            if (doorCheck.ok) {
+              // Check if it's a shop door
+              const shopId = nearestDoor.id.includes('item-shop') ? 'item-shop' 
+                : nearestDoor.id.includes('armor-shop') ? 'armor-shop'
+                : null;
+
+              if (shopId && shops.has(shopId) && shopState && inventory) {
+                // Open shop
+                const shop = shops.get(shopId)!;
+                const newShopState = openShop(shopState, shop);
+                setShopState(newShopState);
+                return; // Don't check for NPCs if entering shop
+              }
+            }
+          }
+        }
+        
+        // Try to interact with NPC if not entering a door
         if (player && npcRegistry && dialogueRegistry) {
           const interactionCheck = findInteractableNPC(
             player.position,
@@ -205,6 +265,37 @@ const GoldenSunApp: React.FC = () => {
         setActiveDialogue(null);
       }
 
+      // Close shop
+      if (e.key === 'Escape' && shopState?.isOpen) {
+        e.preventDefault();
+        const newState = closeShop(shopState);
+        setShopState(newState);
+      }
+
+      // Shop navigation
+      if (shopState?.isOpen && shopState.activeShop && inventory) {
+        const maxIndex = shopState.mode === 'buy' 
+          ? shopState.activeShop.inventory.length - 1
+          : inventory.items.filter(item => item.quantity > 0).length - 1;
+
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const newState = navigateShop(shopState, -1, maxIndex);
+          setShopState(newState);
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const newState = navigateShop(shopState, 1, maxIndex);
+          setShopState(newState);
+        }
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          // Toggle between buy and sell modes
+          const newMode = shopState.mode === 'buy' ? 'sell' : 'buy';
+          setShopState({ ...shopState, mode: newMode, selectedIndex: 0 });
+        }
+      }
+
       // Navigate dialogue choices
       if (activeDialogue && activeDialogue.isTextComplete) {
         const currentLine = getCurrentLine(activeDialogue);
@@ -240,7 +331,7 @@ const GoldenSunApp: React.FC = () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [player, npcRegistry, dialogueRegistry, activeDialogue]);
+  }, [player, npcRegistry, dialogueRegistry, activeDialogue, shopState, activeScene, shops, inventory]);
 
   // Game loop
   useEffect(() => {
@@ -317,6 +408,56 @@ const GoldenSunApp: React.FC = () => {
     }
   }, [activeDialogue]);
 
+  // Shop handlers
+  const handleBuyItem = useCallback(() => {
+    if (!shopState?.activeShop || !inventory) return;
+
+    const itemToBuy = shopState.activeShop.inventory[shopState.selectedIndex];
+    if (!itemToBuy) return;
+
+    const buyResult = buyItem(inventory, shopState.activeShop, itemToBuy, 1);
+    if (buyResult.ok) {
+      setInventory(buyResult.value.inventory);
+      // Update shop in map if needed
+      const updatedShops = new Map(shops);
+      updatedShops.set(shopState.activeShop.id, buyResult.value.shop);
+      setShops(updatedShops);
+    }
+  }, [shopState, inventory, shops]);
+
+  const handleSellItem = useCallback(() => {
+    if (!shopState?.activeShop || !inventory) return;
+
+    const sellableItems = inventory.items.filter(item => item.quantity > 0);
+    const invItem = sellableItems[shopState.selectedIndex];
+    if (!invItem) return;
+
+    // Find the ShopItem
+    const shopItem = shopState.activeShop.inventory.find(si => si.id === invItem.itemId);
+    if (!shopItem) return;
+
+    const sellResult = sellItem(inventory, shopState.activeShop, shopItem, 1);
+    if (sellResult.ok) {
+      setInventory(sellResult.value.inventory);
+      const updatedShops = new Map(shops);
+      updatedShops.set(shopState.activeShop.id, sellResult.value.shop);
+      setShops(updatedShops);
+    }
+  }, [shopState, inventory, shops]);
+
+  const handleCloseShop = useCallback(() => {
+    if (!shopState) return;
+    const newState = closeShop(shopState);
+    setShopState(newState);
+  }, [shopState]);
+
+  const handleShopModeChange = useCallback((mode: 'buy' | 'sell') => {
+    if (!shopState) return;
+    setShopState({ ...shopState, mode, selectedIndex: 0 });
+  }, [shopState]);
+
+  // handleShopNavigate removed - navigation is handled in keyboard handler
+
   if (error) {
     return (
       <div className="error-screen">
@@ -356,6 +497,19 @@ const GoldenSunApp: React.FC = () => {
         <DialogueBox
           dialogue={activeDialogue}
           onSelectChoice={handleSelectChoice}
+        />
+      )}
+
+      {/* Shop Menu (when open) */}
+      {shopState?.isOpen && shopState.activeShop && inventory && (
+        <ShopMenu
+          shopState={shopState}
+          playerInventory={inventory}
+          shopItems={shopState.activeShop.inventory}
+          onBuy={handleBuyItem}
+          onSell={handleSellItem}
+          onClose={handleCloseShop}
+          onChangeMode={handleShopModeChange}
         />
       )}
 
