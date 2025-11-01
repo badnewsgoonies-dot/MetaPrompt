@@ -80,6 +80,9 @@ const GoldenSunApp: React.FC = () => {
 
   // Input state
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
+  
+  // Debug state - shows what buttons are being pressed
+  const [debugInfo, setDebugInfo] = useState<string>('No input');
 
   // Refs
   const gameLoopRef = useRef<number | null>(null);
@@ -87,8 +90,18 @@ const GoldenSunApp: React.FC = () => {
 
   // Extract interaction logic for reuse by both keyboard and touch
   const handleInteract = useCallback(() => {
+    console.log('[handleInteract] Called!');
+    console.log('[handleInteract] - Player:', player ? `(${Math.round(player.position.x)}, ${Math.round(player.position.y)})` : 'NULL');
+    console.log('[handleInteract] - Active Scene:', activeScene ? 'EXISTS' : 'NULL');
+    console.log('[handleInteract] - NPC Registry:', npcRegistry ? `${npcRegistry.npcs.size} NPCs` : 'NULL');
+    console.log('[handleInteract] - Dialogue Active:', isDialogueActive(activeDialogue));
+    console.log('[handleInteract] - Shop Open:', shopState?.isOpen);
+    
     // Don't interact if dialogue is active or shop is open
-    if (isDialogueActive(activeDialogue) || shopState?.isOpen) return;
+    if (isDialogueActive(activeDialogue) || shopState?.isOpen) {
+      console.log('[handleInteract] Blocked - dialogue or shop open');
+      return;
+    }
 
     // Try to interact with door first (shops, buildings)
     if (player && activeScene) {
@@ -171,31 +184,45 @@ const GoldenSunApp: React.FC = () => {
 
   // On-screen controller handlers
   const handleControllerKeyDown = useCallback((key: string) => {
-    console.log(`[Controller Down] Key: "${key}", Active Dialogue: ${isDialogueActive(activeDialogue)}, Shop Open: ${shopState?.isOpen}`);
+    const timestamp = new Date().toISOString().split('T')[1];
+    console.log(`[${timestamp}] Controller Down: "${key}"`);
+    
+    setDebugInfo(`Pressed: ${key} at ${timestamp}`);
     
     // Only add movement keys to keysPressed (D-pad)
     if (key.startsWith('Arrow')) {
       const lowerKey = key.toLowerCase();
       setKeysPressed(prev => new Set(prev).add(lowerKey));
+      console.log(`[${timestamp}] Added to keysPressed: ${lowerKey}`);
     }
     
     // Handle action buttons directly (don't add to keysPressed to avoid WASD conflicts)
     if (key === 'Enter') {
-      console.log('[Controller] A/Enter pressed - checking state...');
+      console.log(`[${timestamp}] A/Enter button pressed!`);
+      console.log(`[${timestamp}] - Active Dialogue: ${isDialogueActive(activeDialogue)}`);
+      console.log(`[${timestamp}] - Shop Open: ${shopState?.isOpen}`);
+      console.log(`[${timestamp}] - Player: ${player ? `(${Math.round(player.position.x)}, ${Math.round(player.position.y)})` : 'null'}`);
+      console.log(`[${timestamp}] - NPC Registry: ${npcRegistry ? `${npcRegistry.npcs.size} NPCs` : 'null'}`);
+      
+      setDebugInfo(`A pressed - Dialogue: ${isDialogueActive(activeDialogue)}`);
+      
       // If dialogue is active, advance it
       if (isDialogueActive(activeDialogue)) {
-        console.log('[Controller] Advancing dialogue');
+        console.log(`[${timestamp}] ? Advancing dialogue`);
+        setDebugInfo('A pressed - Advancing dialogue');
         handleAdvanceDialogue();
       } else {
-        console.log('[Controller] Attempting interaction');
+        console.log(`[${timestamp}] ? Attempting interaction`);
+        setDebugInfo('A pressed - Trying to interact');
         // Otherwise, try to interact
         handleInteract();
       }
     } else if (key === 'Escape') {
-      console.log('[Controller] Escape/B pressed - cancelling');
+      console.log(`[${timestamp}] B/Escape button pressed!`);
+      setDebugInfo(`B pressed - Cancelling`);
       handleCancel();
     }
-  }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel, shopState]);
+  }, [activeDialogue, handleInteract, handleAdvanceDialogue, handleCancel, shopState, player, npcRegistry]);
 
   const handleControllerKeyUp = useCallback((key: string) => {
     // Only remove movement keys from keysPressed (D-pad)
@@ -589,6 +616,31 @@ const GoldenSunApp: React.FC = () => {
         <div className="hud-item">
           <span className="hud-label">Moving:</span>
           <span className="hud-value">{isPlayerMoving(player) ? 'Yes' : 'No'}</span>
+        </div>
+        <div className="hud-item" style={{ borderTop: '1px solid #d4a857', marginTop: '8px', paddingTop: '8px' }}>
+          <span className="hud-label">Debug:</span>
+          <span className="hud-value" style={{ fontSize: '10px', wordBreak: 'break-all' }}>{debugInfo}</span>
+        </div>
+        <div className="hud-item">
+          <span className="hud-label">Player Pos:</span>
+          <span className="hud-value" style={{ fontSize: '10px' }}>
+            ({Math.round(player.position.x)}, {Math.round(player.position.y)})
+          </span>
+        </div>
+        <div className="hud-item">
+          <span className="hud-label">Nearby NPCs:</span>
+          <span className="hud-value" style={{ fontSize: '10px' }}>
+            {(() => {
+              const nearby = Array.from(npcRegistry.npcs.values()).filter(npc => {
+                if (!npc.visible) return false;
+                const dx = npc.position.x - player.position.x;
+                const dy = npc.position.y - player.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance <= 48;
+              });
+              return nearby.length > 0 ? nearby.map(n => n.name).join(', ') : 'None';
+            })()}
+          </span>
         </div>
       </div>
 
