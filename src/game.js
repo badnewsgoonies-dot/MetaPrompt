@@ -114,9 +114,14 @@ export class Game {
   update(delta) {
     this.animationSystem.update(delta);
     this.player.update(delta, this.input, this.farm, this.cropSystem, this.audioSystem);
+
+    const rolledToNewDay = this.timeManager.advance(delta * MINUTES_PER_TICK);
+
     this.npcSystem.update(this.timeManager, delta);
 
-    this.timeManager.advance(delta * MINUTES_PER_TICK);
+    if (rolledToNewDay) {
+      this.startNewDay();
+    }
 
     this.ui.update(
       this.player,
@@ -149,22 +154,8 @@ export class Game {
   }
 
   sleep() {
-    this.farm.advanceDay(this.cropSystem, this.timeManager.weather);
-    this.animalSystem.dailyTick();
     this.timeManager.advance(24 * 60); // force next day
-    this.staminaSystem.resetForNewDay(this.timeManager.weather);
-    this.player.sleep();
-    this.saveManager.save();
-    this.ui.update(
-      this.player,
-      this.timeManager,
-      this.staminaSystem,
-      this.timeManager.weather,
-      this.farm,
-      this.npcSystem,
-      this.animalSystem,
-      this.cropSystem
-    );
+    this.startNewDay({ refreshUI: true });
   }
 
   tryTalkToNPC() {
@@ -176,6 +167,27 @@ export class Game {
     });
     if (npc) {
       this.npcSystem.talkToNPC(this.player);
+    }
+  }
+
+  startNewDay({ resetPlayerPosition = true, refreshUI = false } = {}) {
+    this.farm.advanceDay(this.cropSystem, this.timeManager.weather);
+    this.animalSystem.dailyTick();
+    this.staminaSystem.resetForNewDay(this.timeManager.weather);
+    this.player.sleep(resetPlayerPosition);
+    this.saveManager.save();
+
+    if (refreshUI) {
+      this.ui.update(
+        this.player,
+        this.timeManager,
+        this.staminaSystem,
+        this.timeManager.weather,
+        this.farm,
+        this.npcSystem,
+        this.animalSystem,
+        this.cropSystem
+      );
     }
   }
 }
