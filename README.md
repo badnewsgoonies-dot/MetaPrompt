@@ -1,3 +1,4 @@
+
 # Golden Sun Battler
 
 This branch contains the Golden Sun battle system project.
@@ -17,4 +18,5 @@ npm test
 ```
 
 ## Framework Documentation
+
 For the MetaPrompt framework documentation, see the `main` branch.
