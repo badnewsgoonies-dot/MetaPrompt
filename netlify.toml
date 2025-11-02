@@ -1,8 +1,0 @@
-[build]
-  publish = "golden-sun/dist"
-  command = "cd golden-sun && npm install && npm run build"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
