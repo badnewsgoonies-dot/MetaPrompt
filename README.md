@@ -1,22 +1,15 @@
 
-# Golden Sun Battler
+# Yu-Gi-Oh! Simulator
 
-This branch contains the Golden Sun battle system project.
+This branch contains the Yu-Gi-Oh! card game simulator project.
 
 ## Project Location
-- [golden-sun-battler/](golden-sun-battler/)
+
+- [yugioh-simulator/](yugioh-simulator/)
 
 ## About
-A standalone Golden Sun-inspired battle system with deterministic, seed-driven combat mechanics. Features turn-based combat, elemental affinities, Psynergy, Djinn, and Summons.
 
-## Running the Project
-```bash
-cd golden-sun-battler
-npm install
-npm run typecheck
-npm test
-```
+This is a standalone game project built using the MetaPrompt 6-role system.
 
-## Framework Documentation
+For the framework documentation, see the `main` branch.
 
-For the MetaPrompt framework documentation, see the `main` branch.
