@@ -1,15 +1,23 @@
 
-# Yu-Gi-Oh! Simulator
+# Pokemon Battler
 
-This branch contains the Yu-Gi-Oh! card game simulator project.
+This branch contains the Pokemon battle system project.
 
 ## Project Location
 
-- [yugioh-simulator/](yugioh-simulator/)
+- [pokemon-battler/](pokemon-battler/)
 
 ## About
 
-This is a standalone game project built using the MetaPrompt 6-role system.
+A Pokemon-style battle system with type effectiveness, move data, and battle state management.
 
-For the framework documentation, see the `main` branch.
+## Running the Game
+
+```bash
+cd pokemon-battler
+npm install
+npm run dev
+```
+
+For the MetaPrompt framework documentation, see the `main` branch.
 
