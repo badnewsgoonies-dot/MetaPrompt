@@ -1,30 +1,21 @@
-# Golden Sun Clone
 
-This branch contains the Golden Sun RPG clone project.
+# Golden Sun Battler
+
+This branch contains the Golden Sun battle system project.
 
 ## Project Location
-
-- [golden-sun/](golden-sun/)
+- [golden-sun-battler/](golden-sun-battler/)
 
 ## About
+A standalone Golden Sun-inspired battle system with deterministic, seed-driven combat mechanics. Features turn-based combat, elemental affinities, Psynergy, Djinn, and Summons.
 
-A Golden Sun-inspired RPG built using the MetaPrompt 6-role system. Features:
-- Overworld exploration
-- NPC dialogue and quest systems
-- Story progression
-- Multiple locations (Vale Village, Vault Town, etc.)
-- Building and terrain sprites
-- Character sprites and interactions
-
-## Running the Game
-
+## Running the Project
 ```bash
-cd golden-sun
+cd golden-sun-battler
 npm install
-npm run dev
+npm run typecheck
+npm test
 ```
-
-Then open http://localhost:5173 in your browser.
 
 ## Framework Documentation
 
