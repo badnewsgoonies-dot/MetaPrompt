@@ -162,6 +162,23 @@ export function checkBoundsCollision(
 }
 
 /**
+ * Get NPCs within collision check radius (optimization for large scenes)
+ * Only checks NPCs within a certain distance to improve performance
+ */
+export function getNearbyNPCsForCollision(
+  playerPos: NPCPosition,
+  allNPCs: NPCPosition[],
+  checkRadius: number = 200 // Only check NPCs within 200px
+): NPCPosition[] {
+  return allNPCs.filter(npc => {
+    const dx = npc.x - playerPos.x;
+    const dy = npc.y - playerPos.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return distance <= checkRadius;
+  });
+}
+
+/**
  * Update player position with collision detection
  * Returns new position or original if collision detected
  */

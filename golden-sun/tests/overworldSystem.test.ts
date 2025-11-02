@@ -197,7 +197,7 @@ describe('overworldSystem', () => {
   describe('findNearestDoor', () => {
     it('should find nearest door', () => {
       const scene = createValeVillageScene();
-      const playerPos = { x: 210, y: 250 }; // Near Isaac's house door
+      const playerPos = { x: 576, y: 470 }; // Near Isaac's house door (scaled 2x for expanded scene)
       
       const door = findNearestDoor(playerPos, scene, 50);
       
@@ -216,7 +216,7 @@ describe('overworldSystem', () => {
 
     it('should return closest door when multiple in range', () => {
       const scene = createValeVillageScene();
-      const playerPos = { x: 440, y: 195 }; // Near item shop
+      const playerPos = { x: 1336, y: 630 }; // Near item shop (scaled 2x for expanded scene)
       
       const door = findNearestDoor(playerPos, scene, 200);
       

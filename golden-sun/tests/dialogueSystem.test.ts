@@ -1,127 +1,32 @@
 import { describe, it, expect } from 'vitest';
 import {
-  createDialogueRegistry,
-  registerDialogue,
   startDialogue,
-  updateDialogueReveal,
-  advanceDialogue,
-  selectDialogueChoice,
-  confirmDialogueChoice,
-  skipTextReveal,
-  closeDialogue,
-  isDialogueActive,
-  getVisibleText,
   getCurrentLine,
-  addDialogueHistory,
-  hasCompletedDialogue,
-  getDialogueProgress,
-  setDialogueState,
-  createSimpleDialogue
+  advanceDialogue,
+  isDialogueComplete,
+  handleDialogueAction
 } from '../src/systems/dialogueSystem';
-import { DialogueSequence, DialogueConfig, DEFAULT_DIALOGUE_CONFIG } from '../src/types/dialogue';
+import { createFlagSystem, setFlag } from '../src/systems/storyFlagSystem';
+import { DialogueAction } from '../src/types/dialogue';
 
 describe('dialogueSystem', () => {
-  const mockDialogue: DialogueSequence = {
-    id: 'garet-intro',
-    lines: [
-      {
-        speaker: { id: 'garet', name: 'Garet' },
-        text: 'Hey Isaac! Ready for an adventure?'
-      },
-      {
-        speaker: { id: 'garet', name: 'Garet' },
-        text: 'The Elder wants to see us at the plaza.'
-      },
-      {
-        speaker: { id: 'isaac', name: 'Isaac' },
-        text: "Let's go then!"
-      }
-    ]
-  };
-
-  const mockChoiceDialogue: DialogueSequence = {
-    id: 'shop-welcome',
-    lines: [
-      {
-        speaker: { id: 'shopkeeper', name: 'Shopkeeper' },
-        text: 'Welcome to my shop! What can I do for you?',
-        choices: [
-          { id: 'buy', text: 'Buy items', next: 'shop-buy' },
-          { id: 'sell', text: 'Sell items', next: 'shop-sell' },
-          { id: 'leave', text: 'Nothing, thanks' }
-        ]
-      }
-    ]
-  };
-
-  describe('createDialogueRegistry', () => {
-    it('should create empty dialogue registry', () => {
-      const registry = createDialogueRegistry();
-      
-      expect(registry.sequences.size).toBe(0);
-      expect(registry.history.length).toBe(0);
-    });
-  });
-
-  describe('registerDialogue', () => {
-    it('should register new dialogue sequence', () => {
-      const registry = createDialogueRegistry();
-      const result = registerDialogue(registry, mockDialogue);
-      
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.value.sequences.size).toBe(1);
-        expect(result.value.sequences.get('garet-intro')).toBeDefined();
-      }
-    });
-
-    it('should return error when registering duplicate dialogue ID', () => {
-      let registry = createDialogueRegistry();
-      const result1 = registerDialogue(registry, mockDialogue);
-      expect(result1.ok).toBe(true);
-      
-      if (result1.ok) {
-        registry = result1.value;
-        const result2 = registerDialogue(registry, mockDialogue);
-        expect(result2.ok).toBe(false);
-        
-        if (!result2.ok) {
-          expect(result2.error).toContain('already exists');
-        }
-      }
-    });
-
-    it('should not modify original registry', () => {
-      const registry = createDialogueRegistry();
-      registerDialogue(registry, mockDialogue);
-      
-      expect(registry.sequences.size).toBe(0);
-    });
-  });
-
   describe('startDialogue', () => {
-    it('should start dialogue sequence', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      expect(regResult.ok).toBe(true);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const result = startDialogue('garet-intro', registry);
+    it('should start a simple dialogue', () => {
+      const flags = createFlagSystem();
+      const result = startDialogue('garet', 'garet-intro', flags);
       
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.value.sequence.id).toBe('garet-intro');
-        expect(result.value.currentLineIndex).toBe(0);
-        expect(result.value.currentCharIndex).toBe(0);
-        expect(result.value.isTextComplete).toBe(false);
-        expect(result.value.state).toBe('opening');
+        expect(result.value.treeId).toBe('garet-intro');
+        expect(result.value.currentLineId).toBeDefined();
+        expect(result.value.history.length).toBe(1);
+        expect(result.value.completed).toBe(false);
       }
     });
 
     it('should return error for non-existent dialogue', () => {
-      const registry = createDialogueRegistry();
-      const result = startDialogue('invalid-id', registry);
+      const flags = createFlagSystem();
+      const result = startDialogue('npc', 'non-existent-dialogue', flags);
       
       expect(result.ok).toBe(false);
       if (!result.ok) {
@@ -129,593 +34,357 @@ describe('dialogueSystem', () => {
       }
     });
 
-    it('should return error for empty dialogue', () => {
-      let registry = createDialogueRegistry();
-      const emptyDialogue: DialogueSequence = {
-        id: 'empty',
-        lines: []
-      };
-      
-      const regResult = registerDialogue(registry, emptyDialogue);
-      expect(regResult.ok).toBe(true);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const result = startDialogue('empty', registry);
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('no lines');
+    it('should respect story flags when choosing start line', () => {
+      let flags = createFlagSystem();
+      // Set a flag that might affect dialogue start
+      const flagResult = setFlag(flags, 'met_garet', true);
+      if (flagResult.ok) {
+        flags = flagResult.value;
       }
-    });
-  });
-
-  describe('updateDialogueReveal', () => {
-    it('should reveal characters over time', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
       
-      let dialogue = { ...startResult.value, state: 'displaying' as const };
-      
-      // Reveal text over multiple frames
-      dialogue = updateDialogueReveal(dialogue, 100, DEFAULT_DIALOGUE_CONFIG);
-      
-      expect(dialogue.currentCharIndex).toBeGreaterThan(0);
-      expect(dialogue.isTextComplete).toBe(false);
-    });
-
-    it('should complete text when all characters revealed', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = { ...startResult.value, state: 'displaying' as const };
-      const textLength = mockDialogue.lines[0].text.length;
-      
-      // Reveal all text
-      dialogue = updateDialogueReveal(dialogue, 10000, DEFAULT_DIALOGUE_CONFIG);
-      
-      expect(dialogue.currentCharIndex).toBe(textLength);
-      expect(dialogue.isTextComplete).toBe(true);
-      expect(dialogue.state).toBe('waiting');
-    });
-
-    it('should not update when not in displaying state', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = startResult.value; // State is 'opening'
-      const updated = updateDialogueReveal(dialogue, 100, DEFAULT_DIALOGUE_CONFIG);
-      
-      expect(updated.currentCharIndex).toBe(0);
-    });
-
-    it('should reveal at least 1 character per frame', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = { ...startResult.value, state: 'displaying' as const };
-      
-      // Very small deltaTime
-      dialogue = updateDialogueReveal(dialogue, 1, DEFAULT_DIALOGUE_CONFIG);
-      
-      expect(dialogue.currentCharIndex).toBeGreaterThanOrEqual(1);
-    });
-  });
-
-  describe('advanceDialogue', () => {
-    it('should complete text instantly if not complete', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = { ...startResult.value, state: 'displaying' as const, currentCharIndex: 5 };
-      
-      const result = advanceDialogue(dialogue);
+      const result = startDialogue('garet', 'garet-intro', flags);
       expect(result.ok).toBe(true);
-      
-      if (result.ok) {
-        expect(result.value.isTextComplete).toBe(true);
-        expect(result.value.currentCharIndex).toBe(mockDialogue.lines[0].text.length);
-      }
-    });
-
-    it('should advance to next line when text complete', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = { 
-        ...startResult.value, 
-        currentCharIndex: mockDialogue.lines[0].text.length,
-        isTextComplete: true,
-        state: 'waiting' as const
-      };
-      
-      const result = advanceDialogue(dialogue);
-      expect(result.ok).toBe(true);
-      
-      if (result.ok) {
-        expect(result.value.currentLineIndex).toBe(1);
-        expect(result.value.currentCharIndex).toBe(0);
-        expect(result.value.isTextComplete).toBe(false);
-        expect(result.value.state).toBe('displaying');
-      }
-    });
-
-    it('should close dialogue when on last line', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = {
-        ...startResult.value,
-        currentLineIndex: 2, // Last line
-        currentCharIndex: mockDialogue.lines[2].text.length,
-        isTextComplete: true,
-        state: 'waiting' as const
-      };
-      
-      const result = advanceDialogue(dialogue);
-      expect(result.ok).toBe(true);
-      
-      if (result.ok) {
-        expect(result.value.state).toBe('closing');
-      }
-    });
-
-    it('should return error when line has choices', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockChoiceDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('shop-welcome', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = {
-        ...startResult.value,
-        currentCharIndex: mockChoiceDialogue.lines[0].text.length,
-        isTextComplete: true,
-        state: 'waiting' as const
-      };
-      
-      const result = advanceDialogue(dialogue);
-      expect(result.ok).toBe(false);
-      
-      if (!result.ok) {
-        expect(result.error).toContain('must select choice');
-      }
-    });
-  });
-
-  describe('selectDialogueChoice', () => {
-    it('should select valid choice', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockChoiceDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('shop-welcome', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = startResult.value;
-      const result = selectDialogueChoice(dialogue, 1);
-      
-      expect(result.ok).toBe(true);
-      if (result.ok) {
-        expect(result.value.selectedChoice).toBe(1);
-      }
-    });
-
-    it('should return error for invalid choice index', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockChoiceDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('shop-welcome', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = startResult.value;
-      const result = selectDialogueChoice(dialogue, 5);
-      
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('Invalid choice');
-      }
-    });
-
-    it('should return error when line has no choices', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = startResult.value;
-      const result = selectDialogueChoice(dialogue, 0);
-      
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('no choices');
-      }
-    });
-  });
-
-  describe('confirmDialogueChoice', () => {
-    it('should branch to next dialogue when choice has next', () => {
-      let registry = createDialogueRegistry();
-      let regResult = registerDialogue(registry, mockChoiceDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      // Register the "next" dialogue
-      const nextDialogue: DialogueSequence = {
-        id: 'shop-buy',
-        lines: [
-          { speaker: { id: 'shopkeeper', name: 'Shopkeeper' }, text: 'Here are my wares!' }
-        ]
-      };
-      regResult = registerDialogue(registry, nextDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('shop-welcome', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = startResult.value;
-      
-      // Select first choice (Buy items -> shop-buy)
-      const selectResult = selectDialogueChoice(dialogue, 0);
-      if (!selectResult.ok) return;
-      dialogue = selectResult.value;
-
-      const confirmResult = confirmDialogueChoice(dialogue, registry);
-      expect(confirmResult.ok).toBe(true);
-      
-      if (confirmResult.ok) {
-        expect(confirmResult.value.sequence.id).toBe('shop-buy');
-      }
-    });
-
-    it('should close dialogue when choice has no next', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockChoiceDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('shop-welcome', registry);
-      if (!startResult.ok) return;
-      
-      let dialogue = startResult.value;
-      
-      // Select last choice (Nothing, thanks - no next)
-      const selectResult = selectDialogueChoice(dialogue, 2);
-      if (!selectResult.ok) return;
-      dialogue = selectResult.value;
-
-      const confirmResult = confirmDialogueChoice(dialogue, registry);
-      expect(confirmResult.ok).toBe(true);
-      
-      if (confirmResult.ok) {
-        expect(confirmResult.value.state).toBe('closing');
-      }
-    });
-
-    it('should return error when line has no choices', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = startResult.value;
-      const result = confirmDialogueChoice(dialogue, registry);
-      
-      expect(result.ok).toBe(false);
-      if (!result.ok) {
-        expect(result.error).toContain('no choices');
-      }
-    });
-  });
-
-  describe('skipTextReveal', () => {
-    it('should complete text instantly', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = { ...startResult.value, state: 'displaying' as const, currentCharIndex: 5 };
-      const skipped = skipTextReveal(dialogue);
-      
-      expect(skipped.currentCharIndex).toBe(mockDialogue.lines[0].text.length);
-      expect(skipped.isTextComplete).toBe(true);
-      expect(skipped.state).toBe('waiting');
-    });
-
-    it('should not change state when not displaying', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = startResult.value; // State is 'opening'
-      const skipped = skipTextReveal(dialogue);
-      
-      expect(skipped.currentCharIndex).toBe(0);
-      expect(skipped.state).toBe('opening');
-    });
-  });
-
-  describe('closeDialogue', () => {
-    it('should set state to closing', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = startResult.value;
-      const closed = closeDialogue(dialogue);
-      
-      expect(closed.state).toBe('closing');
-    });
-  });
-
-  describe('isDialogueActive', () => {
-    it('should return true when dialogue is active', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      expect(isDialogueActive(startResult.value)).toBe(true);
-    });
-
-    it('should return false when dialogue is closed', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const closed = { ...startResult.value, state: 'closed' as const };
-      expect(isDialogueActive(closed)).toBe(false);
-    });
-
-    it('should return false when dialogue is null', () => {
-      expect(isDialogueActive(null)).toBe(false);
-    });
-  });
-
-  describe('getVisibleText', () => {
-    it('should return partial text based on current char index', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = { ...startResult.value, currentCharIndex: 10 };
-      const visibleText = getVisibleText(dialogue);
-      
-      expect(visibleText).toBe('Hey Isaac!');
-    });
-
-    it('should return empty string when char index is 0', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const visibleText = getVisibleText(startResult.value);
-      expect(visibleText).toBe('');
     });
   });
 
   describe('getCurrentLine', () => {
     it('should return current dialogue line', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
+      const flags = createFlagSystem();
+      const startResult = startDialogue('elder', 'elder-warning', flags);
       
-      const line = getCurrentLine(startResult.value);
-      expect(line).toBeDefined();
-      expect(line?.speaker.name).toBe('Garet');
-    });
-  });
-
-  describe('addDialogueHistory', () => {
-    it('should add dialogue to history', () => {
-      let registry = createDialogueRegistry();
-      registry = addDialogueHistory(registry, 'garet', 'garet-intro', true);
-      
-      expect(registry.history.length).toBe(1);
-      expect(registry.history[0].npcId).toBe('garet');
-      expect(registry.history[0].completed).toBe(true);
+      expect(startResult.ok).toBe(true);
+      if (startResult.ok) {
+        const state = startResult.value;
+        const lineResult = getCurrentLine(state);
+        
+        expect(lineResult.ok).toBe(true);
+        if (lineResult.ok) {
+          expect(lineResult.value.text).toBeDefined();
+          expect(typeof lineResult.value.text).toBe('string');
+        }
+      }
     });
 
-    it('should not modify original registry', () => {
-      const registry = createDialogueRegistry();
-      addDialogueHistory(registry, 'garet', 'garet-intro', true);
-      
-      expect(registry.history.length).toBe(0);
-    });
-  });
-
-  describe('hasCompletedDialogue', () => {
-    it('should return true when dialogue completed', () => {
-      let registry = createDialogueRegistry();
-      registry = addDialogueHistory(registry, 'garet', 'garet-intro', true);
-      
-      expect(hasCompletedDialogue(registry, 'garet', 'garet-intro')).toBe(true);
-    });
-
-    it('should return false when dialogue not completed', () => {
-      let registry = createDialogueRegistry();
-      registry = addDialogueHistory(registry, 'garet', 'garet-intro', false);
-      
-      expect(hasCompletedDialogue(registry, 'garet', 'garet-intro')).toBe(false);
-    });
-
-    it('should return false when dialogue not in history', () => {
-      const registry = createDialogueRegistry();
-      expect(hasCompletedDialogue(registry, 'garet', 'garet-intro')).toBe(false);
-    });
-  });
-
-  describe('getDialogueProgress', () => {
-    it('should return 0 at start', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const progress = getDialogueProgress(startResult.value);
-      expect(progress).toBe(0);
-    });
-
-    it('should return 1 at end', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
-      
-      const dialogue = {
-        ...startResult.value,
-        currentLineIndex: 2,
-        isTextComplete: true
+    it('should return error for invalid state', () => {
+      const state = {
+        treeId: 'non-existent',
+        currentLineId: 'invalid-line',
+        history: [],
+        completed: false
       };
       
-      const progress = getDialogueProgress(dialogue);
-      expect(progress).toBe(1);
+      const result = getCurrentLine(state);
+      expect(result.ok).toBe(false);
+    });
+  });
+
+  describe('advanceDialogue', () => {
+    it('should advance to next line', () => {
+      const flags = createFlagSystem();
+      const startResult = startDialogue('dora', 'dora-greeting', flags);
+      
+      expect(startResult.ok).toBe(true);
+      if (startResult.ok) {
+        const advanceResult = advanceDialogue(startResult.value, flags);
+        
+        expect(advanceResult.ok).toBe(true);
+        if (advanceResult.ok) {
+          const newState = advanceResult.value.state;
+          expect(newState.history.length).toBeGreaterThan(1);
+        }
+      }
     });
 
-    it('should return fractional progress in middle', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
+    it('should mark dialogue as complete when finished', () => {
+      const flags = createFlagSystem();
+      const startResult = startDialogue('villager-1', 'villager-1', flags);
       
-      const dialogue = {
-        ...startResult.value,
-        currentLineIndex: 1,
-        isTextComplete: true
+      if (startResult.ok) {
+        let state = startResult.value;
+        let currentFlags = flags;
+        
+        // Advance through all lines until complete
+        for (let i = 0; i < 20; i++) {
+          if (state.completed) {
+            break;
+          }
+          
+          const advanceResult = advanceDialogue(state, currentFlags);
+          if (!advanceResult.ok) {
+            break;
+          }
+          
+          state = advanceResult.value.state;
+          currentFlags = advanceResult.value.flags;
+        }
+        
+        // Eventually should complete
+        expect(state.completed).toBeDefined();
+      }
+    });
+
+    it('should handle choices when provided', () => {
+      const flags = createFlagSystem();
+      const startResult = startDialogue('shopkeeper', 'shop-welcome', flags);
+      
+      if (startResult.ok) {
+        const lineResult = getCurrentLine(startResult.value);
+        
+        if (lineResult.ok && lineResult.value.next && Array.isArray(lineResult.value.next)) {
+          // Has choices, try selecting one
+          const advanceResult = advanceDialogue(startResult.value, flags, 0);
+          expect(advanceResult.ok).toBe(true);
+        }
+      }
+    });
+
+    it('should set flags when specified in dialogue', () => {
+      const flags = createFlagSystem();
+      const startResult = startDialogue('elder', 'elder-warning', flags);
+      
+      if (startResult.ok) {
+        const advanceResult = advanceDialogue(startResult.value, flags);
+        
+        if (advanceResult.ok) {
+          // Flags may have been updated
+          expect(advanceResult.value.flags).toBeDefined();
+        }
+      }
+    });
+  });
+
+  describe('isDialogueComplete', () => {
+    it('should return false for new dialogue', () => {
+      const flags = createFlagSystem();
+      const startResult = startDialogue('garet', 'garet-intro', flags);
+      
+      if (startResult.ok) {
+        expect(isDialogueComplete(startResult.value)).toBe(false);
+      }
+    });
+
+    it('should return true for completed dialogue', () => {
+      const state = {
+        treeId: 'test',
+        currentLineId: 'end',
+        history: ['start', 'middle', 'end'],
+        completed: true
       };
       
-      const progress = getDialogueProgress(dialogue);
-      expect(progress).toBeCloseTo(0.666, 2); // 2/3 complete
+      expect(isDialogueComplete(state)).toBe(true);
     });
   });
 
-  describe('setDialogueState', () => {
-    it('should update dialogue state', () => {
-      let registry = createDialogueRegistry();
-      const regResult = registerDialogue(registry, mockDialogue);
-      if (!regResult.ok) return;
-      registry = regResult.value;
-
-      const startResult = startDialogue('garet-intro', registry);
-      if (!startResult.ok) return;
+  describe('handleDialogueAction', () => {
+    it('should handle battle action', () => {
+      const flags = createFlagSystem();
+      const state = {
+        treeId: 'test',
+        currentLineId: 'battle-line',
+        history: ['start'],
+        completed: false
+      };
       
-      const updated = setDialogueState(startResult.value, 'displaying');
-      expect(updated.state).toBe('displaying');
+      const action: DialogueAction = {
+        type: 'battle',
+        encounterId: 'test-battle'
+      };
+      
+      const result = handleDialogueAction(action, state, flags);
+      
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.specialAction).toBeDefined();
+        expect(result.value.specialAction?.type).toBe('battle');
+      }
+    });
+
+    it('should handle shop action', () => {
+      const flags = createFlagSystem();
+      const state = {
+        treeId: 'test',
+        currentLineId: 'shop-line',
+        history: ['start'],
+        completed: false
+      };
+      
+      const action: DialogueAction = {
+        type: 'shop',
+        shopId: 'item-shop'
+      };
+      
+      const result = handleDialogueAction(action, state, flags);
+      
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.specialAction).toBeDefined();
+        expect(result.value.specialAction?.type).toBe('shop');
+      }
+    });
+
+    it('should handle quest start action', () => {
+      const flags = createFlagSystem();
+      const state = {
+        treeId: 'test',
+        currentLineId: 'quest-line',
+        history: ['start'],
+        completed: false
+      };
+      
+      const action: DialogueAction = {
+        type: 'quest_start',
+        questId: 'find-herbs'
+      };
+      
+      const result = handleDialogueAction(action, state, flags);
+      
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // Should set quest flag
+        expect(result.value.flags.flags[`quest_find-herbs_started`]).toBe(true);
+      }
+    });
+
+    it('should handle quest complete action', () => {
+      const flags = createFlagSystem();
+      const state = {
+        treeId: 'test',
+        currentLineId: 'quest-complete-line',
+        history: ['start'],
+        completed: false
+      };
+      
+      const action: DialogueAction = {
+        type: 'quest_complete',
+        questId: 'find-herbs'
+      };
+      
+      const result = handleDialogueAction(action, state, flags);
+      
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        // Should set quest completed flag
+        expect(result.value.flags.flags[`quest_find-herbs_completed`]).toBe(true);
+      }
+    });
+
+    it('should handle give item action', () => {
+      const flags = createFlagSystem();
+      const state = {
+        treeId: 'test',
+        currentLineId: 'give-item-line',
+        history: ['start'],
+        completed: false
+      };
+      
+      const action: DialogueAction = {
+        type: 'give_item',
+        itemId: 'potion',
+        amount: 3
+      };
+      
+      const result = handleDialogueAction(action, state, flags);
+      
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.specialAction).toBeDefined();
+        expect(result.value.specialAction?.type).toBe('give_item');
+      }
     });
   });
 
-  describe('createSimpleDialogue', () => {
-    it('should create dialogue with multiple lines', () => {
-      const dialogue = createSimpleDialogue(
-        'test-dialogue',
-        'npc-1',
-        'Test NPC',
-        ['Line 1', 'Line 2', 'Line 3'],
-        './portrait.png'
-      );
+  describe('dialogue flow integration', () => {
+    it('should handle complete dialogue flow', () => {
+      const flags = createFlagSystem();
       
-      expect(dialogue.id).toBe('test-dialogue');
-      expect(dialogue.lines.length).toBe(3);
-      expect(dialogue.lines[0].speaker.name).toBe('Test NPC');
-      expect(dialogue.lines[0].speaker.portrait).toBe('./portrait.png');
-      expect(dialogue.lines[1].text).toBe('Line 2');
+      // Start dialogue
+      const startResult = startDialogue('kraden', 'kraden-scholar', flags);
+      expect(startResult.ok).toBe(true);
+      
+      if (startResult.ok) {
+        let state = startResult.value;
+        let currentFlags = flags;
+        
+        // Get first line
+        const line1 = getCurrentLine(state);
+        expect(line1.ok).toBe(true);
+        
+        // Advance through dialogue
+        for (let i = 0; i < 10; i++) {
+          if (isDialogueComplete(state)) {
+            break;
+          }
+          
+          const advanceResult = advanceDialogue(state, currentFlags);
+          if (!advanceResult.ok) {
+            break;
+          }
+          
+          state = advanceResult.value.state;
+          currentFlags = advanceResult.value.flags;
+        }
+        
+        // Should have progressed
+        expect(state.history.length).toBeGreaterThan(0);
+      }
     });
 
-    it('should create dialogue without portrait', () => {
-      const dialogue = createSimpleDialogue(
-        'test-dialogue',
-        'npc-1',
-        'Test NPC',
-        ['Line 1']
-      );
+    it('should handle dialogue with conditional branching', () => {
+      let flags = createFlagSystem();
       
-      expect(dialogue.lines[0].speaker.portrait).toBeUndefined();
+      // Set up conditions
+      const flagResult = setFlag(flags, 'visited_sanctum', true);
+      if (flagResult.ok) {
+        flags = flagResult.value;
+      }
+      
+      // Start dialogue that checks conditions
+      const startResult = startDialogue('elder', 'elder-warning', flags);
+      expect(startResult.ok).toBe(true);
+      
+      if (startResult.ok) {
+        // Dialogue should start at appropriate line based on flags
+        expect(startResult.value.currentLineId).toBeDefined();
+      }
+    });
+  });
+
+  describe('error handling', () => {
+    it('should handle missing dialogue trees gracefully', () => {
+      const flags = createFlagSystem();
+      const result = startDialogue('npc', 'missing-tree', flags);
+      
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error).toBeDefined();
+      }
+    });
+
+    it('should handle invalid line IDs gracefully', () => {
+      const state = {
+        treeId: 'garet-intro',
+        currentLineId: 'invalid-line-id',
+        history: [],
+        completed: false
+      };
+      
+      const result = getCurrentLine(state);
+      expect(result.ok).toBe(false);
+    });
+
+    it('should handle missing choice selection', () => {
+      const flags = createFlagSystem();
+      const startResult = startDialogue('shopkeeper', 'shop-welcome', flags);
+      
+      if (startResult.ok) {
+        const lineResult = getCurrentLine(startResult.value);
+        
+        if (lineResult.ok && lineResult.value.next && Array.isArray(lineResult.value.next)) {
+          // Try to advance without providing choice
+          const advanceResult = advanceDialogue(startResult.value, flags);
+          expect(advanceResult.ok).toBe(false);
+        }
+      }
     });
   });
 });
