@@ -409,7 +409,7 @@ describe('movementSystem', () => {
         target: { x: 400, y: 160 },
         smoothing: 0
       };
-      const playerPos = { x: 900, y: 320 }; // Near right edge
+      const playerPos = { x: 1800, y: 320 }; // Far right to trigger edge clamp
       
       const updated = updateCamera(camera, playerPos, 16.666);
       

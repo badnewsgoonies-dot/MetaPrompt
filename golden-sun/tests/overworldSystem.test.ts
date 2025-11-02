@@ -197,7 +197,7 @@ describe('overworldSystem', () => {
   describe('findNearestDoor', () => {
     it('should find nearest door', () => {
       const scene = createValeVillageScene();
-      const playerPos = { x: 210, y: 250 }; // Near Isaac's house door
+      const playerPos = { x: 580, y: 465 }; // Near Isaac's house door (576, 460)
       
       const door = findNearestDoor(playerPos, scene, 50);
       
@@ -216,12 +216,12 @@ describe('overworldSystem', () => {
 
     it('should return closest door when multiple in range', () => {
       const scene = createValeVillageScene();
-      const playerPos = { x: 440, y: 195 }; // Near item shop
+      const playerPos = { x: 1340, y: 625 }; // Near item shop (1336, 620)
       
       const door = findNearestDoor(playerPos, scene, 200);
       
       expect(door).not.toBeNull();
-      // Should be item shop (closer)
+      // Should be item shop (closest)
       expect(door?.id).toBe('item-shop-entrance');
     });
   });
