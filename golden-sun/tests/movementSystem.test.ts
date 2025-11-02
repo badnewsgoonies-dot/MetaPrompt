@@ -405,11 +405,11 @@ describe('movementSystem', () => {
 
     it('should clamp camera at right edge of scene', () => {
       const camera: Camera = {
-        position: { x: 400, y: 160 },
-        target: { x: 400, y: 160 },
+        position: { x: 800, y: 320 },
+        target: { x: 800, y: 320 },
         smoothing: 0
       };
-      const playerPos = { x: 900, y: 320 }; // Near right edge
+      const playerPos = { x: 1800, y: 640 }; // Near right edge (scaled 2x for expanded scene)
       
       const updated = updateCamera(camera, playerPos, 16.666);
       
